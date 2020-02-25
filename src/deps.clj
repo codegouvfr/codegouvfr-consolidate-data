@@ -26,7 +26,7 @@
         :body
         h/parse
         h/as-hickory
-        (as-> dps (hs/select (hs/child (hs/id :__NEXT_DATA__)) dps))
+        (as-> dps (hs/select (hs/id "__NEXT_DATA__") dps))
         first
         :content
         first
