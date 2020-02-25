@@ -60,4 +60,4 @@
                               (if (.exists (io/file f))
                                 (not (empty? (json/parse-string (slurp f)))))))
                 orgas)))
-    (println (str "updated orgas.json"))))
+    (println (str "Updated orgas.json"))))

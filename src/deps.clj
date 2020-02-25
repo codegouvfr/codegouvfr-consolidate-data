@@ -76,7 +76,7 @@
             (swap! repos-deps (partial apply conj) orga-repos))))
       (spit (str "deps/repos-deps.json")
             (json/generate-string @repos-deps))
-      (println (str "updated orgas dependencies and "
+      (println (str "Updated orgas dependencies and "
                     (count @repos-deps) " repos dependencies")))
     (println "No orgas.json file")))
 
