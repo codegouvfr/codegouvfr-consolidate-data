@@ -3,7 +3,8 @@
 ;; License-Filename: LICENSE
 
 (ns core
-  (:require [repos :as repos]))
+  (:require [repos :as repos])
+  (:gen-class))
 
 (defn -main [& args]
   (repos/update-repos)
