@@ -1,3 +1,7 @@
+;; Copyright (c) 2020 DINUM, Bastien Guerry <bastien.guerry@data.gouv.fr>
+;; SPDX-License-Identifier: EPL-2.0
+;; License-Filename: LICENSE
+
 {:deps {org.clojure/clojure             {:mvn/version "1.10.1"}
         org.martinklepsch/clj-http-lite {:mvn/version "0.4.3"}
         cheshire                        {:mvn/version "5.10.0"}
