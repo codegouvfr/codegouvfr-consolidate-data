@@ -6,12 +6,8 @@
   (:require  [cheshire.core :as json]
              [semantic-csv.core :as semantic-csv]
              [clj-http.lite.client :as http]
-             [ring.util.codec :as codec]
              [clojure.java.io :as io]
-             [clojure.string :as s]
-             [clojure.set]
-             [hickory.core :as h]
-             [hickory.select :as hs])
+             [clojure.set])
   (:gen-class))
 
 (defonce http-get-params {:cookie-policy :standard})

@@ -4,10 +4,7 @@
 
 (ns deps
   (:require  [cheshire.core :as json]
-             [semantic-csv.core :as semantic-csv]
              [clj-http.lite.client :as http]
-             [ring.util.codec :as codec]
-             [clojure.java.io :as io]
              [clojure.string :as s]
              [clojure.set]
              [hickory.core :as h]
@@ -15,13 +12,6 @@
   (:gen-class))
 
 (defonce http-get-params {:cookie-policy :standard})
-
-(defonce
-  ^{:doc "A list of repositories dependencies, updated by the fonction
-  `update-orgas-repos-deps` and stored for further retrieval in
-  `update-deps`."}
-  repos-deps
-  (atom nil))
 
 (defn get-deps
   "Scrap backyourstack to get dependencies of an organization."
@@ -71,11 +61,33 @@
    (map #(apply (partial merge-with merge-colls) %))
    (map #(assoc % :rs (count (:rs %))))))
 
+(defn update-orgas-repos-deps
+  "Generate deps/orgas/* and deps/repos-deps.json."
+  []
+  (if-let [orgas (try (json/parse-string (slurp "orgas.json") true)
+                      (catch Exception e nil))]
+    (let [repos-deps (atom nil)]
+      (doseq [orga (map :l (filter #(= (:p %) "GitHub") orgas))]
+        (if-let [data (get-deps orga)]
+          (let [orga-deps  (sequence extract-orga-deps (:dependencies data))
+                orga-repos (sequence (extract-deps-repos orga) (:repos data))]
+            (spit (str "deps/orgas/" (s/lower-case orga) ".json")
+                  (json/generate-string orga-deps))
+            (swap! repos-deps (partial apply conj) orga-repos))))
+      (spit (str "deps/repos-deps.json")
+            (json/generate-string @repos-deps))
+      (println (str "updated orgas dependencies and "
+                    (count @repos-deps) " repos dependencies")))
+    (println "No orgas.json file")))
+
 (defn update-deps
   "Generate deps/deps*.json."
   []
   (let [deps (atom nil)]
-    (doseq [repo @repos-deps :let [r-deps (:d repo)]]
+    (doseq [repo (json/parse-string (try (slurp "deps/repos-deps.json")
+                                         (catch Exception e nil))
+                                    true)
+            :let [r-deps (:d repo)]]
       (doseq [d0   r-deps
               :let [d (apply dissoc d0 [:core :dev :peer :engines])]]
         (swap! deps conj (assoc d :rs (vector (dissoc repo :d))))))
@@ -86,5 +98,6 @@
           (json/generate-string {:deps-total (count @deps)}))
     (spit "deps/deps-top.json"
           (json/generate-string (take 100 @deps)))
-    (println (str "updated deps-top and deps-total ("
+    (println (str "Updated deps-top and deps-total ("
                   (count @deps) ")"))))
+

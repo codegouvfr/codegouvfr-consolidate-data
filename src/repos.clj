@@ -4,13 +4,9 @@
 
 (ns repos
   (:require  [cheshire.core :as json]
-             [semantic-csv.core :as semantic-csv]
              [clj-http.lite.client :as http]
-             [ring.util.codec :as codec]
              [clojure.string :as s]
-             [clojure.set]
-             [hickory.core :as h]
-             [hickory.select :as hs])
+             [clojure.set])
   (:gen-class))
 
 (defonce http-get-params {:cookie-policy :standard})
@@ -74,14 +70,17 @@
    "Creative Commons Attribution 4.0 International"             "Creative Commons Attribution 4.0 International (CC-BY-4.0)"})
 
 (defn cleanup-repos []
-  (let [emojis (emojis)]
+  (let [emojis     (emojis)
+        repos-deps (json/parse-string
+                    (try (slurp "deps/repos-deps.json")
+                         (catch Exception e nil))
+                    true)]
     (comp
      (map #(clojure.set/rename-keys (select-keys % (keys repos-mapping)) repos-mapping))
      (map (fn [r] (assoc
                    r
                    :li (get licenses-mapping (:li r))
-                   ;; :dp (not (empty? (first (filter #(= (:n %) (:n r))
-                   ;;                                 @repos-deps))))
+                   :dp (not (empty? (first (filter #(= (:n %) (:n r)) repos-deps))))
                    )))
      (map (fn [r] (update
                    r
@@ -105,8 +104,6 @@
               true)]
     (spit "repos.json"
           (json/generate-string
-           (sequence (cleanup-repos) repos-json)
-           ;; repos-json
-           ))
+           (sequence (cleanup-repos) repos-json)))
     (println "Updated repos.json")))
 

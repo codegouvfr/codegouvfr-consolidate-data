@@ -5,17 +5,13 @@
 (ns core
   (:require [repos :as repos]
             [orgas :as orgas]
-            [deps :as deps]
-            [cheshire.core :as json]
-            [clojure.string :as s])
+            [deps :as deps])
   (:gen-class))
 
 (defn -main [& args]
-  ;; (deps/update-orgas-repos-deps)
-  ;; (deps/update-deps)
-  (repos/update-repos)
   (orgas/update-orgas)
+  (deps/update-orgas-repos-deps)
+  (deps/update-deps)
+  (repos/update-repos)
+  (orgas/update-orgas) ;; run twice to get dependencies right
   (println "Created codegouvfr json files"))
-
-;; (-main)
-
