@@ -11,12 +11,14 @@
 
  :aliases {:native-image
            {:main-opts ["-m clj.native-image core"
+                        ;; "--verbose"
+                        "--no-fallback"
                         "--report-unsupported-elements-at-runtime"
                         "--initialize-at-build-time"
-                        ;; Allow https get
-                        " -H:EnableURLProtocols=https"
-                        ;; Display backtraces
-                        "-H:+ReportExceptionStackTraces"
+                        ;; Allow https
+                        "-H:EnableURLProtocols=http,https"
+                        ;; "-H:+ReportExceptionStackTraces"
+                        ;; "-H:+TraceClassInitialization"
                         ;; Optional native image name override
                         "-H:Name=codegouvfr-data"]
             :jvm-opts  ["-Dclojure.compiler.direct-linking=true"]
