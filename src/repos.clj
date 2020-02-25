@@ -13,29 +13,24 @@
              [hickory.select :as hs])
   (:gen-class))
 
-(defonce
-  ^{:doc "The URL from where to fetch repository data."}
-  repos-url
-  "https://api-code.etalab.gouv.fr/api/repertoires/all")
-
-(defonce
-  ^{:doc "The URL to get emoji char/name pairs."}
-  emoji-json-url
-  "https://raw.githubusercontent.com/amio/emoji.json/master/emoji.json")
-
-(defonce
-  ^{:doc "A map of emoji with {:char \"\" :name \"\"."}
-  emoji-json
-  (->> (json/parse-string (:body (http/get emoji-json-url)) true)
-       (map #(select-keys % [:char :name]))
-       (map #(update % :name (fn [n] (str ":" (s/replace n " " "_") ":"))))))
-
 (defonce http-get-params {:cookie-policy :standard})
 
-;; (defonce
-;;   ^{:doc "A list of keywords to ignore when generating orgas/[orga].json."}
-;;   deps-rm-kws
-;;   [:private :default_branch :language :id :checked :owner :full_name])
+(defonce repos-url
+  "https://api-code.etalab.gouv.fr/api/repertoires/all")
+
+(defonce emoji-json-url
+  "https://raw.githubusercontent.com/amio/emoji.json/master/emoji.json")
+
+(defn emojis
+  "A map of emojis with {:char \"\" :name \"\"}."
+  []
+  (->> (json/parse-string (:body
+                           (try
+                             (http/get emoji-json-url http-get-params)
+                             (catch Exception e (println "Can't reach emoji-json-url"))))
+                          true)
+       (map #(select-keys % [:char :name]))
+       (map #(update % :name (fn [n] (str ":" (s/replace n " " "_") ":"))))))
 
 ;; Ignore these keywords
 ;; :software_heritage_url :software_heritage_exists :derniere_modification
@@ -78,36 +73,40 @@
    "Do What The Fuck You Want To Public License"                "Do What The Fuck You Want To Public License (WTFPL)"
    "Creative Commons Attribution 4.0 International"             "Creative Commons Attribution 4.0 International (CC-BY-4.0)"})
 
-(def cleanup-repos
-  (comp
-   (distinct)
-   (map #(clojure.set/rename-keys (select-keys % (keys repos-mapping)) repos-mapping))
-   (map (fn [r] (assoc
-                 r
-                 :li (get licenses-mapping (:li r))
-                 ;; :dp (not (empty? (first (filter #(= (:n %) (:n r))
-                 ;;                                 @repos-deps))))
-                 )))
-   (map (fn [r] (update
-                 r
-                 :d
-                 (fn [d]
-                   (let [desc (atom d)]
-                     (doseq [e emoji-json]
-                       (swap! desc (fn [x]
-                                     (when (string? x)
-                                       (s/replace x (:name e) (:char e))))))
-                     @desc)))))))
+(defn cleanup-repos []
+  (let [emojis (emojis)]
+    (comp
+     (map #(clojure.set/rename-keys (select-keys % (keys repos-mapping)) repos-mapping))
+     (map (fn [r] (assoc
+                   r
+                   :li (get licenses-mapping (:li r))
+                   ;; :dp (not (empty? (first (filter #(= (:n %) (:n r))
+                   ;;                                 @repos-deps))))
+                   )))
+     (map (fn [r] (update
+                   r
+                   :d
+                   (fn [d]
+                     (let [desc (atom d)]
+                       (doseq [e emojis]
+                         (swap! desc (fn [x]
+                                       (when (string? x)
+                                         (s/replace x (:name e) (:char e))))))
+                       @desc))))))))
 
 (defn update-repos
   "Generate repos.json from `repos-url`."
   []
   (when-let [repos-json
-             (try (json/parse-string
-                   (:body (http/get repos-url)) true)
-                  (catch Exception e
-                    (println "Can't reach repos-url")))]
+             (json/parse-string
+              (:body (try (http/get repos-url http-get-params)
+                          (catch Exception e
+                            (println "Can't reach repos-url"))))
+              true)]
     (spit "repos.json"
           (json/generate-string
-           (sequence cleanup-repos repos-json)))
+           (sequence (cleanup-repos) repos-json)
+           ;; repos-json
+           ))
     (println "Updated repos.json")))
+
