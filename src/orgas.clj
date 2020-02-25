@@ -14,6 +14,8 @@
              [hickory.select :as hs])
   (:gen-class))
 
+(defonce http-get-params {:cookie-policy :standard})
+
 (defonce orgas-url
   "https://api-code.etalab.gouv.fr/api/organisations/all")
 
@@ -37,37 +39,23 @@
    :organisation_url   :o
    :avatar_url         :au})
 
-;; FIXME: delete this
-(defonce
-  ^{:doc "The parsed output of retrieving orgas-url, updated by the fonction
-  `update-orgas-json` and stored for further retrieval in
-  `update-orgas` and `update-orgas-repos-deps`."}
-  orgas-json
-  (atom nil))
-
-(defn update-orgas-json
-  "Reset `orgas-json` from `orgas-url`."
-  []
-  (let [old-orgas-json @orgas-json
-        result
-        (try (:body (http/get orgas-url))
-             (catch Exception e
-               (do (println (str "Can't get groups: "
-                                 (:cause (Throwable->map e))))
-                   old-orgas-json)))]
-    (reset! orgas-json (distinct (json/parse-string result true))))
-  (println (str "updated @orgas-json (" (count @orgas-json) " organisations)")))
-
 (defn update-orgas
   "Generate orgas.json from `orgas-json` and `annuaire-url`."
   []
-  (when-let [annuaire (apply merge
-                             (map #(let [{:keys [github lannuaire]} %]
-                                     {(keyword github) lannuaire})
-                                  (try (semantic-csv/slurp-csv annuaire-url)
-                                       (catch Exception e
-                                         (println
-                                          "Can't reach annuaire-url")))))]
+  (let [annuaire (apply merge
+                        (map #(let [{:keys [github lannuaire]} %]
+                                {(keyword github) lannuaire})
+                             (try (semantic-csv/slurp-csv annuaire-url)
+                                  (catch Exception e
+                                    (println
+                                     "Can't reach annuaire-url")))))
+        orgas    (map
+                  #(clojure.set/rename-keys % orgas-mapping)
+                  (json/parse-string
+                   (:body (try (http/get orgas-url http-get-params)
+                               (catch Exception e
+                                 (println "Can't reach orgas-url"))))
+                   true))]
     (spit "orgas.json"
           (json/generate-string
            (map #(assoc %
@@ -75,7 +63,5 @@
                         :dp (let [f (str "deps/orgas/" (:l %) ".json")]
                               (if (.exists (io/file f))
                                 (not (empty? (json/parse-string (slurp f)))))))
-                (map #(clojure.set/rename-keys % orgas-mapping)
-                     @orgas-json))))
+                orgas)))
     (println (str "updated orgas.json"))))
-
