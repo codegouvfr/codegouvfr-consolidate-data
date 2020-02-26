@@ -87,7 +87,7 @@
       (spit (str "deps/deps-repos.json")
             (json/generate-string
              (map (fn [[k v]]
-                    {k (apply (partial merge-with merge-colls-or-add) v)})
+                    (apply (partial merge-with merge-colls-or-add) v))
                   (group-by :name @orgas-deps))))
       ;; All dependencies grouped by repos
       (spit (str "deps/repos-deps.json")
