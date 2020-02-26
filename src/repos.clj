@@ -6,7 +6,9 @@
   (:require  [cheshire.core :as json]
              [clj-http.lite.client :as http]
              [clojure.string :as s]
-             [clojure.set])
+             [clojure.set]
+             [hickory.core :as h]
+             [hickory.select :as hs])
   (:gen-class))
 
 (defonce http-get-params {:cookie-policy :standard})
@@ -16,17 +18,6 @@
 
 (defonce emoji-json-url
   "https://raw.githubusercontent.com/amio/emoji.json/master/emoji.json")
-
-(defn emojis
-  "A map of emojis with {:char \"\" :name \"\"}."
-  []
-  (->> (json/parse-string (:body
-                           (try
-                             (http/get emoji-json-url http-get-params)
-                             (catch Exception e (println "Can't reach emoji-json-url"))))
-                          true)
-       (map #(select-keys % [:char :name]))
-       (map #(update % :name (fn [n] (str ":" (s/replace n " " "_") ":"))))))
 
 ;; Ignore these keywords
 ;; :software_heritage_url :software_heritage_exists :derniere_modification
@@ -69,29 +60,62 @@
    "Do What The Fuck You Want To Public License"                "Do What The Fuck You Want To Public License (WTFPL)"
    "Creative Commons Attribution 4.0 International"             "Creative Commons Attribution 4.0 International (CC-BY-4.0)"})
 
-(defn cleanup-repos []
+(defn emojis
+  "A map of emojis with {:char \"\" :name \"\"}."
+  []
+  (->> (json/parse-string (:body
+                           (try
+                             (http/get emoji-json-url http-get-params)
+                             (catch Exception e (println "Can't reach emoji-json-url"))))
+                          true)
+       (map #(select-keys % [:char :name]))
+       (map #(update % :name (fn [n] (str ":" (s/replace n " " "_") ":"))))))
+
+(defn get-reused-by
+  "Return a hash-map with repo and repos/packages reusing it."
+  [repo]
+  (when-let [repo-github-html
+             (try (http/get (str repo "/network/dependents")
+                            http-get-params)
+                  (catch Exception e nil))]
+    (let [btn-links (-> repo-github-html
+                        :body
+                        h/parse
+                        h/as-hickory
+                        (as-> d (hs/select (hs/class "btn-link") d)))
+          nb-reps   (try (re-find #"\d+" (last (:content (nth btn-links 1))))
+                         (catch Exception e "0"))
+          nb-pkgs   (try (re-find #"\d+" (last (:content (nth btn-links 2))))
+                         (catch Exception e "0"))]
+      {:r repo :x (Integer. nb-reps) :y (Integer. nb-pkgs)})))
+
+(defn cleanup-repos
+  "Transducer to clean up repositories data."
+  []
   (let [emojis     (emojis)
         repos-deps (json/parse-string
                     (try (slurp "deps/repos-deps.json")
                          (catch Exception e nil))
                     true)]
     (comp
-     (map #(clojure.set/rename-keys (select-keys % (keys repos-mapping)) repos-mapping))
-     (map (fn [r] (assoc
-                   r
+     (map #(clojure.set/rename-keys
+            (select-keys % (keys repos-mapping)) repos-mapping))
+     (map (fn [r]
+            (assoc r
                    :li (get licenses-mapping (:li r))
-                   :dp (not (empty? (first (filter #(= (:n %) (:n r)) repos-deps))))
-                   )))
-     (map (fn [r] (update
-                   r
-                   :d
-                   (fn [d]
-                     (let [desc (atom d)]
-                       (doseq [e emojis]
-                         (swap! desc (fn [x]
-                                       (when (string? x)
-                                         (s/replace x (:name e) (:char e))))))
-                       @desc))))))))
+                   :dp (not (empty?
+                             (first
+                              (filter #(= (:n %) (:n r)) repos-deps)))))))
+     (map (fn [r]
+            (update r
+                    :d
+                    (fn [d]
+                      (let [desc (atom d)]
+                        (doseq [e emojis]
+                          (swap! desc (fn [x]
+                                        (when (string? x)
+                                          (s/replace x (:name e) (:char e))))))
+                        @desc))))))))
 
 (defn update-repos
   "Generate repos.json from `repos-url`."
@@ -102,8 +126,14 @@
                           (catch Exception e
                             (println "Can't reach repos-url"))))
               true)]
-    (spit "repos.json"
-          (json/generate-string
-           (sequence (cleanup-repos) repos-json)))
+    (let [repos-reused-by
+          (map get-reused-by (map :repertoire_url repos-json))]
+      (spit "repos.json"
+            (json/generate-string
+             (filter not-empty
+                     (map (fn [[k v]] (apply merge v))
+                          (group-by
+                           :r (concat
+                               (sequence (cleanup-repos) repos-json)
+                               repos-reused-by)))))))
     (println "Updated repos.json")))
-
