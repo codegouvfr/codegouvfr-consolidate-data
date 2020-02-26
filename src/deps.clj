@@ -56,24 +56,42 @@
 (defn merge-colls [a b]
   (if (and (coll? a) (coll? b)) (into a b) b))
 
+(defn merge-colls-or-add [a b]
+  (cond (and (coll? a) (coll? b))       (into a b)
+        (and (integer? a) (integer? b)) (+ a b)
+        :else
+        b))
+
 (defonce reduce-deps
   (comp
    (map #(apply (partial merge-with merge-colls) %))
-   (map #(assoc % :rs (count (:rs %))))))
+   (map #(assoc % :rs (count (:rs %))))
+   (sort-by :rs)
+   (reverse)))
 
 (defn update-orgas-repos-deps
   "Generate deps/orgas/* and deps/repos-deps.json."
   []
   (if-let [orgas (try (json/parse-string (slurp "orgas.json") true)
                       (catch Exception e nil))]
-    (let [repos-deps (atom nil)]
+    (let [orgas-deps (atom nil)
+          repos-deps (atom nil)]
+      ;; Loop over GitHub orgas with a login
       (doseq [orga (map :l (filter #(= (:p %) "GitHub") orgas))]
         (if-let [data (get-deps orga)]
           (let [orga-deps  (sequence extract-orga-deps (:dependencies data))
                 orga-repos (sequence (extract-deps-repos orga) (:repos data))]
+            (swap! orgas-deps (partial apply conj) orga-deps)
+            (swap! repos-deps (partial apply conj) orga-repos)
             (spit (str "deps/orgas/" (s/lower-case orga) ".json")
-                  (json/generate-string orga-deps))
-            (swap! repos-deps (partial apply conj) orga-repos))))
+                  (json/generate-string orga-deps)))))
+      ;; All dependencies grouped by deps
+      (spit (str "deps/deps-repos.json")
+            (json/generate-string
+             (map (fn [[k v]]
+                    {k (apply (partial merge-with merge-colls-or-add) v)})
+                  (group-by :name @orgas-deps))))
+      ;; All dependencies grouped by repos
       (spit (str "deps/repos-deps.json")
             (json/generate-string @repos-deps))
       (println (str "Updated orgas dependencies and "
@@ -81,7 +99,7 @@
     (println "No orgas.json file")))
 
 (defn update-deps
-  "Generate deps/deps*.json."
+  "Generate deps/deps-total.json and deps/deps-top.json."
   []
   (let [deps (atom nil)]
     (doseq [repo (json/parse-string (try (slurp "deps/repos-deps.json")
@@ -91,13 +109,10 @@
       (doseq [d0   r-deps
               :let [d (apply dissoc d0 [:core :dev :peer :engines])]]
         (swap! deps conj (assoc d :rs (vector (dissoc repo :d))))))
-    (reset! deps
-            (reverse (sort-by :rs (sequence reduce-deps
-                                            (vals (group-by :n @deps))))))
+    (reset! deps (sequence reduce-deps (vals (group-by :n @deps))))
     (spit "deps/deps-total.json"
           (json/generate-string {:deps-total (count @deps)}))
     (spit "deps/deps-top.json"
           (json/generate-string (take 100 @deps)))
-    (println (str "Updated deps-top and deps-total ("
-                  (count @deps) ")"))))
-
+    (println
+     (str "Updated deps-top and deps-total (" (count @deps) ")"))))
