@@ -65,9 +65,7 @@
 (defonce reduce-deps
   (comp
    (map #(apply (partial merge-with merge-colls) %))
-   (map #(assoc % :rs (count (:rs %))))
-   (sort-by :rs)
-   (reverse)))
+   (map #(assoc % :rs (count (:rs %))))))
 
 (defn update-orgas-repos-deps
   "Generate deps/orgas/* and deps/repos-deps.json."
@@ -109,7 +107,10 @@
       (doseq [d0   r-deps
               :let [d (apply dissoc d0 [:core :dev :peer :engines])]]
         (swap! deps conj (assoc d :rs (vector (dissoc repo :d))))))
-    (reset! deps (sequence reduce-deps (vals (group-by :n @deps))))
+    (reset!
+     deps
+     (reverse
+      (sort-by :rs (sequence reduce-deps (vals (group-by :n @deps))))))
     (spit "deps/deps-total.json"
           (json/generate-string {:deps-total (count @deps)}))
     (spit "deps/deps-top.json"
