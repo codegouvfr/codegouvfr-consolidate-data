@@ -89,7 +89,7 @@
           nb-pkgs   (or (try (re-find #"\d+" (last (:content (nth btn-links 2))))
                              (catch Exception e "0"))
                         0)]
-      {:r repo :g (+ (Integer. nb-reps) (Integer. nb-pkgs))})))
+      {:r repo :g (+ (Integer/parseInt nb-reps) (Integer/parseInt nb-pkgs))})))
 
 (defn cleanup-repos
   "Transducer to clean up repositories data."
