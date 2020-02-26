@@ -83,11 +83,13 @@
                         h/parse
                         h/as-hickory
                         (as-> d (hs/select (hs/class "btn-link") d)))
-          nb-reps   (try (re-find #"\d+" (last (:content (nth btn-links 1))))
-                         (catch Exception e "0"))
-          nb-pkgs   (try (re-find #"\d+" (last (:content (nth btn-links 2))))
-                         (catch Exception e "0"))]
-      {:r repo :x (Integer. nb-reps) :y (Integer. nb-pkgs)})))
+          nb-reps   (or (try (re-find #"\d+" (last (:content (nth btn-links 1))))
+                             (catch Exception e "0"))
+                        0)
+          nb-pkgs   (or (try (re-find #"\d+" (last (:content (nth btn-links 2))))
+                             (catch Exception e "0"))
+                        0)]
+      {:r repo :g (+ (Integer. nb-reps) (Integer. nb-pkgs))})))
 
 (defn cleanup-repos
   "Transducer to clean up repositories data."
