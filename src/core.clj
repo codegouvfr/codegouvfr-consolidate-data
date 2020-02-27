@@ -9,7 +9,8 @@
   (:gen-class))
 
 (defn -main [& args]
-  (orgas/update-orgas)
+  (orgas/init-orgas)
+  (repos/init-repos)
   (deps/update-orgas-repos-deps)
   (deps/update-deps)
   (repos/update-repos)

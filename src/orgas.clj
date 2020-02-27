@@ -35,8 +35,8 @@
    :organisation_url   :o
    :avatar_url         :au})
 
-(defn update-orgas
-  "Generate orgas.json from `orgas-json` and `annuaire-url`."
+(defn init-orgas
+  "Generate orgas.json from `orgas-url` and `annuaire-url`."
   []
   (let [annuaire (apply merge
                         (map #(let [{:keys [github lannuaire]} %]
@@ -54,10 +54,17 @@
                    true))]
     (spit "orgas.json"
           (json/generate-string
-           (map #(assoc %
-                        :an ((keyword (:l %)) annuaire)
-                        :dp (let [f (str "deps/orgas/" (:l %) ".json")]
-                              (if (.exists (io/file f))
-                                (not (empty? (json/parse-string (slurp f)))))))
-                orgas)))
-    (println (str "Updated orgas.json"))))
+           (map #(assoc % :an ((keyword (:l %)) annuaire)) orgas)))))
+
+(defn update-orgas
+  "Update orgas.json."
+  []
+  (spit "orgas.json"
+        (json/generate-string
+         (map #(assoc % :dp (json/parse-string
+                             (try (slurp (str "deps/orgas/" (:l %) ".json"))
+                                  (catch Exception e nil))))
+              (json/parse-string (try (slurp "orgas.json")
+                                      (catch Exception e nil))
+                                 true))))
+  (println (str "Updated orgas.json")))

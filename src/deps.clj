@@ -105,13 +105,13 @@
                                             (:r %) (:full_name r)) repos)))
                          (:repos dep)))
                    {:type :t :name :n :repos :rs}))
-                orgas-deps)))
-    ;; Spit the short version no repositories
+                @orgas-deps)))
+    ;; Spit the short version with no repositories
     (spit (str "deps/deps.json")
           (json/generate-string
            (map (fn [d] (clojure.set/rename-keys
                          d {:type :t :name :n :core :c :dev :d}))
-                (map #(dissoc % :repos) orgas-deps))))
+                (map #(dissoc % :repos) @orgas-deps))))
     ;; All dependencies grouped by repos
     (spit (str "deps/repos-deps.json")
           (json/generate-string @repos-deps))
