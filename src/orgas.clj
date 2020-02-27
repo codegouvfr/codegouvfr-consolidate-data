@@ -44,13 +44,13 @@
                              (try (semantic-csv/slurp-csv annuaire-url)
                                   (catch Exception e
                                     (println
-                                     "Can't reach annuaire-url")))))
+                                     "ERROR: Can't reach annuaire-url")))))
         orgas    (map
                   #(clojure.set/rename-keys % orgas-mapping)
                   (json/parse-string
                    (:body (try (http/get orgas-url http-get-params)
                                (catch Exception e
-                                 (println "Can't reach orgas-url"))))
+                                 (println "ERROR: Can't reach orgas-url"))))
                    true))]
     (spit "orgas.json"
           (json/generate-string

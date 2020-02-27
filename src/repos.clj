@@ -66,7 +66,8 @@
   (->> (json/parse-string (:body
                            (try
                              (http/get emoji-json-url http-get-params)
-                             (catch Exception e (println "Can't reach emoji-json-url"))))
+                             (catch Exception e
+                               (println "ERROR: Can't reach emoji-json-url"))))
                           true)
        (map #(select-keys % [:char :name]))
        (map #(update % :name (fn [n] (str ":" (s/replace n " " "_") ":"))))))
@@ -123,17 +124,22 @@
   "Generate repos.json from `repos-url`."
   []
   (spit "repos.json"
-        (json/parse-string
-         (:body (try (http/get repos-url http-get-params)
-                     (catch Exception e
-                       (println "Can't reach repos-url"))))
-         true)))
+        (json/generate-string
+         (sequence
+          (cleanup-repos)
+          (json/parse-string
+           (:body (try (http/get repos-url http-get-params)
+                       (catch Exception e
+                         (println "ERROR: Can't reach repos-url"))))
+           true)))))
 
 (defn update-repos
   "Update repos.json with reused-by info."
   []
-  (let [repos-json (json/parse-string (try (slurp "repos.json")
-                                           (catch Exception e nil)))
+  (let [repos-json (json/parse-string
+                    (try (slurp "repos.json")
+                         (catch Exception e nil))
+                    true)
         repos-reused-by
         (map get-reused-by (map :repertoire_url repos-json))]
     (spit "repos.json"
@@ -141,7 +147,5 @@
            (filter not-empty
                    (map (fn [[k v]] (apply merge v))
                         (group-by
-                         :r (concat
-                             (sequence (cleanup-repos) repos-json)
-                             repos-reused-by)))))))
+                         :r (concat repos-json repos-reused-by)))))))
   (println "Updated repos.json"))
