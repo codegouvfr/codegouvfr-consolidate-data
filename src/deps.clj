@@ -80,15 +80,22 @@
           (let [orga-deps  (sequence extract-orga-deps (:dependencies data))
                 orga-repos (sequence (extract-deps-repos orga) (:repos data))]
             (swap! orgas-deps (partial apply conj) orga-deps)
+            (reset! orgas-deps
+                    (map (fn [[k v]]
+                           (apply (partial merge-with merge-colls-or-add) v))
+                         (group-by :name @orgas-deps)))
             (swap! repos-deps (partial apply conj) orga-repos)
             (spit (str "deps/orgas/" (s/lower-case orga) ".json")
                   (json/generate-string orga-deps)))))
       ;; All dependencies grouped by deps
       (spit (str "deps/deps-repos.json")
+            (json/generate-string orgas-deps))
+      ;; Short version with no repositories
+      (spit (str "deps/deps.json")
             (json/generate-string
-             (map (fn [[k v]]
-                    (apply (partial merge-with merge-colls-or-add) v))
-                  (group-by :name @orgas-deps))))
+             (map (clojure.set/rename-keys
+                   % {:type :t :name :n :core :c :dev :d})
+                  (map #(dissoc :repos %) orgas-deps))))
       ;; All dependencies grouped by repos
       (spit (str "deps/repos-deps.json")
             (json/generate-string @repos-deps))
