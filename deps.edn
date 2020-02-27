@@ -6,8 +6,7 @@
         org.martinklepsch/clj-http-lite {:mvn/version "0.4.3"}
         cheshire                        {:mvn/version "5.10.0"}
         hickory                         {:mvn/version "0.7.1"}
-        semantic-csv                    {:mvn/version "0.2.0"}
-        ring/ring-codec                 {:mvn/version "1.1.2"}}
+        semantic-csv                    {:mvn/version "0.2.0"}}
 
  :aliases {:native-image
            {:main-opts ["-m clj.native-image core"
