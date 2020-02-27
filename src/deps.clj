@@ -70,8 +70,14 @@
 (defn update-orgas-repos-deps
   "Generate deps/orgas/* and deps/repos-deps.json."
   []
-  (if-let [orgas (try (json/parse-string (slurp "orgas.json") true)
-                      (catch Exception e nil))]
+  (if-let [orgas (json/parse-string
+                  (try (slurp "orgas.json")
+                       (catch Exception e nil))
+                  true)
+           repos (json/parse-string
+                  (try (slurp "repos.json")
+                       (catch Exception e nil))
+                  true)]
     (let [orgas-deps (atom nil)
           repos-deps (atom nil)]
       ;; Loop over GitHub orgas with a login
@@ -89,7 +95,15 @@
                   (json/generate-string orga-deps)))))
       ;; All dependencies grouped by deps
       (spit (str "deps/deps-repos.json")
-            (json/generate-string orgas-deps))
+            (json/generate-string
+             (map (fn [dep]
+                    (assoc
+                     dep :repos
+                     (map (fn [r]
+                            (first (filter #(s/includes?
+                                             (:r %) (:full_name r)) repos)))
+                          (:repos dep))))
+                  orgas-deps)))
       ;; Short version with no repositories
       (spit (str "deps/deps.json")
             (json/generate-string
@@ -107,9 +121,10 @@
   "Generate deps/deps-total.json and deps/deps-top.json."
   []
   (let [deps (atom nil)]
-    (doseq [repo (json/parse-string (try (slurp "deps/repos-deps.json")
-                                         (catch Exception e nil))
-                                    true)
+    (doseq [repo (json/parse-string
+                  (try (slurp "deps/repos-deps.json")
+                       (catch Exception e nil))
+                  true)
             :let [r-deps (:d repo)]]
       (doseq [d0   r-deps
               :let [d (apply dissoc d0 [:core :dev :peer :engines])]]
