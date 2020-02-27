@@ -70,51 +70,53 @@
 (defn update-orgas-repos-deps
   "Generate deps/orgas/* and deps/repos-deps.json."
   []
-  (if-let [orgas (json/parse-string
-                  (try (slurp "orgas.json")
-                       (catch Exception e nil))
-                  true)
-           repos (json/parse-string
-                  (try (slurp "repos.json")
-                       (catch Exception e nil))
-                  true)]
-    (let [orgas-deps (atom nil)
-          repos-deps (atom nil)]
-      ;; Loop over GitHub orgas with a login
-      (doseq [orga (map :l (filter #(= (:p %) "GitHub") orgas))]
-        (if-let [data (get-deps orga)]
-          (let [orga-deps  (sequence extract-orga-deps (:dependencies data))
-                orga-repos (sequence (extract-deps-repos orga) (:repos data))]
-            (swap! orgas-deps (partial apply conj) orga-deps)
-            (reset! orgas-deps
-                    (map (fn [[k v]]
-                           (apply (partial merge-with merge-colls-or-add) v))
-                         (group-by :name @orgas-deps)))
-            (swap! repos-deps (partial apply conj) orga-repos)
-            (spit (str "deps/orgas/" (s/lower-case orga) ".json")
-                  (json/generate-string orga-deps)))))
-      ;; All dependencies grouped by deps
-      (spit (str "deps/deps-repos.json")
-            (json/generate-string
-             (map (fn [dep]
-                    (assoc
-                     dep :repos
-                     (map (fn [r]
-                            (first (filter #(s/includes?
-                                             (:r %) (:full_name r)) repos)))
-                          (:repos dep))))
-                  orgas-deps)))
-      ;; Short version with no repositories
-      (spit (str "deps/deps.json")
-            (json/generate-string
-             (map (fn [d] (clojure.set/rename-keys
-                           d {:type :t :name :n :core :c :dev :d}))
-                  (map #(dissoc % :repos) orgas-deps))))
-      ;; All dependencies grouped by repos
-      (spit (str "deps/repos-deps.json")
-            (json/generate-string @repos-deps))
-      (println (str "Updated orgas dependencies and "
-                    (count @repos-deps) " repos dependencies")))
+  (let [orgas      (json/parse-string
+                    (try (slurp "orgas.json")
+                         (catch Exception e nil))
+                    true)
+        repos      (json/parse-string
+                    (try (slurp "repos.json")
+                         (catch Exception e nil))
+                    true)
+        orgas-deps (atom nil)
+        repos-deps (atom nil)]
+    ;; Loop over GitHub orgas with a login and spit deps/orgas/
+    (doseq [orga (map :l (filter #(= (:p %) "GitHub") orgas))]
+      (if-let [data (get-deps orga)]
+        (let [orga-deps  (sequence extract-orga-deps (:dependencies data))
+              orga-repos (sequence (extract-deps-repos orga) (:repos data))]
+          (swap! orgas-deps (partial apply conj) orga-deps)
+          (reset! orgas-deps
+                  (map (fn [[k v]]
+                         (apply (partial merge-with merge-colls-or-add) v))
+                       (group-by :name @orgas-deps)))
+          (swap! repos-deps (partial apply conj) orga-repos)
+          (spit (str "deps/orgas/" (s/lower-case orga) ".json")
+                (json/generate-string orga-deps)))))
+    ;; Group dependencies and spit deps-repos.json
+    (spit (str "deps/deps-repos.json")
+          (json/generate-string
+           (map (fn [dep]
+                  (clojure.set/rename-keys
+                   (assoc
+                    dep :repos
+                    (map (fn [r]
+                           (first (filter #(s/includes?
+                                            (:r %) (:full_name r)) repos)))
+                         (:repos dep)))
+                   {:type :t :name :n :repos :rs}))
+                orgas-deps)))
+    ;; Spit the short version no repositories
+    (spit (str "deps/deps.json")
+          (json/generate-string
+           (map (fn [d] (clojure.set/rename-keys
+                         d {:type :t :name :n :core :c :dev :d}))
+                (map #(dissoc % :repos) orgas-deps))))
+    ;; All dependencies grouped by repos
+    (spit (str "deps/repos-deps.json")
+          (json/generate-string @repos-deps))
+    (println (str "Updated orgas dependencies and "
+                  (count @repos-deps) " repos dependencies"))
     (println "No orgas.json file")))
 
 (defn update-deps
