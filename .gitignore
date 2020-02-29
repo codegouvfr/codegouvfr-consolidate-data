@@ -3,3 +3,4 @@ codegouvfr-data
 .cpcache
 .nrepl-port
 *.json
+.eastwood
