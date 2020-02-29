@@ -24,15 +24,4 @@
             :extra-deps
             {clj.native-image
              {:git/url "https://github.com/taylorwood/clj.native-image.git"
-              :sha     "7708e7fd4572459c81f6a6b8e44c96f41cdd92d4"}}}
-
-           :eastwood
-           {:main-opts  ["-m" "eastwood.lint" {:source-paths ["src"]}]
-	    :extra-deps {jonase/eastwood {:mvn/version "RELEASE"}}}
-
-           :clj-kondo
-           {:extra-deps {clj-kondo {:mvn/version "RELEASE"}}
-            :main-opts  ["-m" "clj-kondo.main"]}
-
-           :kibit {:extra-deps {tvaughan/kibit-runner {:mvn/version "0.1.0"}}
-                   :main-opts  ["-m" "kibit-runner.cmdline"]}}}
+              :sha     "7708e7fd4572459c81f6a6b8e44c96f41cdd92d4"}}}}}
