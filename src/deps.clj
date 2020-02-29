@@ -40,10 +40,10 @@
                   % {:type :t :name :n :core :c :dev :d})
                  [:t :n :c :d])]
     (comp
-     (filter #(not (empty? (:dependencies %))))
+     (filter #(seq (:dependencies %)))
      (map #(select-keys % [:name :dependencies]))
      (map #(clojure.set/rename-keys % {:name :n :dependencies :d}))
-     (map #(assoc % :d (map (fn [r] (s-deps r)) (:d %))))
+     (map #(assoc % :d (map s-deps (:d %))))
      (map #(assoc % :g orga)))))
 
 (defonce extract-orga-deps
@@ -65,7 +65,7 @@
 (defonce reduce-deps
   (comp
    (map #(apply (partial merge-with merge-colls) %))
-   (map #(assoc % :rs (count (:rs %))))))
+   (map #(update-in % [:rs] count))))
 
 (defn update-orgas-repos-deps
   "Generate deps/orgas/* and deps/repos-deps.json."

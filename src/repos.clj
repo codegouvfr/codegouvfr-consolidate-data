@@ -106,9 +106,7 @@
      (map (fn [r]
             (assoc r
                    :li (get licenses-mapping (:li r))
-                   :dp (not (empty?
-                             (first
-                              (filter #(= (:n %) (:n r)) repos-deps)))))))
+                   :dp (seq (first (filter #(= (:n %) (:n r)) repos-deps))))))
      (map (fn [r]
             (update r
                     :d

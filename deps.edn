@@ -28,4 +28,11 @@
 
            :eastwood
            {:main-opts  ["-m" "eastwood.lint" {:source-paths ["src"]}]
-	    :extra-deps {jonase/eastwood {:mvn/version "RELEASE"}}}}}
+	    :extra-deps {jonase/eastwood {:mvn/version "RELEASE"}}}
+
+           :clj-kondo
+           {:extra-deps {clj-kondo {:mvn/version "RELEASE"}}
+            :main-opts  ["-m" "clj-kondo.main"]}
+
+           :kibit {:extra-deps {tvaughan/kibit-runner {:mvn/version "0.1.0"}}
+                   :main-opts  ["-m" "kibit-runner.cmdline"]}}}
