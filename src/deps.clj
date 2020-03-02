@@ -12,14 +12,14 @@
   (:gen-class))
 
 (defonce http-get-params {:cookie-policy :standard})
+;; You can set this to "https://backyourstack.com"
 (defonce bys-url "http://localhost:3006/")
 
 (defn get-deps
-  "Scrap backyourstack to get dependencies of an organization."
+  "Scrap a local backyourstack to get dependencies of an organization."
   [orga]
-  (if-let [deps (try (http/get
-                      (str bys-url orga "/dependencies")
-                      http-get-params)
+  (if-let [deps (try (http/get (str bys-url orga "/dependencies")
+                               http-get-params)
                      (catch Exception e nil))]
     (let [out (-> deps
                   :body
@@ -35,6 +35,7 @@
       (when-not (:error out) out))))
 
 (defn extract-deps-repos
+  "Extract repositories dependencies for an organization."
   [orga]
   (let [s-deps #(select-keys
                  (clojure.set/rename-keys
@@ -48,6 +49,7 @@
      (map #(assoc % :g orga)))))
 
 (defonce extract-orga-deps
+  ^{:doc "Extract the dependencies for an organization."}
   (comp
    (map #(apply dissoc % [:project :peer :engines]))
    (map (fn [r]
