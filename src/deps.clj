@@ -12,12 +12,13 @@
   (:gen-class))
 
 (defonce http-get-params {:cookie-policy :standard})
+(defonce bys-url "http://localhost:3006/")
 
 (defn get-deps
   "Scrap backyourstack to get dependencies of an organization."
   [orga]
   (if-let [deps (try (http/get
-                      (str "https://backyourstack.com/" orga "/dependencies")
+                      (str bys-url orga "/dependencies")
                       http-get-params)
                      (catch Exception e nil))]
     (let [out (-> deps
