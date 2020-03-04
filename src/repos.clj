@@ -8,13 +8,14 @@
              [clojure.string :as s]
              [clojure.set]
              [hickory.core :as h]
-             [hickory.select :as hs])
+             [hickory.select :as hs]
+             [semantic-csv.core :as semantic-csv])
   (:gen-class))
 
 (defonce http-get-params {:cookie-policy :standard})
 
 (defonce repos-url
-  "https://api-code.etalab.gouv.fr/api/repertoires/all")
+  "https://raw.githubusercontent.com/etalab/data-codes-sources-fr/master/data/repertoires/csv/all.csv")
 
 (defonce emoji-json-url
   "https://raw.githubusercontent.com/amio/emoji.json/master/emoji.json")
@@ -125,11 +126,9 @@
         (json/generate-string
          (sequence
           (cleanup-repos)
-          (json/parse-string
-           (:body (try (http/get repos-url http-get-params)
-                       (catch Exception e
-                         (println "ERROR: Can't reach repos-url"))))
-           true)))))
+          (try (semantic-csv/slurp-csv repos-url)
+               (catch Exception e
+                 (println "ERROR: Can't reach repos-url")))))))
 
 (defn update-repos
   "Update repos.json with reused-by info."

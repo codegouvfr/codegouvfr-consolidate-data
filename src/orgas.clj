@@ -13,7 +13,7 @@
 (defonce http-get-params {:cookie-policy :standard})
 
 (defonce orgas-url
-  "https://api-code.etalab.gouv.fr/api/organisations/all")
+  "https://raw.githubusercontent.com/etalab/data-codes-sources-fr/master/data/organisations/csv/all.csv")
 
 (defonce annuaire-url ;; returns a csv
   "https://www.data.gouv.fr/fr/datasets/r/ac26b864-6a3a-496b-8832-8cde436f5230")
@@ -47,11 +47,9 @@
                                      "ERROR: Can't reach annuaire-url")))))
         orgas    (map
                   #(clojure.set/rename-keys % orgas-mapping)
-                  (json/parse-string
-                   (:body (try (http/get orgas-url http-get-params)
-                               (catch Exception e
-                                 (println "ERROR: Can't reach orgas-url"))))
-                   true))]
+                  (try (semantic-csv/slurp-csv orgas-url)
+                       (catch Exception e
+                         (println "ERROR: Can't reach orgas-url"))))]
     (spit "orgas.json"
           (json/generate-string
            (map #(assoc % :an ((keyword (:l %)) annuaire)) orgas)))))
