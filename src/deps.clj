@@ -20,7 +20,9 @@
   [orga]
   (if-let [deps (try (http/get (str bys-url orga "/dependencies")
                                http-get-params)
-                     (catch Exception e nil))]
+                     (catch Exception e
+                       (println "Cannot get backyourstack dependencies\n"
+                                (.getMessage e))))]
     (let [out (-> deps
                   :body
                   h/parse
@@ -76,12 +78,14 @@
   (let [orgas      (json/parse-string
                     (try (slurp "orgas.json")
                          (catch Exception e
-                           (println "ERROR: No orgas.json file")))
+                           (println "ERROR: No orgas.json file\n"
+                                    (.getMessage e))))
                     true)
         repos      (json/parse-string
                     (try (slurp "repos.json")
                          (catch Exception e
-                           (println "ERROR: No repos.json file")))
+                           (println "ERROR: No repos.json file\n"
+                                    (.getMessage e))))
                     true)
         orgas-deps (atom nil)
         repos-deps (atom nil)]
@@ -92,7 +96,7 @@
               orga-repos (sequence (extract-deps-repos orga) (:repos data))]
           (swap! orgas-deps (partial apply conj) orga-deps)
           (reset! orgas-deps
-                  (map (fn [[k v]]
+                  (map (fn [[_ v]]
                          (apply (partial merge-with merge-colls-or-add) v))
                        (group-by :name @orgas-deps)))
           (swap! repos-deps (partial apply conj) orga-repos)
@@ -129,7 +133,9 @@
   (let [deps (atom nil)]
     (doseq [repo (json/parse-string
                   (try (slurp "deps/repos-deps.json")
-                       (catch Exception e nil))
+                       (catch Exception e
+                         (println "Cannot get repos-deps.json\n"
+                                  (.getMessage e))))
                   true)
             :let [r-deps (:d repo)]]
       (doseq [d0   r-deps

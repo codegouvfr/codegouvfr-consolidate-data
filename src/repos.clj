@@ -68,7 +68,8 @@
                            (try
                              (http/get emoji-json-url http-get-params)
                              (catch Exception e
-                               (println "ERROR: Can't reach emoji-json-url"))))
+                               (println "ERROR: Cannot reach emoji-json-url\n"
+                                        (.getMessage e)))))
                           true)
        (map #(select-keys % [:char :name]))
        (map #(update % :name (fn [n] (str ":" (s/replace n " " "_") ":"))))))
@@ -79,17 +80,20 @@
   (when-let [repo-github-html
              (try (http/get (str repo "/network/dependents")
                             http-get-params)
-                  (catch Exception e nil))]
+                  (catch Exception e
+                    (println "Cannot get"
+                             (str repo "/network/dependents\n")
+                             (.getMessage e))))]
     (let [btn-links (-> repo-github-html
                         :body
                         h/parse
                         h/as-hickory
                         (as-> d (hs/select (hs/class "btn-link") d)))
           nb-reps   (or (try (re-find #"\d+" (last (:content (nth btn-links 1))))
-                             (catch Exception e "0"))
+                             (catch Exception _ "0"))
                         0)
           nb-pkgs   (or (try (re-find #"\d+" (last (:content (nth btn-links 2))))
-                             (catch Exception e "0"))
+                             (catch Exception _ "0"))
                         0)]
       {:r repo :g (+ (Integer/parseInt nb-reps) (Integer/parseInt nb-pkgs))})))
 
@@ -99,7 +103,9 @@
   (let [emojis     (emojis)
         repos-deps (json/parse-string
                     (try (slurp "deps/repos-deps.json")
-                         (catch Exception e nil))
+                         (catch Exception e
+                           (println "Cannot get repos-deps.json\n"
+                                    (.getMessage e))))
                     true)]
     (comp
      (map #(clojure.set/rename-keys
@@ -128,21 +134,24 @@
           (cleanup-repos)
           (try (semantic-csv/slurp-csv repos-url)
                (catch Exception e
-                 (println "ERROR: Can't reach repos-url")))))))
+                 (println "ERROR: Cannot reach repos-url\n"
+                          (.getMessage e))))))))
 
 (defn update-repos
   "Update repos.json with reused-by info."
   []
   (let [repos-json (json/parse-string
                     (try (slurp "repos.json")
-                         (catch Exception e nil))
+                         (catch Exception e
+                           (println "Cannot get repos.json\n"
+                                    (.getMessage e))))
                     true)
         repos-reused-by
         (map get-reused-by (map :repertoire_url repos-json))]
     (spit "repos.json"
           (json/generate-string
            (filter not-empty
-                   (map (fn [[k v]] (apply merge v))
+                   (map (fn [[_ v]] (apply merge v))
                         (group-by
                          :r (concat repos-json repos-reused-by)))))))
   (println "Updated repos.json"))

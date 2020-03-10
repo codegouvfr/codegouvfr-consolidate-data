@@ -5,8 +5,6 @@
 (ns orgas
   (:require  [cheshire.core :as json]
              [semantic-csv.core :as semantic-csv]
-             [clj-http.lite.client :as http]
-             [clojure.java.io :as io]
              [clojure.set])
   (:gen-class))
 
@@ -44,12 +42,14 @@
                              (try (semantic-csv/slurp-csv annuaire-url)
                                   (catch Exception e
                                     (println
-                                     "ERROR: Can't reach annuaire-url")))))
+                                     "ERROR: Cannot reach annuaire-url\n"
+                                     (.getMessage e))))))
         orgas    (map
                   #(clojure.set/rename-keys % orgas-mapping)
                   (try (semantic-csv/slurp-csv orgas-url)
                        (catch Exception e
-                         (println "ERROR: Can't reach orgas-url"))))]
+                         (println "ERROR: Cannot reach orgas-url\n"
+                                  (.getMessage e)))))]
     (spit "orgas.json"
           (json/generate-string
            (map #(assoc % :an ((keyword (:l %)) annuaire)) orgas)))))
@@ -60,9 +60,14 @@
   (spit "orgas.json"
         (json/generate-string
          (map #(assoc % :dp (json/parse-string
-                             (try (slurp (str "deps/orgas/" (:l %) ".json"))
-                                  (catch Exception e nil))))
+                             (let [path (str "deps/orgas/" (:l %) ".json")]
+                               (try (slurp path)
+                                    (catch Exception e
+                                      (println "Cannot get" path "\n"
+                                               (.getMessage e)))))))
               (json/parse-string (try (slurp "orgas.json")
-                                      (catch Exception e nil))
+                                      (catch Exception e
+                                        (println "Cannot get orgas.json\n"
+                                                 (.getMessage e))))
                                  true))))
   (println (str "Updated orgas.json")))
