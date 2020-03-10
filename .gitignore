@@ -4,3 +4,4 @@ codegouvfr-data
 .nrepl-port
 *.json
 .eastwood
+data/
