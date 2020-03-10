@@ -55,7 +55,7 @@
    "Eclipse Public License 1.0"                                 "Eclipse Public License 1.0 (EPL-1.0)"
    "BSD 3-Clause \"New\" or \"Revised\" License"                "BSD 3-Clause \"New\" or \"Revised\" License (BSD-3-Clause)"
    "European Union Public License 1.2"                          "European Union Public License 1.2 (EUPL-1.2)"
-   "Creative Commons Attribution Share Alike 4.0 International" "Creative Commons Attribution Share Alike 4.0 International (CC-BY-NC-SA-4.0)"
+   "Creative Commons Attribution Share Alike 4.0 International" "Creative Commons Attribution Share Alike 4.0 International (CC-BY-SA-4.0)"
    "BSD 2-Clause \"Simplified\" License"                        "BSD 2-Clause \"Simplified\" License (BSD-2-Clause)"
    "The Unlicense"                                              "The Unlicense (Unlicense)"
    "Do What The Fuck You Want To Public License"                "Do What The Fuck You Want To Public License (WTFPL)"
