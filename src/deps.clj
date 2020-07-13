@@ -13,7 +13,7 @@
 
 (defonce http-get-params {:cookie-policy :standard})
 ;; You can set this to "https://backyourstack.com"
-(defonce bys-url "http://localhost:3006/")
+(defonce bys-url "http://localhost:3005/")
 
 (defn get-deps
   "Scrap a local backyourstack to get dependencies of an organization."
