@@ -14,7 +14,7 @@
   "https://raw.githubusercontent.com/etalab/data-codes-sources-fr/master/data/organisations/csv/all.csv")
 
 (defonce annuaire-url ;; returns a csv
-  "https://www.data.gouv.fr/fr/datasets/r/ac26b864-6a3a-496b-8832-8cde436f5230")
+  "https://static.data.gouv.fr/resources/organisations-de-codegouvfr/20191011-110549/lannuaire.csv")
 
 ;; Ignore these keywords
 ;; :private :default_branch :language :id :checked :owner :full_name
