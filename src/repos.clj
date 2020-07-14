@@ -71,45 +71,26 @@
        (map #(select-keys % [:char :name]))
        (map #(update % :name (fn [n] (str ":" (s/replace n " " "_") ":"))))))
 
-(defn get-reused-by
-  "Return a hash-map with repo and repos/packages reusing it."
-  [repo]
-  (when-let [repo-github-html
-             (try (curl/get (str repo "/network/dependents"))
-                  (catch Exception e
-                    (println "Cannot get"
-                             (str repo "/network/dependents\n")
-                             (.getMessage e))))]
-    (let [btn-links (-> repo-github-html
-                        :body
-                        h/parse
-                        h/as-hickory
-                        (as-> d (hs/select (hs/class "btn-link") d)))
-          nb-reps   (or (try (re-find #"\d+" (last (:content (nth btn-links 1))))
-                             (catch Exception _ "0"))
-                        0)
-          nb-pkgs   (or (try (re-find #"\d+" (last (:content (nth btn-links 2))))
-                             (catch Exception _ "0"))
-                        0)]
-      {:r repo :g (+ (Integer/parseInt nb-reps) (Integer/parseInt nb-pkgs))})))
-
+;; FIXME: Factor out dependencies addition
 (defn cleanup-repos
-  "Transducer to clean up repositories data."
+  "Relace keywords, add licenses and emojis."
   []
-  (let [emojis     (emojis)
-        repos-deps (json/parse-string
-                    (try (slurp "deps/repos-deps.json")
-                         (catch Exception e
-                           (println "Cannot get repos-deps.json\n"
-                                    (.getMessage e))))
-                    true)]
+  (let [emojis (emojis)
+        ;; repos-deps (json/parse-string
+        ;;             (try (slurp "deps/repos-deps.json")
+        ;;                  (catch Exception e
+        ;;                    (println "Cannot get repos-deps.json\n"
+        ;;                             (.getMessage e))))
+        ;;             true)
+        ]
     (comp
      (map #(clojure.set/rename-keys
             (select-keys % (keys repos-mapping)) repos-mapping))
      (map (fn [r]
             (assoc r
                    :li (get licenses-mapping (:li r))
-                   :dp (seq (first (filter #(= (:n %) (:n r)) repos-deps))))))
+                   ;; :dp (seq (first (filter #(= (:n %) (:n r)) repos-deps)))
+                   )))
      (map (fn [r]
             (update r
                     :d
@@ -121,8 +102,9 @@
                                           (s/replace x (:name e) (:char e))))))
                         @desc))))))))
 
-(defn init-repos
-  "Generate repos.json from `repos-url`."
+(defn init
+  "Generate initial repos.json from `repos-url`.
+  This adds licenses and emojis."
   []
   (spit "repos.json"
         (json/generate-string
@@ -133,7 +115,32 @@
                  (println "ERROR: Cannot reach repos-url\n"
                           (.getMessage e))))))))
 
-(defn update-repos
+(defn get-reused-by
+  "Return a hash-map with the repo and the number of reuse."
+  [repo]
+  ;; Only check available information on github.com
+  (if-not (re-find #"github\.com" repo)
+    {:r repo :g "N/A"}
+    (when-let [repo-github-html
+               (try (curl/get (str repo "/network/dependents"))
+                    (catch Exception e
+                      (println "Cannot get"
+                               (str repo "/network/dependents\n")
+                               (.getMessage e))))]
+      (let [btn-links (-> repo-github-html
+                          :body
+                          h/parse
+                          h/as-hickory
+                          (as-> d (hs/select (hs/class "btn-link") d)))
+            nb-reps   (or (try (re-find #"\d+" (last (:content (nth btn-links 1))))
+                               (catch Exception _ "0"))
+                          0)
+            nb-pkgs   (or (try (re-find #"\d+" (last (:content (nth btn-links 2))))
+                               (catch Exception _ "0"))
+                          0)]
+        {:r repo :g (+ (Integer/parseInt nb-reps) (Integer/parseInt nb-pkgs))}))))
+
+(defn add-reuse-info
   "Update repos.json with reused-by info."
   []
   (let [repos-json (json/parse-string
@@ -143,11 +150,11 @@
                                     (.getMessage e))))
                     true)
         repos-reused-by
-        (map get-reused-by (remove nil? (map :r repos-json)))]
+        (map get-reused-by (take 3 (remove nil? (map :r repos-json))))]
     (spit "repos.json"
           (json/generate-string
            (filter not-empty
                    (map (fn [[_ v]] (apply merge v))
                         (group-by
                          :r (concat repos-json repos-reused-by)))))))
-  (println "Updated repos.json"))
+  (println "Add reuse information to repos.json"))

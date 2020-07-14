@@ -5,14 +5,16 @@
 (ns core
   (:require [repos :as repos]
             [orgas :as orgas]
-            [deps :as deps])
+            ;; [deps :as deps]
+            )
   (:gen-class))
 
 (defn -main []
-  (orgas/init-orgas)
-  (repos/init-repos)
-  (deps/update-orgas-repos-deps)
-  (deps/update-deps)
-  (repos/update-repos)
-  (orgas/update-orgas) ;; run twice to get dependencies right
+  (orgas/init)
+  (repos/init)
+  (repos/add-reuse-info)
+  ;; (deps/update-orgas-repos-deps)
+  ;; (deps/update-deps)
+  ;; (repos/update-repos)
+  ;; (orgas/update-orgas)
   (println "Created codegouvfr json files"))

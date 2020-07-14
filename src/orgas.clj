@@ -32,7 +32,7 @@
 
 ;; Core functions
 
-(defn init-orgas
+(defn init
   "Generate orgas.json from `orgas-url` and `annuaire-url`."
   []
   (let [annuaire (apply merge
@@ -53,20 +53,20 @@
           (json/generate-string
            (map #(assoc % :an ((keyword (:l %)) annuaire)) orgas)))))
 
-(defn update-orgas
-  "Update orgas.json."
-  []
-  (spit "orgas.json"
-        (json/generate-string
-         (map #(assoc % :dp (json/parse-string
-                             (let [path (str "deps/orgas/" (:l %) ".json")]
-                               (try (slurp path)
-                                    (catch Exception e
-                                      (println "Cannot get" path "\n"
-                                               (.getMessage e)))))))
-              (json/parse-string (try (slurp "orgas.json")
-                                      (catch Exception e
-                                        (println "Cannot get orgas.json\n"
-                                                 (.getMessage e))))
-                                 true))))
-  (println (str "Updated orgas.json")))
+;; (defn add-orgas-deps
+;;   "Update orgas.json."
+;;   []
+;;   (spit "orgas.json"
+;;         (json/generate-string
+;;          (map #(assoc % :dp (json/parse-string
+;;                              (let [path (str "deps/orgas/" (:l %) ".json")]
+;;                                (try (slurp path)
+;;                                     (catch Exception e
+;;                                       (println "Cannot get" path "\n"
+;;                                                (.getMessage e)))))))
+;;               (json/parse-string (try (slurp "orgas.json")
+;;                                       (catch Exception e
+;;                                         (println "Cannot get orgas.json\n"
+;;                                                  (.getMessage e))))
+;;                                  true))))
+;;   (println (str "Added dependencies information to orgas.json")))
