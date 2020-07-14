@@ -4,15 +4,12 @@
 
 (ns repos
   (:require  [cheshire.core :as json]
-             [clj-http.lite.client :as http]
+             [babashka.curl :as curl]
              [clojure.string :as s]
              [clojure.set]
              [hickory.core :as h]
              [hickory.select :as hs]
-             [semantic-csv.core :as semantic-csv])
-  (:gen-class))
-
-(defonce http-get-params {:cookie-policy :standard})
+             [utils :as utils]))
 
 (defonce repos-url
   "https://raw.githubusercontent.com/etalab/data-codes-sources-fr/master/data/repertoires/csv/all.csv")
@@ -66,7 +63,7 @@
   []
   (->> (json/parse-string (:body
                            (try
-                             (http/get emoji-json-url http-get-params)
+                             (curl/get emoji-json-url)
                              (catch Exception e
                                (println "ERROR: Cannot reach emoji-json-url\n"
                                         (.getMessage e)))))
@@ -78,8 +75,7 @@
   "Return a hash-map with repo and repos/packages reusing it."
   [repo]
   (when-let [repo-github-html
-             (try (http/get (str repo "/network/dependents")
-                            http-get-params)
+             (try (curl/get (str repo "/network/dependents"))
                   (catch Exception e
                     (println "Cannot get"
                              (str repo "/network/dependents\n")
@@ -132,7 +128,7 @@
         (json/generate-string
          (sequence
           (cleanup-repos)
-          (try (semantic-csv/slurp-csv repos-url)
+          (try (utils/csv-url-to-map repos-url)
                (catch Exception e
                  (println "ERROR: Cannot reach repos-url\n"
                           (.getMessage e))))))))
@@ -147,7 +143,7 @@
                                     (.getMessage e))))
                     true)
         repos-reused-by
-        (map get-reused-by (map :repertoire_url repos-json))]
+        (map get-reused-by (remove nil? (map :r repos-json)))]
     (spit "repos.json"
           (json/generate-string
            (filter not-empty

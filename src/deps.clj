@@ -4,22 +4,19 @@
 
 (ns deps
   (:require  [cheshire.core :as json]
-             [clj-http.lite.client :as http]
+             [babashka.curl :as curl]
              [clojure.string :as s]
              [clojure.set]
              [hickory.core :as h]
-             [hickory.select :as hs])
-  (:gen-class))
+             [hickory.select :as hs]))
 
-(defonce http-get-params {:cookie-policy :standard})
 ;; You can set this to "https://backyourstack.com"
 (defonce bys-url "http://localhost:3005/")
 
 (defn get-deps
   "Scrap a local backyourstack to get dependencies of an organization."
   [orga]
-  (if-let [deps (try (http/get (str bys-url orga "/dependencies")
-                               http-get-params)
+  (if-let [deps (try (curl/get (str bys-url orga "/dependencies"))
                      (catch Exception e
                        (println "Cannot get backyourstack dependencies\n"
                                 (.getMessage e))))]
@@ -91,7 +88,7 @@
         repos-deps (atom nil)]
     ;; Loop over GitHub orgas with a login and spit deps/orgas/
     (doseq [orga (map :l (filter #(= (:p %) "GitHub") orgas))]
-      (if-let [data (get-deps orga)]
+      (when-let [data (get-deps orga)]
         (let [orga-deps  (sequence extract-orga-deps (:dependencies data))
               orga-repos (sequence (extract-deps-repos orga) (:repos data))]
           (swap! orgas-deps (partial apply conj) orga-deps)

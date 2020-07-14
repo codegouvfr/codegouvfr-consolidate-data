@@ -4,11 +4,8 @@
 
 (ns orgas
   (:require  [cheshire.core :as json]
-             [semantic-csv.core :as semantic-csv]
-             [clojure.set])
-  (:gen-class))
-
-(defonce http-get-params {:cookie-policy :standard})
+             [utils :as utils]
+             [clojure.set]))
 
 (defonce orgas-url
   "https://raw.githubusercontent.com/etalab/data-codes-sources-fr/master/data/organisations/csv/all.csv")
@@ -33,20 +30,22 @@
    :organisation_url   :o
    :avatar_url         :au})
 
+;; Core functions
+
 (defn init-orgas
   "Generate orgas.json from `orgas-url` and `annuaire-url`."
   []
   (let [annuaire (apply merge
                         (map #(let [{:keys [github lannuaire]} %]
                                 {(keyword github) lannuaire})
-                             (try (semantic-csv/slurp-csv annuaire-url)
+                             (try (utils/csv-url-to-map annuaire-url)
                                   (catch Exception e
                                     (println
                                      "ERROR: Cannot reach annuaire-url\n"
                                      (.getMessage e))))))
         orgas    (map
                   #(clojure.set/rename-keys % orgas-mapping)
-                  (try (semantic-csv/slurp-csv orgas-url)
+                  (try (utils/csv-url-to-map orgas-url)
                        (catch Exception e
                          (println "ERROR: Cannot reach orgas-url\n"
                                   (.getMessage e)))))]
