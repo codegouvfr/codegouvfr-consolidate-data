@@ -22,19 +22,21 @@
 ;; :page_accueil :date_creation :plateforme
 (def repos-mapping
   "Mapping from repositories keywords to local short versions."
-  {:nom                    :n
+  {
+   :derniere_mise_a_jour   :u
    :description            :d
-   :organisation_nom       :o
+   :est_archive            :a?
+   :est_fork               :f?
    :langage                :l
    :licence                :li
-   :repertoire_url         :r
-   :topics                 :t
-   :derniere_mise_a_jour   :u
+   :nom                    :n
    :nombre_forks           :f
    :nombre_issues_ouvertes :i
    :nombre_stars           :s
-   :est_archive            :a?
-   :est_fork               :f?})
+   :organisation_nom       :o
+   :plateforme             :p
+   :repertoire_url         :r
+   :topics                 :t})
 
 (defonce
   ^{:doc "Mapping from GitHub license strings to the their license+SDPX short
