@@ -43,19 +43,26 @@
 
 ;; Core functions
 
-;; TODO read orgas-deps.json and add :deps true/false
 (defn add-data []
   (let [annuaire (apply merge
                         (map #(let [{:keys [github lannuaire]} %]
                                 {(keyword github) lannuaire})
                              (try (csv-url-to-map annuaire-url)
                                   (catch Exception e
-                                    (println (.getMessage e))))))]
+                                    (println (.getMessage e))))))
+        deps     (json/parse-string
+                  (try (slurp "deps-orgas.json")
+                       (catch Exception e
+                         (println (.getMessage e)))))]
     (comp
      ;; Add information from `annuaire-url`.
      (map #(assoc % :an ((keyword (:l %)) annuaire)))
      ;; Remap keywords
-     (map #(set/rename-keys % orgas-mapping)))))
+     (map #(set/rename-keys % orgas-mapping))
+     ;; Add orga deps number
+     (map #(if-let [d (not-empty (get deps (str [(:n %) (:p %)])))]
+             (assoc % :dp (count d))
+             %)))))
 
 (defn init
   "Generate orgas.json from `orgas-url`."
