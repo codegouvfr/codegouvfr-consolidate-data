@@ -70,5 +70,4 @@
   (when-let [orgas (:body (try (curl/get orgas-url)
                                (catch Exception e
                                  (println (.getMessage e)))))]
-    (spit "orgas-raw.json" (json/generate-string orgas))
-    orgas))
+    (spit "orgas-raw.json" orgas)))

@@ -110,10 +110,8 @@
 (defn init
   "Generate repos-raw.json from `repos-url` and output repos."
   []
-  (when-let [res (:body
-                  (try (curl/get repos-url)
-                       (catch Exception e
-                         (println (.getMessage e)))))]
-    (let [repos (json/generate-string res)]
-      (spit "repos-raw.json" repos)
-      repos)))
+  (when-let [repos (:body
+                    (try (curl/get repos-url)
+                         (catch Exception e
+                           (println (.getMessage e)))))]
+    (spit "repos-raw.json" repos)))
