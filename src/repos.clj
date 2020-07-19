@@ -69,16 +69,33 @@
        (map #(select-keys % [:char :name]))
        (map #(update % :name (fn [n] (str ":" (s/replace n " " "_") ":"))))))
 
-;; TODO read deps-repos.json and add :deps true/false
-;; TODO read reuse.json and add :reuse NUM
 (defn add-data
   "Relace keywords, add licenses and emojis."
   []
-  (let [emojis (emojis)]
+  (let [emojis (emojis)
+        deps   (json/parse-string
+                (try (slurp "deps-repos.json")
+                     (catch Exception e
+                       (println (.getMessage e)))))
+        reuse  (json/parse-string
+                (try (slurp "reuse.json")
+                     (catch Exception e
+                       (println (.getMessage e)))))]
     (comp
+     ;; Remap keywords
      (map #(set/rename-keys
             (select-keys % (keys repos-mapping)) repos-mapping))
+     ;; Add number of dependencies (aka [m]odules)
+     (map #(if-let [d (not-empty (get deps (:r %)))]
+             (assoc % :dp (count d))
+             %))
+     ;; Add number of reuse
+     (map #(if-let [r (not-empty (get reuse (:r %)))]
+             (assoc % :ru (:reuse d))
+             %))
+     ;; Remap licenses
      (map #(assoc % :li (get licenses-mapping (:li %))))
+     ;; Replace emojis
      (map #(update
             %
             :d
