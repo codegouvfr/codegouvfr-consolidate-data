@@ -9,10 +9,12 @@
   (:gen-class))
 
 (defn -main []
-  (let [repos (repos/init)
-        orgas (orgas/init)]
-    (spit "repos.json"
-          (json/generate-string (sequence (repos/add-data) repos)))
-    (spit "orgas.json"
-          (json/generate-string (sequence (orgas/add-data) orgas))))
+  (->> (repos/init)
+       (sequence (repos/add-data))
+       json/generate-string
+       (spit "repos.json"))
+  (->> (orgas/init)
+       (sequence (orgas/add-data))
+       json/generate-string
+       (spit "orgas.json"))
   (println "Created codegouvfr json files"))
