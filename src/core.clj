@@ -3,18 +3,16 @@
 ;; License-Filename: LICENSE
 
 (ns core
-  (:require [repos :as repos]
-            [orgas :as orgas]
-            ;; [deps :as deps]
-            )
+  (:require [cheshire.core :as json]
+            [repos :as repos]
+            [orgas :as orgas])
   (:gen-class))
 
 (defn -main []
-  (orgas/init)
-  (repos/init)
-  (repos/add-reuse-info)
-  ;; (deps/update-orgas-repos-deps)
-  ;; (deps/update-deps)
-  ;; (repos/update-repos)
-  ;; (orgas/update-orgas)
+  (let [repos (repos/init)
+        orgas (orgas/init)]
+    (spit "repos.json"
+          (json/generate-string (sequence (repos/add-data) repos)))
+    (spit "orgas.json"
+          (json/generate-string (sequence (orgas/add-data) orgas))))
   (println "Created codegouvfr json files"))

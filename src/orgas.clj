@@ -4,11 +4,12 @@
 
 (ns orgas
   (:require  [cheshire.core :as json]
-             [utils :as utils]
-             [clojure.set]))
+             [clojure.data.csv :as csv]
+             [babashka.curl :as curl]
+             [clojure.set :as set]))
 
 (defonce orgas-url
-  "https://raw.githubusercontent.com/etalab/data-codes-sources-fr/master/data/organisations/csv/all.csv")
+  "https://raw.githubusercontent.com/etalab/data-codes-sources-fr/master/data/organisations/json/all.json")
 
 (defonce annuaire-url ;; returns a csv
   "https://static.data.gouv.fr/resources/organisations-de-codegouvfr/20191011-110549/lannuaire.csv")
@@ -30,43 +31,37 @@
    :organisation_url   :o
    :avatar_url         :au})
 
+;; Utility functions
+
+(defn- rows->maps [csv]
+  (let [headers (map keyword (first csv))
+        rows    (rest csv)]
+    (map #(zipmap headers %) rows)))
+
+(defn csv-url-to-map [url]
+  (rows->maps (csv/read-csv (:body (curl/get url)))))
+
 ;; Core functions
 
-(defn init
-  "Generate orgas.json from `orgas-url` and `annuaire-url`."
-  []
+;; TODO read orgas-deps.json and add :deps true/false
+(defn add-data []
   (let [annuaire (apply merge
                         (map #(let [{:keys [github lannuaire]} %]
                                 {(keyword github) lannuaire})
-                             (try (utils/csv-url-to-map annuaire-url)
+                             (try (csv-url-to-map annuaire-url)
                                   (catch Exception e
-                                    (println
-                                     "ERROR: Cannot reach annuaire-url\n"
-                                     (.getMessage e))))))
-        orgas    (map
-                  #(clojure.set/rename-keys % orgas-mapping)
-                  (try (utils/csv-url-to-map orgas-url)
-                       (catch Exception e
-                         (println "ERROR: Cannot reach orgas-url\n"
-                                  (.getMessage e)))))]
-    (spit "orgas.json"
-          (json/generate-string
-           (map #(assoc % :an ((keyword (:l %)) annuaire)) orgas)))))
+                                    (println (.getMessage e))))))]
+    (comp
+     ;; Add information from `annuaire-url`.
+     (map #(assoc % :an ((keyword (:l %)) annuaire)))
+     ;; Remap keywords
+     (map #(set/rename-keys % orgas-mapping)))))
 
-;; (defn add-orgas-deps
-;;   "Update orgas.json."
-;;   []
-;;   (spit "orgas.json"
-;;         (json/generate-string
-;;          (map #(assoc % :dp (json/parse-string
-;;                              (let [path (str "deps/orgas/" (:l %) ".json")]
-;;                                (try (slurp path)
-;;                                     (catch Exception e
-;;                                       (println "Cannot get" path "\n"
-;;                                                (.getMessage e)))))))
-;;               (json/parse-string (try (slurp "orgas.json")
-;;                                       (catch Exception e
-;;                                         (println "Cannot get orgas.json\n"
-;;                                                  (.getMessage e))))
-;;                                  true))))
-;;   (println (str "Added dependencies information to orgas.json")))
+(defn init
+  "Generate orgas.json from `orgas-url`."
+  []
+  (when-let [orgas (:body (try (curl/get orgas-url)
+                               (catch Exception e
+                                 (println (.getMessage e)))))]
+    (spit "orgas-raw.json" (json/generate-string orgas))
+    orgas))

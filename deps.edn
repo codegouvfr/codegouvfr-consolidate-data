@@ -2,7 +2,7 @@
 ;; SPDX-License-Identifier: EPL-2.0
 ;; License-Filename: LICENSE
 
-{:version     "0.1.0"
+{:version     "0.2.0"
  :description "Generate data for https://code.etalab.gouv.fr"
  :url         "https://github.com/etalab/codegouvfr-data"
  :license     {:name "Eclipse Public License - v 2.0"
@@ -11,7 +11,6 @@
  :deps {org.clojure/clojure  {:mvn/version "1.10.1"}
         borkdude/babashka    {:mvn/version "0.1.3"}
         cheshire             {:mvn/version "5.10.0"}
-        hickory              {:mvn/version "0.7.1"}
         org.clojure/data.csv {:mvn/version "1.0.0"}}
 
  :aliases {:native-image
@@ -30,7 +29,7 @@
             :extra-deps
             {clj.native-image
              {:git/url "https://github.com/taylorwood/clj.native-image.git"
-              :sha     "7708e7fd4572459c81f6a6b8e44c96f41cdd92d4"}}}
+              :sha     "602587dfb5243ea8c72ed3e967c37c1f9d611723"}}}
            :jar {:extra-deps {seancorfield/depstar {:mvn/version "RELEASE"}}
                  :main-opts  ["-m" "hf.depstar.uberjar" "codegouvfr-data.jar"
                               "-C" "-m" "core"]}}}
