@@ -91,7 +91,7 @@
              %))
      ;; Add number of reuse
      (map #(if-let [r (not-empty (get reuse (:r %)))]
-             (assoc % :ru (:reuse d))
+             (assoc % :ru (:reuse r))
              %))
      ;; Remap licenses
      (map #(assoc % :li (get licenses-mapping (:li %))))
