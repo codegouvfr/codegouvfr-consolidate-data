@@ -55,10 +55,10 @@
                        (catch Exception e
                          (println (.getMessage e)))))]
     (comp
-     ;; Add information from `annuaire-url`.
-     (map #(assoc % :an ((keyword (:l %)) annuaire)))
      ;; Remap keywords
      (map #(set/rename-keys % orgas-mapping))
+     ;; Add information from `annuaire-url`.
+     (map #(assoc % :an ((keyword (:l %)) annuaire)))
      ;; Add orga deps number
      (map #(if-let [d (not-empty (get deps (str [(:n %) (:p %)])))]
              (assoc % :dp (count d))
@@ -70,4 +70,5 @@
   (when-let [orgas (:body (try (curl/get orgas-url)
                                (catch Exception e
                                  (println (.getMessage e)))))]
-    (spit "orgas-raw.json" orgas)))
+    (spit "orgas-raw.json" orgas)
+    (json/parse-string orgas true)))

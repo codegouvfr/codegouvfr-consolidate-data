@@ -114,4 +114,5 @@
                     (try (curl/get repos-url)
                          (catch Exception e
                            (println (.getMessage e)))))]
-    (spit "repos-raw.json" repos)))
+    (spit "repos-raw.json" repos)
+    (json/parse-string repos true)))
