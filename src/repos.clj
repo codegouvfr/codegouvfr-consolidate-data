@@ -86,7 +86,7 @@
      (map #(set/rename-keys
             (select-keys % (keys repos-mapping)) repos-mapping))
      ;; Add number of dependencies (aka [m]odules)
-     (map #(if-let [d (not-empty (get deps (:r %)))]
+     (map #(if-let [d (not-empty (get deps (str [(:n %) (:o %)])))]
              (assoc % :dp (count d))
              %))
      ;; Add number of reuse
