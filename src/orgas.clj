@@ -60,7 +60,7 @@
      ;; Add information from `annuaire-url`.
      (map #(assoc % :an ((keyword (:l %)) annuaire)))
      ;; Add orga deps number
-     (map #(if-let [d (not-empty (get deps (str [(:n %) (:p %)])))]
+     (map #(if-let [d (not-empty (get deps (str [(:l %) (:p %)])))]
              (assoc % :dp (count d))
              %)))))
 
