@@ -6,10 +6,14 @@
   (:require  [cheshire.core :as json]
              [clojure.data.csv :as csv]
              [babashka.curl :as curl]
-             [clojure.set :as set]))
+             [clojure.set :as set]
+             [clojure.string :as s]))
 
 (defonce orgas-url
   "https://raw.githubusercontent.com/etalab/data-codes-sources-fr/master/data/organisations/json/all.json")
+
+(defonce orgas-esr-url
+  "https://raw.githubusercontent.com/DISIC/politique-de-contribution-open-source/master/comptes-organismes-publics-esr")
 
 (defonce annuaire-url ;; returns a csv
   "https://static.data.gouv.fr/resources/organisations-de-codegouvfr/20191011-110549/lannuaire.csv")
@@ -47,7 +51,12 @@
 ;; Core functions
 
 (defn add-data []
-  (let [floss-pol (apply merge
+  (let [esr-orgas (into #{}
+                        (s/split-lines
+                         (try (:body (curl/get orgas-esr-url))
+                              (catch Exception e
+                                (println (.getMessage e))))))
+        floss-pol (apply merge
                          (map #(let [{:keys [organisation url-politique-floss]} %]
                                  {organisation url-politique-floss})
                               (try (csv-url-to-map orgas-floss-policy-url)
@@ -70,6 +79,14 @@
      (filter #(pos? (:r %)))
      ;; Add information from `orgas-floss-policy-url`
      (map #(assoc % :fp (get floss-pol (:o %))))
+     ;; Add information from `orgas-esr-url`
+     (map #(assoc % :esr? (contains?
+                           esr-orgas
+                           ;; :o contains the true group
+                           ;; URL, whereas our source file
+                           ;; `orgas-esr-url` does not, so
+                           ;; replace /groups/ with /:
+                           (s/replace (:o %) "/groups/" "/"))))
      ;; Add information from `annuaire-url`.
      (map #(assoc % :an ((keyword (:l %)) annuaire)))
      ;; Add orga deps number
