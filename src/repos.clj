@@ -3,10 +3,10 @@
 ;; License-Filename: LICENSE
 
 (ns repos
-  (:require  [cheshire.core :as json]
-             [babashka.curl :as curl]
-             [clojure.string :as s]
-             [clojure.set :as set]))
+  (:require [jsonista.core :as json]
+            [clojure.string :as s]
+            [clojure.set :as set]
+            [utils :as utils]))
 
 (defonce urls
   {:repos
@@ -62,12 +62,8 @@
 (defn emojis
   "A map of emojis with {:char \"\" :name \"\"}."
   []
-  (->> (json/parse-string (:body
-                           (try
-                             (curl/get (:emoji-json urls))
-                             (catch Exception e
-                               (println (.getMessage e)))))
-                          true)
+  (->> (utils/json-parse-with-keywords
+        (utils/get-body (:emoji-json urls)))
        (map #(select-keys % [:char :name]))
        (map #(update % :name (fn [n] (str ":" (s/replace n " " "_") ":"))))))
 
@@ -78,14 +74,12 @@
         esr-orgas (into #{}
                         (map #(s/replace % #"^.+/([^/]+)$" "$1"))
                         (s/split-lines
-                         (try (:body (curl/get (:orgas-esr urls)))
-                              (catch Exception e
-                                (println (.getMessage e))))))
-        deps      (json/parse-string
+                         (utils/get-body  (:orgas-esr urls))))
+        deps      (json/read-value
                    (try (slurp "deps-repos.json")
                         (catch Exception e
                           (println (.getMessage e)))))
-        reuse     (json/parse-string
+        reuse     (json/read-value
                    (try (slurp "reuse.json")
                         (catch Exception e
                           (println (.getMessage e)))))]
@@ -120,9 +114,6 @@
 (defn init
   "Generate repos-raw.json and output repos."
   []
-  (when-let [repos (:body
-                    (try (curl/get (:repos urls))
-                         (catch Exception e
-                           (println (.getMessage e)))))]
+  (when-let [repos (utils/get-body  (:repos urls))]
     (spit "repos-raw.json" repos)
-    (json/parse-string repos true)))
+    (utils/json-parse-with-keywords repos)))

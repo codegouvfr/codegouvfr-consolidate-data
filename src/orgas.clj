@@ -3,11 +3,9 @@
 ;; License-Filename: LICENSE
 
 (ns orgas
-  (:require  [cheshire.core :as json]
-             [clojure.data.csv :as csv]
-             [babashka.curl :as curl]
-             [clojure.set :as set]
-             [clojure.string :as s]))
+  (:require [jsonista.core :as json]
+            [clojure.set :as set]
+            [utils :as utils]))
 
 (defonce urls
   {:orgas
@@ -35,32 +33,18 @@
    :organisation_url   :o
    :avatar_url         :au})
 
-;; Utility functions
-
-(defn- rows->maps [csv]
-  (let [headers (map keyword (first csv))
-        rows    (rest csv)]
-    (map #(zipmap headers %) rows)))
-
-(defn csv-url-to-map [url]
-  (rows->maps (csv/read-csv (:body (curl/get url)))))
-
 ;; Core functions
 
 (defn add-data []
   (let [floss-pol (apply merge
                          (map #(let [{:keys [organisation url-politique-floss]} %]
                                  {organisation url-politique-floss})
-                              (try (csv-url-to-map (:orgas-floss-policy urls))
-                                   (catch Exception e
-                                     (println (.getMessage e))))))
+                              (utils/csv-url-to-map (:orgas-floss-policy urls))))
         annuaire  (apply merge
                          (map #(let [{:keys [github lannuaire]} %]
                                  {(keyword github) lannuaire})
-                              (try (csv-url-to-map (:annuaire urls))
-                                   (catch Exception e
-                                     (println (.getMessage e))))))
-        deps      (json/parse-string
+                              (utils/csv-url-to-map (:annuaire urls))))
+        deps      (json/read-value
                    (try (slurp "deps-orgas.json")
                         (catch Exception e
                           (println (.getMessage e)))))]
@@ -81,8 +65,6 @@
 (defn init
   "Generate orgas.json."
   []
-  (when-let [orgas (:body (try (curl/get (:orgas urls))
-                               (catch Exception e
-                                 (println (.getMessage e)))))]
+  (when-let [orgas (utils/get-body (:orgas urls))]
     (spit "orgas-raw.json" orgas)
-    (json/parse-string orgas true)))
+    (utils/json-parse-with-keywords orgas)))
