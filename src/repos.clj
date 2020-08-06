@@ -12,7 +12,9 @@
   {:repos
    "https://raw.githubusercontent.com/etalab/data-codes-sources-fr/master/data/repertoires/json/all.json"
    :emoji-json
-   "https://raw.githubusercontent.com/amio/emoji.json/master/emoji.json"})
+   "https://raw.githubusercontent.com/amio/emoji.json/master/emoji.json"
+   :orgas-esr
+   "https://raw.githubusercontent.com/DISIC/politique-de-contribution-open-source/master/comptes-organismes-publics-esr"})
 
 ;; Ignore these keywords
 ;; :software_heritage_url :software_heritage_exists :derniere_modification
@@ -72,15 +74,21 @@
 (defn add-data
   "Relace keywords, add licenses and emojis."
   []
-  (let [emojis (emojis)
-        deps   (json/parse-string
-                (try (slurp "deps-repos.json")
-                     (catch Exception e
-                       (println (.getMessage e)))))
-        reuse  (json/parse-string
-                (try (slurp "reuse.json")
-                     (catch Exception e
-                       (println (.getMessage e)))))]
+  (let [emojis    (emojis)
+        esr-orgas (into #{}
+                        (map #(s/replace % #"^.+/([^/]+)$" "$1"))
+                        (s/split-lines
+                         (try (:body (curl/get (:orgas-esr urls)))
+                              (catch Exception e
+                                (println (.getMessage e))))))
+        deps      (json/parse-string
+                   (try (slurp "deps-repos.json")
+                        (catch Exception e
+                          (println (.getMessage e)))))
+        reuse     (json/parse-string
+                   (try (slurp "reuse.json")
+                        (catch Exception e
+                          (println (.getMessage e)))))]
     (comp
      ;; Remap keywords
      (map #(set/rename-keys
@@ -89,6 +97,8 @@
      (map #(if-let [d (not-empty (get deps (str [(:n %) (:o %)])))]
              (assoc % :dp (count d))
              %))
+     ;; Add information from orgas-esr
+     (map #(assoc % :e (contains? esr-orgas (:o %))))
      ;; Add number of reuse
      (map #(if-let [r (not-empty (get reuse (:r %)))]
              (assoc % :g (get r "r"))

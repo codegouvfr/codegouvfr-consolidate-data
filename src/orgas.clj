@@ -12,8 +12,6 @@
 (defonce urls
   {:orgas
    "https://raw.githubusercontent.com/etalab/data-codes-sources-fr/master/data/organisations/json/all.json"
-   :orgas-esr
-   "https://raw.githubusercontent.com/DISIC/politique-de-contribution-open-source/master/comptes-organismes-publics-esr"
    ;; Next url return a csv
    :annuaire
    "https://static.data.gouv.fr/resources/organisations-de-codegouvfr/20191011-110549/lannuaire.csv"
@@ -50,12 +48,7 @@
 ;; Core functions
 
 (defn add-data []
-  (let [esr-orgas (into #{}
-                        (s/split-lines
-                         (try (:body (curl/get (:orgas-esr urls)))
-                              (catch Exception e
-                                (println (.getMessage e))))))
-        floss-pol (apply merge
+  (let [floss-pol (apply merge
                          (map #(let [{:keys [organisation url-politique-floss]} %]
                                  {organisation url-politique-floss})
                               (try (csv-url-to-map (:orgas-floss-policy urls))
@@ -78,14 +71,6 @@
      (filter #(pos? (:r %)))
      ;; Add information from orgas-floss-policy
      (map #(assoc % :fp (get floss-pol (:o %))))
-     ;; Add information from orgas-esr
-     (map #(assoc % :esr? (contains?
-                           esr-orgas
-                           ;; :o contains the true group
-                           ;; URL, whereas our source file
-                           ;; `orgas-esr` does not, so
-                           ;; replace /groups/ with /:
-                           (s/replace (:o %) "/groups/" "/"))))
      ;; Add information from annuaire
      (map #(assoc % :an ((keyword (:l %)) annuaire)))
      ;; Add orga deps number
