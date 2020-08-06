@@ -57,6 +57,8 @@
     (comp
      ;; Remap keywords
      (map #(set/rename-keys % orgas-mapping))
+     ;; Only keep organizations with repositories
+     (filter #(pos? (:r %)))
      ;; Add information from `annuaire-url`.
      (map #(assoc % :an ((keyword (:l %)) annuaire)))
      ;; Add orga deps number
