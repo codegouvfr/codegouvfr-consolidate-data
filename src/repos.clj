@@ -8,11 +8,11 @@
              [clojure.string :as s]
              [clojure.set :as set]))
 
-(defonce repos-url
-  "https://raw.githubusercontent.com/etalab/data-codes-sources-fr/master/data/repertoires/json/all.json")
-
-(defonce emoji-json-url
-  "https://raw.githubusercontent.com/amio/emoji.json/master/emoji.json")
+(defonce urls
+  {:repos
+   "https://raw.githubusercontent.com/etalab/data-codes-sources-fr/master/data/repertoires/json/all.json"
+   :emoji-json
+   "https://raw.githubusercontent.com/amio/emoji.json/master/emoji.json"})
 
 ;; Ignore these keywords
 ;; :software_heritage_url :software_heritage_exists :derniere_modification
@@ -62,7 +62,7 @@
   []
   (->> (json/parse-string (:body
                            (try
-                             (curl/get emoji-json-url)
+                             (curl/get (:emoji-json urls))
                              (catch Exception e
                                (println (.getMessage e)))))
                           true)
@@ -108,10 +108,10 @@
                 @desc)))))))
 
 (defn init
-  "Generate repos-raw.json from `repos-url` and output repos."
+  "Generate repos-raw.json and output repos."
   []
   (when-let [repos (:body
-                    (try (curl/get repos-url)
+                    (try (curl/get (:repos urls))
                          (catch Exception e
                            (println (.getMessage e)))))]
     (spit "repos-raw.json" repos)

@@ -9,17 +9,16 @@
              [clojure.set :as set]
              [clojure.string :as s]))
 
-(defonce orgas-url
-  "https://raw.githubusercontent.com/etalab/data-codes-sources-fr/master/data/organisations/json/all.json")
-
-(defonce orgas-esr-url
-  "https://raw.githubusercontent.com/DISIC/politique-de-contribution-open-source/master/comptes-organismes-publics-esr")
-
-(defonce annuaire-url ;; returns a csv
-  "https://static.data.gouv.fr/resources/organisations-de-codegouvfr/20191011-110549/lannuaire.csv")
-
-(defonce orgas-floss-policy-url  ;; returns a csv
-  "https://raw.githubusercontent.com/DISIC/politique-de-contribution-open-source/master/comptes-organismes-avec-politique-de-publication-floss.csv")
+(defonce urls
+  {:orgas
+   "https://raw.githubusercontent.com/etalab/data-codes-sources-fr/master/data/organisations/json/all.json"
+   :orgas-esr
+   "https://raw.githubusercontent.com/DISIC/politique-de-contribution-open-source/master/comptes-organismes-publics-esr"
+   ;; Next url return a csv
+   :annuaire
+   "https://static.data.gouv.fr/resources/organisations-de-codegouvfr/20191011-110549/lannuaire.csv"
+   :orgas-floss-policy
+   "https://raw.githubusercontent.com/DISIC/politique-de-contribution-open-source/master/comptes-organismes-avec-politique-de-publication-floss.csv"})
 
 ;; Ignore these keywords
 ;; :private :default_branch :language :id :checked :owner :full_name
@@ -53,19 +52,19 @@
 (defn add-data []
   (let [esr-orgas (into #{}
                         (s/split-lines
-                         (try (:body (curl/get orgas-esr-url))
+                         (try (:body (curl/get (:orgas-esr urls)))
                               (catch Exception e
                                 (println (.getMessage e))))))
         floss-pol (apply merge
                          (map #(let [{:keys [organisation url-politique-floss]} %]
                                  {organisation url-politique-floss})
-                              (try (csv-url-to-map orgas-floss-policy-url)
+                              (try (csv-url-to-map (:orgas-floss-policy urls))
                                    (catch Exception e
                                      (println (.getMessage e))))))
         annuaire  (apply merge
                          (map #(let [{:keys [github lannuaire]} %]
                                  {(keyword github) lannuaire})
-                              (try (csv-url-to-map annuaire-url)
+                              (try (csv-url-to-map (:annuaire urls))
                                    (catch Exception e
                                      (println (.getMessage e))))))
         deps      (json/parse-string
@@ -77,17 +76,17 @@
      (map #(set/rename-keys % orgas-mapping))
      ;; Only keep organizations with repositories
      (filter #(pos? (:r %)))
-     ;; Add information from `orgas-floss-policy-url`
+     ;; Add information from orgas-floss-policy
      (map #(assoc % :fp (get floss-pol (:o %))))
-     ;; Add information from `orgas-esr-url`
+     ;; Add information from orgas-esr
      (map #(assoc % :esr? (contains?
                            esr-orgas
                            ;; :o contains the true group
                            ;; URL, whereas our source file
-                           ;; `orgas-esr-url` does not, so
+                           ;; `orgas-esr` does not, so
                            ;; replace /groups/ with /:
                            (s/replace (:o %) "/groups/" "/"))))
-     ;; Add information from `annuaire-url`.
+     ;; Add information from annuaire
      (map #(assoc % :an ((keyword (:l %)) annuaire)))
      ;; Add orga deps number
      (map #(if-let [d (not-empty (get deps (str [(:l %) (:p %)])))]
@@ -95,9 +94,9 @@
              %)))))
 
 (defn init
-  "Generate orgas.json from `orgas-url`."
+  "Generate orgas.json."
   []
-  (when-let [orgas (:body (try (curl/get orgas-url)
+  (when-let [orgas (:body (try (curl/get (:orgas urls))
                                (catch Exception e
                                  (println (.getMessage e)))))]
     (spit "orgas-raw.json" orgas)
