@@ -14,6 +14,9 @@
 (defonce annuaire-url ;; returns a csv
   "https://static.data.gouv.fr/resources/organisations-de-codegouvfr/20191011-110549/lannuaire.csv")
 
+(defonce orgas-floss-policy-url  ;; returns a csv
+  "https://raw.githubusercontent.com/DISIC/politique-de-contribution-open-source/master/comptes-organismes-avec-politique-de-publication-floss.csv")
+
 ;; Ignore these keywords
 ;; :private :default_branch :language :id :checked :owner :full_name
 (def orgas-mapping
@@ -44,21 +47,29 @@
 ;; Core functions
 
 (defn add-data []
-  (let [annuaire (apply merge
-                        (map #(let [{:keys [github lannuaire]} %]
-                                {(keyword github) lannuaire})
-                             (try (csv-url-to-map annuaire-url)
-                                  (catch Exception e
-                                    (println (.getMessage e))))))
-        deps     (json/parse-string
-                  (try (slurp "deps-orgas.json")
-                       (catch Exception e
-                         (println (.getMessage e)))))]
+  (let [floss-pol (apply merge
+                         (map #(let [{:keys [organisation url-politique-floss]} %]
+                                 {organisation url-politique-floss})
+                              (try (csv-url-to-map orgas-floss-policy-url)
+                                   (catch Exception e
+                                     (println (.getMessage e))))))
+        annuaire  (apply merge
+                         (map #(let [{:keys [github lannuaire]} %]
+                                 {(keyword github) lannuaire})
+                              (try (csv-url-to-map annuaire-url)
+                                   (catch Exception e
+                                     (println (.getMessage e))))))
+        deps      (json/parse-string
+                   (try (slurp "deps-orgas.json")
+                        (catch Exception e
+                          (println (.getMessage e)))))]
     (comp
      ;; Remap keywords
      (map #(set/rename-keys % orgas-mapping))
      ;; Only keep organizations with repositories
      (filter #(pos? (:r %)))
+     ;; Add information from `orgas-floss-policy-url`
+     (map #(assoc % :fp (get floss-pol (:o %))))
      ;; Add information from `annuaire-url`.
      (map #(assoc % :an ((keyword (:l %)) annuaire)))
      ;; Add orga deps number
