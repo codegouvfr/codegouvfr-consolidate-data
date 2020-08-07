@@ -269,7 +269,7 @@
               (sort-by val)
               reverse
               ;; (filter (fn [[r v]] (< 0.1 v)))
-              (take 7)
+              (take 5)
               keys))
        m))
 
