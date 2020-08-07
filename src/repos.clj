@@ -16,6 +16,9 @@
    :orgas-esr
    "https://raw.githubusercontent.com/DISIC/politique-de-contribution-open-source/master/comptes-organismes-publics-esr"})
 
+(when-let [repos (utils/get-contents (:repos urls))]
+  (spit "repos-raw.json" repos))
+
 ;; Ignore these keywords
 ;; :software_heritage_url :software_heritage_exists :derniere_modification
 ;; :page_accueil :date_creation :plateforme
@@ -59,30 +62,26 @@
    "Do What The Fuck You Want To Public License"                "Do What The Fuck You Want To Public License (WTFPL)"
    "Creative Commons Attribution 4.0 International"             "Creative Commons Attribution 4.0 International (CC-BY-4.0)"})
 
-(defn emojis
+(defn get-emojis
   "A map of emojis with {:char \"\" :name \"\"}."
   []
   (->> (utils/json-parse-with-keywords
-        (utils/get-body (:emoji-json urls)))
+        (utils/get-contents (:emoji-json urls)))
        (map #(select-keys % [:char :name]))
        (map #(update % :name (fn [n] (str ":" (s/replace n " " "_") ":"))))))
 
 (defn add-data
   "Relace keywords, add licenses and emojis."
   []
-  (let [emojis    (emojis)
+  (let [emojis    (get-emojis)
         esr-orgas (into #{}
                         (map #(s/replace % #"^.+/([^/]+)$" "$1"))
                         (s/split-lines
-                         (utils/get-body  (:orgas-esr urls))))
+                         (utils/get-contents  (:orgas-esr urls))))
         deps      (json/read-value
-                   (try (slurp "deps-repos.json")
-                        (catch Exception e
-                          (println (.getMessage e)))))
+                   (utils/get-contents "deps-repos.json"))
         reuse     (json/read-value
-                   (try (slurp "reuse.json")
-                        (catch Exception e
-                          (println (.getMessage e)))))]
+                   (utils/get-contents "reuse.json"))]
     (comp
      ;; Remap keywords
      (map #(set/rename-keys
@@ -111,9 +110,22 @@
                                   (s/replace x (:name e) (:char e))))))
                 @desc)))))))
 
-(defn init
-  "Generate repos-raw.json and output repos."
-  []
-  (when-let [repos (utils/get-body  (:repos urls))]
-    (spit "repos-raw.json" repos)
-    (utils/json-parse-with-keywords repos)))
+;; Initialize repos-deps
+(def repos-deps
+  (group-by (juxt :nom :organisation_nom)
+            (utils/json-parse-with-keywords
+             (utils/get-contents "repos-deps.json"))))
+
+(defn find-repo-deps [{:keys [nom organisation_nom]}]
+  (-> (get repos-deps [nom organisation_nom])
+      first
+      (select-keys [:deps_updated :deps])))
+
+;; Initialize repos atom by reusing :deps_updated and :deps from
+;; repos-deps.json when available, otherwise using repos-raw.json.
+(def repos
+  (let [res (-> (utils/get-contents "repos-raw.json")
+                utils/json-parse-with-keywords)]
+    (->> (map #(merge % (find-repo-deps %)) res)
+         ;; (take 100) ;; DEBUG
+         atom)))

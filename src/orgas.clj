@@ -34,7 +34,6 @@
    :avatar_url         :au})
 
 ;; Core functions
-
 (defn add-data []
   (let [floss-pol (apply merge
                          (map #(let [{:keys [organisation url-politique-floss]} %]
@@ -45,9 +44,7 @@
                                  {(keyword github) lannuaire})
                               (utils/csv-url-to-map (:annuaire urls))))
         deps      (json/read-value
-                   (try (slurp "deps-orgas.json")
-                        (catch Exception e
-                          (println (.getMessage e)))))]
+                   (utils/get-contents "deps-orgas.json"))]
     (comp
      ;; Remap keywords
      (map #(set/rename-keys % orgas-mapping))
@@ -65,6 +62,6 @@
 (defn init
   "Generate orgas.json."
   []
-  (when-let [orgas (utils/get-body (:orgas urls))]
+  (when-let [orgas (utils/get-contents (:orgas urls))]
     (spit "orgas-raw.json" orgas)
     (utils/json-parse-with-keywords orgas)))
