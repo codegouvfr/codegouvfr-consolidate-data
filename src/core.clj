@@ -150,7 +150,10 @@
   ;; Spit other json files
   (spit-deps-repos @repos/repos)
   (spit-deps-orgas @repos/repos)
+  ;;
   (deps/spit-deps-repos-similarity @repos/repos @deps/deps)
+  (deps/spit-deps-orgas-similarity @repos/repos @deps/deps)
+  ;;
   (spit-deps-total @deps/deps)
   (spit-deps-top @deps/deps)
   (println "Done creating/updating all json files"))
