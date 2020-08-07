@@ -85,8 +85,8 @@
     (spit "deps.json" (json/write-value-as-string deps-reps-limited))
     (println "Added or updated deps.json")))
 
-(defn- spit-deps-repos []
-  (let [reps0 (group-by (juxt :nom :organisation_nom) @repos/repos)
+(defn- spit-deps-repos [repos]
+  (let [reps0 (group-by (juxt :nom :organisation_nom) repos)
         reps  (reduce-kv (fn [m k v] (assoc m k (utils/get-all-deps v)))
                          {}
                          reps0)]
@@ -94,24 +94,24 @@
           (json/write-value-as-string reps))
     (println "Added deps-repos.json")))
 
-(defn- spit-deps-orgas []
-  (let [orgs1 (group-by (juxt :organisation_nom :plateforme) @repos/repos)
+(defn- spit-deps-orgas [repos]
+  (let [orgs1 (group-by (juxt :organisation_nom :plateforme) repos)
         orgs0 (reduce-kv (fn [m k v] (assoc m k (utils/get-all-deps v)))
                          {}
                          orgs1)]
     (spit "deps-orgas.json" (json/write-value-as-string orgs0))
     (println "Added deps-orgas.json")))
 
-(defn- spit-deps-total []
+(defn- spit-deps-total [deps]
   (spit "deps-total.json"
         (json/write-value-as-string
-         {:deps-total (count @deps/deps)}))
+         {:deps-total (count deps)}))
   (println "Added deps-total.json"))
 
-(defn- spit-deps-top []
+(defn- spit-deps-top [deps]
   (spit "deps-top.json"
         (json/write-value-as-string
-         (->> @deps/deps
+         (->> deps
               (sort-by #(count (:r %)))
               reverse
               (take 100))))
@@ -135,7 +135,7 @@
   (println "Updating reuse.json")
   (reuse/spit-info @repos/repos)
   ;;
-  ;; Updating @repos/repos variable with dependencies
+  ;; Updating @repos/repos with all dependencies
   (reset! repos/repos (map deps/add-dependencies @repos/repos))
   ;;
   ;; Update @deps/deps with valid dependencies
@@ -148,10 +148,11 @@
   (spit-deps-with-repos)
   ;;
   ;; Spit other json files
-  (spit-deps-repos)
-  (spit-deps-orgas)
-  (spit-deps-total)
-  (spit-deps-top)
+  (spit-deps-repos @repos/repos)
+  (spit-deps-orgas @repos/repos)
+  (deps/spit-deps-repos-similarity @repos/repos @deps/deps)
+  (spit-deps-total @deps/deps)
+  (spit-deps-top @deps/deps)
   (println "Done creating/updating all json files"))
 
 ;; (-main)

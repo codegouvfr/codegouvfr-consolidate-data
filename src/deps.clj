@@ -7,14 +7,16 @@
             [java-time :as t]))
 
 (def dep-files
-  {"PHP"        ["composer.json"]
-   "Vue"        ["package.json"]
-   "JavaScript" ["package.json"]
-   "TypeScript" ["package.json"]
-   "Python"     ["setup.py" "requirements.txt"]
-   "Ruby"       ["Gemfile"]
-   "Java"       ["pom.xml"]
-   "Clojure"    ["pom.xml" "deps.edn" "project.clj"]})
+  {"PHP"        {:files ["composer.json"] :types ["composer"]}
+   "Vue"        {:files ["package.json"] :types ["npm"]}
+   "JavaScript" {:files ["package.json"] :types ["npm"]}
+   "TypeScript" {:files ["package.json"] :types ["npm"]}
+   "Python"     {:files ["setup.py" "requirements.txt"] :types ["pypi"]}
+   "Ruby"       {:files ["Gemfile"] :types ["bundler"]}
+   "Java"       {:files ["pom.xml"] :types ["maven"]}
+   "Clojure"    {:files ["pom.xml" "deps.edn" "project.clj"] :types ["maven" "clojars"]}})
+
+(:types (get dep-files "Java"))
 
 (def deps-init
   (let [deps (utils/get-contents "deps-all.json")]
@@ -219,7 +221,7 @@
           fmt-str    (if (= plateforme "GitHub")
                        "https://raw.githubusercontent.com/%s/%s/master/%s"
                        (str baseurl "/%s/%s/-/raw/master/%s"))
-          dep-fnames (get dep-files langage)
+          dep-fnames (:files (get dep-files langage))
           new-deps   (atom {})]
       (doseq [f dep-fnames]
         (when-let [body (utils/get-contents (format fmt-str organisation_nom nom f))]
@@ -245,3 +247,62 @@
       (assoc repo
              :deps (utils/flatten-deps @new-deps)
              :deps_updated (str (t/instant))))))
+
+;; Compute dep similarity
+
+(defn jaccard-coefficient [a b]
+  (/ (count (filter (into #{} b) a))
+     (* 1.0 (count b))))
+
+(defn jaccard-distance [a b]
+  (- 1 (jaccard-coefficient a b)))
+
+(defn get-jaccard-distance [m]
+  (map #(hash-map
+         (key %)
+         (->> m
+              (map (fn [[k v]]
+                     (hash-map
+                      k (jaccard-distance
+                         (val %) v))))
+              (apply merge)
+              (sort-by val)
+              reverse
+              ;; (filter (fn [[r v]] (< 0.1 v)))
+              (take 7)
+              keys))
+       m))
+
+(defn- compute-similarity [deps-all repos lang]
+  (let [deps0     (map #(select-keys % [:n :t]) deps-all)
+        dep-types (into #{} (:types (get dep-files lang)))
+        deps-lang (filter #(contains? dep-types (:t %)) deps0)]
+    (->> (map (fn [{:keys [repertoire_url deps]}]
+                (when (not-empty deps)
+                  (hash-map repertoire_url
+                            (->> (map #(if (contains? (into #{} deps) %)
+                                         (hash-map (:n %) 1)
+                                         (hash-map (:n %) 0))
+                                      deps-lang)
+                                 (apply merge)))))
+              repos)
+         (remove nil?)
+         (apply merge))))
+
+(defn spit-deps-repos-similarity [repos deps]
+  (let [repos-by-lang
+        (select-keys (group-by :langage repos)
+                     ["Python" "Java" "Clojure" "Ruby" "PHP"
+                      "Javascript" "TypeScript" "Vue"])]
+    (->> repos-by-lang
+         (map (fn [[lang repos]]
+                (hash-map
+                 lang
+                 (get-jaccard-distance
+                  (compute-similarity deps repos lang)))))
+         (map vals)
+         flatten
+         (apply merge)
+         (filter #(not-empty (val %)))
+         json/write-value-as-string
+         (spit "deps-repos-sim.json"))))
