@@ -49,7 +49,6 @@
          (filter #(= (:plateforme %) "GitHub"))
          (map #(add-reuse % reused))
          (apply merge)
-         ;; (merge reused)
          json/write-value-as-string
          (spit "reuse.json")))
   (println "Added reuse information and stored it in reuse.json"))

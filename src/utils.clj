@@ -32,11 +32,11 @@
       res)))
 
 (defn less-than-x-days-ago [^Integer days ^String date-str]
-  (when (and (integer? days) (string? date-str))
-    (try
-      (t/before? (t/minus (t/instant) (t/days days))
-                 (t/instant date-str))
-      (catch Exception _ nil))))
+  (try
+    (t/before? (t/minus (t/instant) (t/days days))
+               (t/instant date-str))
+    (catch Exception e
+      (println (.getMessage e)))))
 
 (defn flatten-deps [m]
   (-> (fn [[k v]] (map #(assoc {} :t (name k) :n %) v))

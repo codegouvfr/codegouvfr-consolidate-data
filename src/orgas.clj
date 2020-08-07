@@ -63,5 +63,4 @@
   "Generate orgas.json."
   []
   (when-let [orgas (utils/get-contents (:orgas urls))]
-    (spit "orgas-raw.json" orgas)
     (utils/json-parse-with-keywords orgas)))

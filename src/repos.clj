@@ -16,9 +16,6 @@
    :orgas-esr
    "https://raw.githubusercontent.com/DISIC/politique-de-contribution-open-source/master/comptes-organismes-publics-esr"})
 
-(when-let [repos (utils/get-contents (:repos urls))]
-  (spit "repos-raw.json" repos))
-
 ;; Ignore these keywords
 ;; :software_heritage_url :software_heritage_exists :derniere_modification
 ;; :page_accueil :date_creation :plateforme
@@ -122,10 +119,10 @@
       (select-keys [:deps_updated :deps])))
 
 ;; Initialize repos atom by reusing :deps_updated and :deps from
-;; repos-deps.json when available, otherwise using repos-raw.json.
+;; repos-deps.json when available
 (def repos
-  (let [res (-> (utils/get-contents "repos-raw.json")
-                utils/json-parse-with-keywords)]
-    (->> (map #(merge % (find-repo-deps %)) res)
+  (let [res (utils/get-contents (:repos urls))]
+    (->> (map #(merge % (find-repo-deps %))
+              (utils/json-parse-with-keywords res))
          ;; (take 100) ;; DEBUG
          atom)))

@@ -119,13 +119,13 @@
 
 (defn -main []
   ;;
-  (println "Updating repos-raw.json and repos.json")
+  (println "Updating repos.json")
   (->> @repos/repos
        (sequence (repos/add-data))
        json/write-value-as-string
        (spit "repos.json"))
   ;;
-  (println "Updating orgas-raw.json and orgas.json")
+  (println "Updating orgas.json")
   (->> (orgas/init)
        (sequence (orgas/add-data))
        json/write-value-as-string
