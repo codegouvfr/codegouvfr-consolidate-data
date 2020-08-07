@@ -304,5 +304,7 @@
          flatten
          (apply merge)
          (filter #(not-empty (val %)))
+         (map (fn [[k v]] (hash-map (s/replace k #"^.+/([^/]+)$" "$1") v)))
+         (apply merge)
          json/write-value-as-string
          (spit "deps-repos-sim.json"))))
