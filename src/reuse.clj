@@ -7,10 +7,6 @@
             [hickory.core :as h]
             [hickory.select :as hs]))
 
-(def reused
-  (when-let [res (utils/get-contents "reuse.json")]
-    (json/read-value res)))
-
 (defn- get-reuse
   "Return a hash-map with reuse information"
   [repertoire_url]
@@ -34,7 +30,7 @@
 
 (defn- add-reuse
   "Return a hash-map entry with the repo URL and the reuse information."
-  [{:keys [repertoire_url]}]
+  [{:keys [repertoire_url]} reused]
   (if-let [{:keys [u] :as entry}
            (walk/keywordize-keys
             (get reused repertoire_url))]
@@ -46,11 +42,14 @@
 (defn spit-info
   "Generate reuse.json with GitHub reused-by information."
   [repos]
-  (->> repos
-       (filter #(= (:plateforme %) "GitHub"))
-       (map add-reuse)
-       (apply merge)
-       (merge reused)
-       json/write-value-as-string
-       (spit "reuse.json"))
+  (let [reused
+        (when-let [res (utils/get-contents "reuse.json")]
+          (json/read-value res))]
+    (->> repos
+         (filter #(= (:plateforme %) "GitHub"))
+         (map #(add-reuse % reused))
+         (apply merge)
+         ;; (merge reused)
+         json/write-value-as-string
+         (spit "reuse.json")))
   (println "Added reuse information and stored it in reuse.json"))
