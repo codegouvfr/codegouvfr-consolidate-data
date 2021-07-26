@@ -17,8 +17,6 @@
    "Java"       {:files ["pom.xml"] :types ["maven"]}
    "Clojure"    {:files ["pom.xml" "deps.edn" "project.clj"] :types ["maven" "clojars"]}})
 
-(:types (get dep-files "Java"))
-
 (def deps-init
   (let [deps (utils/get-contents "deps-all.json")]
     (->>  deps
