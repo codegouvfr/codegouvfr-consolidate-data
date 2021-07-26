@@ -5,3 +5,4 @@ codegouvfr-data
 *.json
 .eastwood
 data/
+.lsp/
