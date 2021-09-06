@@ -10,10 +10,10 @@
 
  :deps {org.clojure/clojure                 {:mvn/version "1.10.3"}
         borkdude/babashka                   {:mvn/version "0.2.6"}
-        metosin/jsonista                    {:mvn/version "0.3.1"}
+        metosin/jsonista                    {:mvn/version "0.3.3"}
         org.clojure/data.csv                {:mvn/version "1.0.0"}
         hickory/hickory                     {:mvn/version "0.7.1"}
-        clojure.java-time/clojure.java-time {:mvn/version "0.3.2"}
+        clojure.java-time/clojure.java-time {:mvn/version "0.3.3"}
         net.mikera/core.matrix              {:mvn/version "0.62.0"}}
 
  :aliases {:native-image
@@ -21,7 +21,7 @@
                         ;; "--verbose"
                         "--no-fallback"
                         "--report-unsupported-elements-at-runtime"
-                        "--initialize-at-build-time"
+                        ;; "--initialize-at-build-time"
                         ;; Allow https
                         "-H:EnableURLProtocols=http,https"
                         ;; "-H:+ReportExceptionStackTraces"
