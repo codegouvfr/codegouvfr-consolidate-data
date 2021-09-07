@@ -7,3 +7,4 @@ codegouvfr-data
 data/
 .lsp/
 *.txt
+target/
