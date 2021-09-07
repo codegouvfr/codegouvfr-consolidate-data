@@ -6,3 +6,4 @@ codegouvfr-data
 .eastwood
 data/
 .lsp/
+*.txt
