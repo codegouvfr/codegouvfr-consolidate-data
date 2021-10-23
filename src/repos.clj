@@ -24,7 +24,7 @@
   {
    :last_update       :u
    :description       :d
-   :is_archive        :a?
+   :is_archived       :a?
    :is_fork           :f?
    :language          :l
    :license           :li
