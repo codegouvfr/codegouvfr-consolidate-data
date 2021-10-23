@@ -64,10 +64,10 @@
       (println "Updated @deps with valid dependencies"))))
 
 (defn- spit-deps-with-repos []
-  (let [reps (map #(select-keys % [:deps :repertoire_url]) @repos/repos)
+  (let [reps (map #(select-keys % [:deps :repository_url]) @repos/repos)
         deps-reps
         (map (fn [{:keys [n t] :as dep}]
-               (->> (map :repertoire_url
+               (->> (map :repository_url
                          (filter (fn [{:keys [deps]}]
                                    (not-empty
                                     (filter (fn [d] (and (= (:n d) n)
@@ -86,7 +86,7 @@
     (println "Added or updated deps.json")))
 
 (defn- spit-deps-repos [repos]
-  (let [reps0 (group-by (juxt :nom :organisation_nom) repos)
+  (let [reps0 (group-by (juxt :name :organization_name) repos)
         reps  (reduce-kv (fn [m k v] (assoc m k (utils/get-all-deps v)))
                          {}
                          reps0)]
@@ -95,7 +95,7 @@
     (println "Added deps-repos.json")))
 
 (defn- spit-deps-orgas [repos]
-  (let [orgs1 (group-by (juxt :organisation_nom :plateforme) repos)
+  (let [orgs1 (group-by (juxt :organization_name :platform) repos)
         orgs0 (reduce-kv (fn [m k v] (assoc m k (utils/get-all-deps v)))
                          {}
                          orgs1)]

@@ -13,10 +13,10 @@
 
 (defn- get-reuse
   "Return a hash-map with reuse information"
-  [repertoire_url]
+  [repository_url]
   (when-let [repo-github-html
-             (utils/get-contents (str repertoire_url "/network/dependents"))]
-    (println "Getting dependents for" repertoire_url)
+             (utils/get-contents (str repository_url "/network/dependents"))]
+    (println "Getting dependents for" repository_url)
     (let [updated   (str (t/instant))
           btn-links (-> repo-github-html
                         h/parse
@@ -27,21 +27,21 @@
           nb-pkgs   (or (try (re-find #"\d+" (last (:content (nth btn-links 2))))
                              (catch Exception _ "0")) "0")]
       (hash-map
-       repertoire_url
+       repository_url
        {:u updated
         :r (+ (edn/read-string nb-reps)
               (edn/read-string nb-pkgs))}))))
 
 (defn- add-reuse
   "Return a hash-map entry with the repo URL and the reuse information."
-  [{:keys [repertoire_url]} reused]
+  [{:keys [repository_url]} reused]
   (if-let [{:keys [u] :as entry}
            (walk/keywordize-keys
-            (get reused repertoire_url))]
+            (get reused repository_url))]
     (if (utils/less-than-x-days-ago 14 u)
-      (hash-map repertoire_url entry)
-      (get-reuse repertoire_url))
-    (get-reuse repertoire_url)))
+      (hash-map repository_url entry)
+      (get-reuse repository_url))
+    (get-reuse repository_url)))
 
 (defn spit-info
   "Generate reuse.json with GitHub reused-by information."

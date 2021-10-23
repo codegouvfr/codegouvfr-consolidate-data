@@ -213,22 +213,22 @@
 (defn add-dependencies
   "Take a repository map and return the map completed with dependencies."
   [{:keys
-    [repertoire_url organisation_nom est_archive
-     nom plateforme langage deps_updated] :as repo}]
-  (if (or (= langage "")
-          (= est_archive true)
+    [repository_url organization_name is_archived
+     name platform language deps_updated] :as repo}]
+  (if (or (= language "")
+          (= is_archived true)
           (when-let [d (not-empty deps_updated)]
             (utils/less-than-x-days-ago 14 d)))
     repo
-    (let [baseurl    (re-find #"https?://[^/]+" repertoire_url)
-          fmt-str    (if (= plateforme "GitHub")
+    (let [baseurl    (re-find #"https?://[^/]+" repository_url)
+          fmt-str    (if (= platform "GitHub")
                        "https://raw.githubusercontent.com/%s/%s/master/%s"
                        (str baseurl "/%s/%s/-/raw/master/%s"))
-          dep-fnames (:files (get dep-files langage))
+          dep-fnames (:files (get dep-files language))
           new-deps   (atom {})]
       (doseq [f dep-fnames]
-        (when-let [body (utils/get-contents (format fmt-str organisation_nom nom f))]
-          (println "Fetching dependencies for" (format fmt-str organisation_nom nom f))
+        (when-let [body (utils/get-contents (format fmt-str organization_name name f))]
+          (println "Fetching dependencies for" (format fmt-str organization_name name f))
           (let [reqs (condp = f
                        "package.json"
                        (get-packagejson-deps body)
@@ -280,9 +280,9 @@
   (let [deps0     (map #(select-keys % [:n :t]) deps-all)
         dep-types (into #{} (:types (get dep-files lang)))
         deps-lang (filter #(contains? dep-types (:t %)) deps0)]
-    (->> (map (fn [{:keys [repertoire_url deps]}]
+    (->> (map (fn [{:keys [repository_url deps]}]
                 (when (not-empty deps)
-                  (hash-map repertoire_url
+                  (hash-map repository_url
                             (->> (map #(if (contains? (into #{} deps) %)
                                          (hash-map (:n %) 1)
                                          (hash-map (:n %) 0))
@@ -294,7 +294,7 @@
 
 (defn spit-deps-repos-similarity [repos deps]
   (let [repos-by-lang
-        (select-keys (group-by :langage repos)
+        (select-keys (group-by :language repos)
                      ["Python" "Java" "Clojure" "Ruby" "PHP"
                       "Javascript" "TypeScript" "Vue"])]
     (->> repos-by-lang

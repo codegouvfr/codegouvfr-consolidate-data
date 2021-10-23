@@ -109,12 +109,12 @@
 
 ;; Initialize repos-deps
 (def repos-deps
-  (group-by (juxt :nom :organisation_nom)
+  (group-by (juxt :nom :organization_name)
             (utils/json-parse-with-keywords
              (utils/get-contents "repos-deps.json"))))
 
-(defn find-repo-deps [{:keys [nom organisation_nom]}]
-  (-> (get repos-deps [nom organisation_nom])
+(defn find-repo-deps [{:keys [nom organization_name]}]
+  (-> (get repos-deps [nom organization_name])
       first
       (select-keys [:deps_updated :deps])))
 
