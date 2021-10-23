@@ -1,3 +1,7 @@
+;; Copyright (c) 2020, 2021 DINUM, Bastien Guerry <bastien.guerry@data.gouv.fr>
+;; SPDX-License-Identifier: EPL-2.0
+;; License-Filename: LICENSE
+
 (ns reuse
   (:require [jsonista.core :as json]
             [clojure.walk :as walk]
