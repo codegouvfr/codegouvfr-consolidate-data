@@ -10,7 +10,7 @@
 
 (defonce urls
   {:repos
-   "https://raw.githubusercontent.com/etalab/data-codes-sources-fr/master/data/repertoires/json/all.json"
+   "https://raw.githubusercontent.com/etalab/data-codes-sources-fr/master/data/repositories/json/all.json"
    :emoji-json
    "https://raw.githubusercontent.com/amio/emoji.json/master/emoji.json"
    :orgas-esr
@@ -22,20 +22,20 @@
 (def repos-mapping
   "Mapping from repositories keywords to local short versions."
   {
-   :derniere_mise_a_jour   :u
-   :description            :d
-   :est_archive            :a?
-   :est_fork               :f?
-   :langage                :l
-   :licence                :li
-   :nom                    :n
-   :nombre_forks           :f
-   :nombre_issues_ouvertes :i
-   :nombre_stars           :s
-   :organisation_nom       :o
-   :plateforme             :p
-   :repertoire_url         :r
-   :topics                 :t})
+   :last_update       :u
+   :description       :d
+   :is_archive        :a?
+   :is_fork           :f?
+   :language          :l
+   :license           :li
+   :name              :n
+   :forks_count       :f
+   :open_issues_count :i
+   :stars_count       :s
+   :organization_name :o
+   :platform          :p
+   :repository_url    :r
+   :topics            :t})
 
 (defonce
   ^{:doc "Mapping from GitHub license strings to the their license+SDPX short

@@ -9,7 +9,7 @@
 
 (defonce urls
   {:orgas
-   "https://raw.githubusercontent.com/etalab/data-codes-sources-fr/master/data/organisations/json/all.json"
+   "https://raw.githubusercontent.com/etalab/data-codes-sources-fr/master/data/organizations/json/all.json"
    ;; Next url return a csv
    :annuaire
    "https://static.data.gouv.fr/resources/organisations-de-codegouvfr/20191011-110549/lannuaire.csv"
@@ -21,23 +21,23 @@
 (def orgas-mapping
   "Mapping from groups/organizations keywords to local short versions."
   {:description        :d
-   :adresse            :a
+   :location           :a
    :email              :e
-   :nom                :n
-   :plateforme         :p
-   :site_web           :h
-   :est_verifiee       :v?
+   :name               :n
+   :platform           :p
+   :website            :h
+   :is_verified        :v?
    :login              :l
-   :date_creation      :c
-   :nombre_repertoires :r
-   :organisation_url   :o
+   :creation_date      :c
+   :repositories_count :r
+   :organization_url   :o
    :avatar_url         :au})
 
 ;; Core functions
 (defn add-data []
   (let [floss-pol (apply merge
-                         (map #(let [{:keys [organisation url-politique-floss]} %]
-                                 {organisation url-politique-floss})
+                         (map #(let [{:keys [organization url-politique-floss]} %]
+                                 {organization url-politique-floss})
                               (utils/csv-url-to-map (:orgas-floss-policy urls))))
         annuaire  (apply merge
                          (map #(let [{:keys [github lannuaire]} %]
