@@ -1,16 +1,14 @@
 
 # Consolidate and generate codegouvfr data
 
-"codegouvfr" stands for <https://code.etalab.gouv.fr>.
-
-This repository helps creating `json/svg/xml` files used by the
-[code.gouv.fr](https://git.sr.ht/~etalab/code.gouv.fr) web application.
+"codegouvfr" stands for [code.gouv.fr](https://code.gouv.fr).  This repository helps creating
+`json/svg/xml` files used by the [code.gouv.fr](https://git.sr.ht/~etalab/code.gouv.fr) web application.
 
 
 # Contribute
 
 The development of this repository happens on [the SourceHut
-repository](https://git.sr.ht/~etalab/codegouvfr-data).  The code is also published on [GitHub](https://github.com/etalab/codegouvfr-data) to reach more
+repository](https://git.sr.ht/~etalab/codegouvfr-consolidate-data).  The code is also published on [GitHub](https://github.com/etalab/codegouvfr-data) to reach more
 developers.
 
 Your help is welcome.  You can contribute with bug reports, patches,
