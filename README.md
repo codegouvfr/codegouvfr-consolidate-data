@@ -1,16 +1,10 @@
 
-# Generate codegouvfr data
+# Consolidate and generate codegouvfr data
 
 "codegouvfr" stands for <https://code.etalab.gouv.fr>.
 
-This repository helps creating `json` files used by codegouvfr frontend.
-
-
-# Generate the binary file
-
-Assuming GraalVM >19.3 is installed:
-
-    clj -A:native-image
+This repository helps creating `json/svg/xml` files used by the
+[code.gouv.fr](https://git.sr.ht/~etalab/code.gouv.fr) web application.
 
 
 # Contribute
