@@ -9,6 +9,7 @@
             [repos :as repos]
             [orgas :as orgas]
             [reuse :as reuse]
+            [rss :as rss]
             [deps :as deps]
             [java-time :as t])
   (:gen-class))
@@ -155,7 +156,10 @@
   ;;
   (spit-deps-total @deps/deps)
   (spit-deps-top @deps/deps)
-  (println "Done creating/updating all json files"))
+  ;;
+  ;; Spit the latest.xml RSS feed
+  (rss/make-feed)
+  (println "Done creating/updating all json/xml files"))
 
 ;; (-main)
 
