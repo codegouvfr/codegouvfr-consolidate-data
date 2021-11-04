@@ -13,7 +13,7 @@ developers.
 
 Your help is welcome.  You can contribute with bug reports, patches,
 feature requests or general questions by sending an email to
-`~etalab/logiciels-libres@lists.sr.ht`.
+[~etalab/logiciels-libres@lists.sr.ht](mailto:~etalab/logiciels-libres@lists.sr.ht).
 
 
 # License
