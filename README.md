@@ -3,7 +3,7 @@
 
 # Consolidate and generate codegouvfr data
 
-"codegouvfr" stands for [code.gouv.fr](https://code.gouv.fr).  This repository helps creating
+`codegouvfr` stands for [code.gouv.fr](https://code.gouv.fr).  This repository helps creating
 `json/svg/xml` files used by the [code.gouv.fr](https://git.sr.ht/~etalab/code.gouv.fr) web application.
 
 
@@ -22,5 +22,5 @@ feature requests or general questions by sending an email to
 
 2020-2021 DINUM, Bastien Guerry.
 
-This application is published under the [EPL 2.0 license](LICENSE).
+This application is published under the [EPL 2.0 license](https://git.sr.ht/~etalab/codegouvfr-consolidate-data/blob/master/LICENSE).
 
