@@ -1,3 +1,5 @@
+![img](https://img.shields.io/badge/Licence-MIT%2C%20Licence%20Ouverte-orange.svg?style=flat-square)
+
 
 # Consolidate and generate codegouvfr data
 
