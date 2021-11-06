@@ -1,5 +1,3 @@
-[[https://git.sr.ht/~etalab/codegouvfr-consolidate-data/blob/master/LICENSE][https://img.shields.io/badge/Licence-EPL-2.0-orange.svg?style=flat-square]]
-
 * Consolidate and generate codegouvfr data
 
 "codegouvfr" stands for [[https://code.gouv.fr][code.gouv.fr]].  This repository helps creating
@@ -18,5 +16,7 @@ feature requests or general questions by sending an email to
 * License
 
 2020-2021 DINUM, Bastien Guerry.
+
+[[https://git.sr.ht/~etalab/codegouvfr-consolidate-data/blob/master/LICENSE][https://img.shields.io/badge/Licence-EPL-orange.svg?style=flat-square]]
 
 This application is published under the EPL 2.0 license.
