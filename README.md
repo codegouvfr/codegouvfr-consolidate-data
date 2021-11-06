@@ -1,4 +1,4 @@
-![img](https://img.shields.io/badge/Licence-MIT%2C%20Licence%20Ouverte-orange.svg?style=flat-square)
+[![img](https://img.shields.io/badge/Licence-MIT%2C%20Licence%20Ouverte-orange.svg?style=flat-square)](https://git.sr.ht/~etalab/codegouvfr-consolidate-data/blob/master/LICENSE)
 
 
 # Consolidate and generate codegouvfr data
