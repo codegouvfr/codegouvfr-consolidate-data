@@ -27,4 +27,5 @@
             :pubDate     (instant/read-instant-date
                           (:last_update item))})
          (latest-repositories)))
-   (spit "latest.xml")))
+   (spit "latest.xml"))
+  (println "Updated latest.xml"))
