@@ -4,6 +4,7 @@
 
 (ns core
   (:require [clojure.walk :as walk]
+            [clojure.java.shell :as sh]
             [jsonista.core :as json]
             [utils :as utils]
             [repos :as repos]
@@ -13,8 +14,6 @@
             [deps :as deps]
             [java-time :as t])
   (:gen-class))
-
-(set! *warn-on-reflection* true)
 
 ;; Utility
 
@@ -159,7 +158,7 @@
   ;;
   ;; Spit the latest.xml RSS feed
   (rss/make-feed)
+  ;; Spit the top_licences.svg
+  (sh/sh "vl2svg" (utils/generate-licenses-chart) "top_licenses.svg")
+  ;; Finish
   (println "Done creating/updating all json/xml files"))
-
-;; (-main)
-
