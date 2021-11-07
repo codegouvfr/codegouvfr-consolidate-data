@@ -58,7 +58,8 @@
        (map #(dissoc % :u :d :l))
        distinct))
 
-(defonce stats-url "https://api-code.etalab.gouv.fr/api/stats/general")
+;; (defonce stats-url "https://api-code.etalab.gouv.fr/api/stats/general")
+(defonce stats-url "stats.json")
 
 (defonce licenses-spdx
   {"Other"                                                      "Other"
