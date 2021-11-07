@@ -160,5 +160,6 @@
   (rss/make-feed)
   ;; Spit the top_licences.svg
   (sh/sh "vl2svg" (utils/generate-licenses-chart) "top_licenses.svg")
+  (shutdown-agents)
   ;; Finish
   (println "Done creating/updating all json/xml files"))
