@@ -4,6 +4,7 @@
 
 (ns core
   (:require [clojure.walk :as walk]
+            [clojure.java.shell :as sh]
             [jsonista.core :as json]
             [utils :as utils]
             [repos :as repos]
@@ -158,6 +159,7 @@
   ;; Spit the latest.xml RSS feed
   (rss/make-feed)
   ;; Spit the top_licences.svg
-  (spit "top_licenses.json" (slurp (utils/generate-licenses-chart)))
+  (sh/sh "vl2svg" (utils/generate-licenses-chart) "top_licenses.svg")
+  (shutdown-agents)
   ;; Finish
   (println "Done creating/updating all json/xml files"))
