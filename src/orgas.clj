@@ -8,8 +8,7 @@
             [utils :as utils]))
 
 (defonce urls
-  {:orgas
-   "https://raw.githubusercontent.com/etalab/data-codes-sources-fr/master/data/organizations/json/all.json"
+  {:orgas "organizations/json/all.json"
    ;; Next url return a csv
    :annuaire
    "https://static.data.gouv.fr/resources/organisations-de-codegouvfr/20191011-110549/lannuaire.csv"
