@@ -7,6 +7,15 @@
 `json/svg/xml` files used by the [code.gouv.fr](https://git.sr.ht/~etalab/code.gouv.fr) web application.
 
 
+# Get the data
+
+The data are published under the [Open License 2.0](https://www.etalab.gouv.fr/licence-ouverte-open-licence):
+
+-   Organizations: as [csv](https://code.gouv.fr/data/organizations/csv/all.csv) or [json](https://code.gouv.fr/data/organizations/json/all.json)
+-   Repositories: as [csv](https://code.gouv.fr/data/repositories/csv/all.csv) or [json](https://code.gouv.fr/data/repositories/json/all.json)
+-   Dependencies: [json](https://code.gouv.fr/data/deps.json)
+
+
 # Contribute
 
 The development of this repository happens on [the SourceHut
