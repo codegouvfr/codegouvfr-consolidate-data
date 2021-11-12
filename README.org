@@ -13,15 +13,22 @@ The data are published under the [[https://www.etalab.gouv.fr/licence-ouverte-op
 - Repositories: as [[https://code.gouv.fr/data/repositories/csv/all.csv][csv]] or [[https://code.gouv.fr/data/repositories/json/all.json][json]]
 - Dependencies: [[https://code.gouv.fr/data/deps.json][json]]
 
-* Contribute
+* Contributing
 
 The development of this repository happens on [[https://git.sr.ht/~etalab/codegouvfr-consolidate-data][the SourceHut
-repository]].  The code is also published on [[https://github.com/etalab/codegouvfr-data][GitHub]] to reach more
-developers.
+repository]].  
 
-Your help is welcome.  You can contribute with bug reports, patches,
-feature requests or general questions by sending an email to
-[[mailto:~etalab/logiciels-libres@lists.sr.ht][~etalab/logiciels-libres@lists.sr.ht]].
+The code is also published on [[https://github.com/etalab/codegouvfr-data][GitHub]] to reach more developers, but
+please do not send pull requests there.
+
+You can send *patches* by email using [[https://git-send-email.io/][git-send-email.io]].  For your
+patches to be processed correctly, configure your local copy with
+this:
+
+: git config format.subjectPrefix 'PATCH code.gouv.fr'
+
+You can also contribute with bug reports, feature requests or general
+questions by writing to [[mailto:~etalab/codegouvfr-devel@lists.sr.ht][~etalab/codegouvfr-devel@lists.sr.ht]].
 
 * License
 
