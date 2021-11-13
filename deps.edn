@@ -1,10 +1,10 @@
-;; Copyright (c) 2020 DINUM, Bastien Guerry <bastien.guerry@data.gouv.fr>
+;; Copyright (c) 2020-2021 DINUM, Bastien Guerry <bastien.guerry@data.gouv.fr>
 ;; SPDX-License-Identifier: EPL-2.0
 ;; License-Filename: LICENSE
 
 {:version     "0.3.2"
- :description "Generate data for https://code.etalab.gouv.fr"
- :url         "https://github.com/etalab/codegouvfr-data"
+ :description "Consolidate data for https://code.gouv.fr"
+ :url         "https://git.sr.ht/~etalab/codegouvfr-consolidate-data"
  :license     {:name "Eclipse Public License - v 2.0"
                :url  "http://www.eclipse.org/legal/epl-v20.html"}
 
