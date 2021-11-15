@@ -5,7 +5,6 @@
 (ns deps
   (:require [jsonista.core :as json]
             [utils :as utils]
-            [clojure.string :as s]
             [clojure.data.xml :as xml]
             [clojure.edn :as edn]
             [java-time :as t]
@@ -58,7 +57,8 @@
              {:n n
               :t "npm"
               :d description
-              :l (:npm links)})))))))
+              :l (:npm links)}))))
+     (Thread/sleep 2000))))
 
 (defn get-valid-pypi [{:keys [n]}]
   (or
@@ -97,7 +97,7 @@
                               :tags))]
            {:n n
             :t "maven"
-            :d (s/join ", " (take 6 tags))
+            :d (string/join ", " (take 6 tags))
             :l (format link-fmt groupId artifactId)}))))))
 
 (defn get-valid-clojars [{:keys [n]}]
@@ -159,17 +159,18 @@
               (filter #(not (re-matches #"^#.+$" %))
                       (string/split body #"\n")))]
     (when-let [deps0 (last (re-find #"(?ms)install_requires=\[([^]]+)\]" body))]
-      (let [deps (map #(get % 1) (re-seq #"'([^>\n]+)(>=.+)?'" deps0))]
+      (let [deps (filter not-empty (string/split deps0 #"\s"))
+            deps (map #(last (re-find #"'?([^=<>~\[\]]+).*'?" %)) deps)]
         (when (seq deps)
-          {:pypi (into [] (map s/trim deps))})))))
+          {:pypi (into [] (map string/trim deps))})))))
 
 (defn get-requirements-deps [body]
   (when-let [deps0 (not-empty
-                    (filter #(not (re-matches #"(^#.+$|^git\+.+$)|^$" %))
+                    (filter #(not (re-matches #"(^#.+$|^\s*git\+.+$)|^$" %))
                             (string/split body #"\n")))]
-    (let [deps (map #(last (re-find #"^([^=]+)==.+$" %)) deps0)]
-      (when (seq deps)
-        {:pypi (into [] (map s/trim deps))}))))
+    (when-let [deps (->> (map #(last (re-find #"^([^=<>~\[\]]+).+$" %)) deps0)
+                         (remove nil?))]
+      {:pypi (into [] (map string/trim deps))})))
 
 (defn get-gemfile-deps [body]
   (when-let [deps (re-seq #"(?ms)^\s*gem '([^']+)'" body)]
@@ -247,8 +248,7 @@
                        (get-projectclj-deps body)
                        "pom.xml"
                        (get-pomxml-deps body))]
-            (swap! new-deps #(merge-with into % reqs)))
-          (Thread/sleep 1200)))
+            (swap! new-deps #(merge-with into % reqs)))))
 
       (assoc repo
              :deps (utils/flatten-deps @new-deps)
@@ -313,4 +313,4 @@
          (into {})
          json/write-value-as-string
          (spit "deps-repos-sim.json"))
-    (println "Updated deps-repos-sim.json")))
+    (println "deps-repos-sim.json: OK")))
