@@ -6,10 +6,20 @@
   (:require [jsonista.core :as json]
             [clojure.data.csv :as csv]
             [clojure.data.json :as datajson]
+            [clojure.string :as string]
             [clojure.walk :as walk]
             [babashka.curl :as curl]
             [java-time :as t]
             [clojure.java.io :as io]))
+
+(defonce max-description-length 100)
+
+(defn limit-description [m]
+  (map #(update-in
+         %[:d]
+         (fn [s] (if (< (count s) max-description-length)
+                   s
+                   (subs s 0 max-description-length))))))
 
 (defn json-parse-with-keywords [s]
   (-> s
@@ -20,6 +30,13 @@
   (let [headers (map keyword (first csv))
         rows    (rest csv)]
     (map #(zipmap headers %) rows)))
+
+(defn maps-to-csv [ms]
+  (let [columns [:a :b]
+        headers (map name columns)
+        ms      (map #(update-in % [:b] (fn [v] (string/join " " v))) ms)
+        rows    (mapv #(mapv % columns) ms)]
+    (cons headers rows)))
 
 (defn csv-url-to-map [url]
   (try

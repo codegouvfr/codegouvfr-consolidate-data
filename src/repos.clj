@@ -123,9 +123,12 @@
 ;; Initialize repos atom by reusing :deps_updated and :deps from
 ;; repos-deps.json when available
 (def repos
-  (let [res (or (utils/get-contents (:repos urls))
-                (utils/get-contents (:repos-remote urls)))]
-    (->> (map #(merge % (find-repo-deps %))
-              (utils/json-parse-with-keywords res))
+  (let [repos (or (utils/get-contents (:repos urls))
+                  (utils/get-contents (:repos-remote urls)))]
+    (->> (map
+          #(merge % (find-repo-deps %))
+          (->> repos
+               utils/json-parse-with-keywords
+               utils/limit-description))
          ;; (take 100) ;; DEBUG
          atom)))

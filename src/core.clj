@@ -5,6 +5,8 @@
 (ns core
   (:require [clojure.walk :as walk]
             [clojure.java.shell :as sh]
+            [clojure.data.csv :as csv]
+            [clojure.set :as set]
             [jsonista.core :as json]
             [utils :as utils]
             [repos :as repos]
@@ -13,7 +15,8 @@
             [rss :as rss]
             [deps :as deps]
             [java-time :as t]
-            [clojure.string :as string])
+            [clojure.string :as string]
+            [clojure.java.io :as io])
   (:gen-class))
 
 ;; Utility
@@ -29,6 +32,15 @@
        (string/trim (:out (sh/sh "whereis" s))))
     true
     false))
+
+(def deps-mapping
+  "Mapping from dependencies short keyword names to long names."
+  {:n :name
+   :t :type
+   :d :description
+   :l :url
+   :u :updated
+   :r :repositories})
 
 ;; Core functions
 
@@ -72,7 +84,8 @@
       (println "Updated @deps with valid dependencies"))))
 
 (defn- spit-deps-with-repos []
-  (let [reps (map #(select-keys % [:deps :repository_url]) @repos/repos)
+  (let [reps
+        (map #(select-keys % [:deps :repository_url]) @repos/repos)
         deps-reps
         (map (fn [{:keys [n t] :as dep}]
                (->> (map :repository_url
@@ -83,9 +96,23 @@
                                             deps)))
                                  reps))
                     (assoc dep :r)))
-             @deps/deps)]
+             @deps/deps)
+        ;; Limit dependency descriptions to 100 characters
+        deps-reps (utils/limit-description deps-reps)]
     (spit "deps.json" (json/write-value-as-string (distinct deps-reps)))
     (println "Added or updated deps.json")))
+
+(defn update-dependencies-all []
+  (let [deps (->> "deps.json" utils/get-contents json/read-value
+                  (map #(set/rename-keys
+                         (select-keys % (keys deps-mapping)) deps-mapping)))]
+    ;; Make sure the directories are existing
+    (sh/sh "mkdir" "-p" "dependencies/{json,csv}")
+    (spit "dependencies/json/all.json" (json/write-value-as-string deps))
+    (with-open [writer (io/writer "dependencies/csv/all.csv")]
+      (csv/write-csv
+       writer
+       (utils/maps-to-csv deps)))))
 
 (defn- spit-deps-repos [repos]
   (let [reps0 (group-by (juxt :name :organization_name) repos)
@@ -148,6 +175,9 @@
   ;;
   ;; Update @deps by adding :repos and spit deps.json
   (spit-deps-with-repos)
+  ;;
+  ;; Update dependencies/{csv,json/all.{csv/json}
+  (update-dependencies-all)
   ;;
   ;; Spit other json files
   (spit-deps-repos @repos/repos)
