@@ -19,7 +19,7 @@
          %[desc-k]
          (fn [s]
            (if (and (string? s) (> (count s) max-description-length))
-             (subs s 0 max-description-length)
+             (str (subs s 0 max-description-length) "…")
              s)))
        m))
 
