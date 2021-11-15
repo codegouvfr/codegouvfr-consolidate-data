@@ -11,7 +11,7 @@
             [hickory.core :as h]
             [hickory.select :as hs]))
 
-(defonce wait-x-days-between-checks 30)
+(defonce check-interval 30)
 
 (defn- get-reuses
   "Return a hash-map with reuse information"
@@ -40,7 +40,7 @@
   (if-let [{:keys [u] :as entry}
            (walk/keywordize-keys
             (get reused repository_url))]
-    (if (utils/less-than-x-days-ago wait-x-days-between-checks u)
+    (if (utils/less-than-x-days-ago check-interval u)
       (hash-map repository_url entry)
       (get-reuses repository_url))
     (get-reuses repository_url)))

@@ -32,12 +32,14 @@
 
 (def deps (atom nil))
 
+(defonce check-interval 30)
+
 ;; Utility function
 
 (defn- check-module-of-type-is-known [module type]
   (when-let [res (-> (get @grouped-deps [module type])
                      first not-empty)]
-    (when (utils/less-than-x-days-ago 28 (:u res)) res)))
+    (when (utils/less-than-x-days-ago check-interval (:u res)) res)))
 
 ;; Check against valid sources
 
@@ -217,7 +219,7 @@
   (if (or (= language "")
           (= is_archived true)
           (when-let [d (not-empty deps_updated)]
-            (utils/less-than-x-days-ago 14 d)))
+            (utils/less-than-x-days-ago check-interval d)))
     repo
     (let [baseurl    (re-find #"https?://[^/]+" repository_url)
           fmt-str    (if (= platform "GitHub")
