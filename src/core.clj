@@ -12,7 +12,8 @@
             [reuses :as reuses]
             [rss :as rss]
             [deps :as deps]
-            [java-time :as t])
+            [java-time :as t]
+            [clojure.string :as string])
   (:gen-class))
 
 ;; Utility
@@ -21,6 +22,13 @@
   (-> (get @deps/grouped-deps [n t])
       first
       (dissoc :r :u :d :l)))
+
+(defn executable-exists? [s]
+  (if (re-matches
+       (re-pattern (str "^" s ": /.+$"))
+       (string/trim (:out (sh/sh "whereis" s))))
+    true
+    false))
 
 ;; Core functions
 
@@ -159,7 +167,12 @@
   ;; Spit the latest.xml RSS feed
   (rss/make-feed)
   ;; Spit the top_licences.svg
-  (sh/sh "vl2svg" (utils/generate-licenses-chart) "top_licenses.svg")
-  (shutdown-agents)
+  (if (executable-exists? "vl2sg")
+    (do (sh/sh "vl2svg" (utils/generate-licenses-chart) "top_licenses.svg")
+        (shutdown-agents)
+        (println "Generated top_licenses.svg"))
+    (println "Can't find vl2svg, don't generate top_licenses.svg"))
   ;; Finish
-  (println "Done creating/updating all json/xml files"))
+  (println "Done creating/updating all json/xml/svg files"))
+
+
