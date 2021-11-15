@@ -83,14 +83,8 @@
                                             deps)))
                                  reps))
                     (assoc dep :r)))
-             @deps/deps)
-        deps-reps-limited
-        (->> deps-reps
-             (filter #(> (count (:r %)) 1))
-             distinct)]
-    (reset! deps/deps deps-reps-limited)
-    (spit "deps-all.json" (json/write-value-as-string (distinct deps-reps)))
-    (spit "deps.json" (json/write-value-as-string deps-reps-limited))
+             @deps/deps)]
+    (spit "deps.json" (json/write-value-as-string (distinct deps-reps)))
     (println "Added or updated deps.json")))
 
 (defn- spit-deps-repos [repos]

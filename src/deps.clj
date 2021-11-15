@@ -22,7 +22,7 @@
    "Clojure"    {:files ["pom.xml" "deps.edn" "project.clj"] :types ["maven" "clojars"]}})
 
 (def deps-init
-  (let [deps (utils/get-contents "deps-all.json")]
+  (let [deps (utils/get-contents "deps.json")]
     (->>  deps
           utils/json-parse-with-keywords
           (map #(dissoc % :r)))))
