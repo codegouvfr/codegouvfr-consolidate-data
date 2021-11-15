@@ -8,3 +8,4 @@ data/
 .lsp/
 *.txt
 target/
+.clj-kondo/
