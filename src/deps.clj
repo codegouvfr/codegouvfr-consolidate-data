@@ -7,7 +7,6 @@
             [utils :as utils]
             [clojure.string :as s]
             [clojure.data.xml :as xml]
-            [clojure.core.matrix :as matrix]
             [clojure.edn :as edn]
             [java-time :as t]))
 
