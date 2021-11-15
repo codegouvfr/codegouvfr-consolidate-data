@@ -52,7 +52,7 @@
         (when-let [res (utils/get-contents "reuses.json")]
           (json/read-value res))]
     (->> repos
-         (filter #(= (:plateforme %) "GitHub"))
+         (filter #(= (:platform %) "GitHub"))
          (map #(add-reuses % reused))
          (apply merge)
          json/write-value-as-string
