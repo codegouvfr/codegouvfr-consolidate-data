@@ -10,7 +10,7 @@
 
 (defonce urls
   {:repos        "repositories/json/all.json"
-   :repos-remote "https://code.gouv.fr/data/repos.json"
+   :repos-remote "https://code.gouv.fr/data/repositories/json/all.json"
    :emoji-json   "https://raw.githubusercontent.com/amio/emoji.json/master/emoji.json"
    :orgas-esr    "https://git.sr.ht/~etalab/codegouvfr-sources/blob/master/comptes-organismes-publics-esr"})
 
