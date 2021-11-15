@@ -54,7 +54,7 @@
                   #(map find-first-matching-module %)))
                @repos/repos))
   (spit "repos-deps.json" (json/write-value-as-string @repos/repos))
-  (println "Added or updated repos-deps.json"))
+  (println "repos-deps.json: OK"))
 
 (defn- validate-repos-deps
   "Update @deps/deps and @deps/grouped-deps with valid dependencies."
@@ -98,16 +98,16 @@
                     (assoc dep :r)))
              @deps/deps)
         ;; Limit dependency descriptions to 100 characters
-        deps-reps (utils/limit-description deps-reps)]
+        deps-reps (utils/limit-description :d deps-reps)]
     (spit "deps.json" (json/write-value-as-string (distinct deps-reps)))
-    (println "Added or updated deps.json")))
+    (println "deps.json: OK")))
 
 (defn update-dependencies-all []
   (let [deps (->> "deps.json" utils/get-contents json/read-value
                   (map #(set/rename-keys
                          (select-keys % (keys deps-mapping)) deps-mapping)))]
     ;; Make sure the directories are existing
-    (sh/sh "mkdir" "-p" "dependencies/{json,csv}")
+    (sh/sh "mkdir" "-p" "dependencies/json" "dependencies/csv")
     (spit "dependencies/json/all.json" (json/write-value-as-string deps))
     (with-open [writer (io/writer "dependencies/csv/all.csv")]
       (csv/write-csv
@@ -121,7 +121,7 @@
                          reps0)]
     (spit "deps-repos.json"
           (json/write-value-as-string reps))
-    (println "Added deps-repos.json")))
+    (println "deps-repos.json: OK")))
 
 (defn- spit-deps-orgas [repos]
   (let [orgs1 (group-by (juxt :organization_name :platform) repos)
@@ -129,13 +129,13 @@
                          {}
                          orgs1)]
     (spit "deps-orgas.json" (json/write-value-as-string orgs0))
-    (println "Added deps-orgas.json")))
+    (println "deps-orgas.json: OK")))
 
 (defn- spit-deps-total [deps]
   (spit "deps-total.json"
         (json/write-value-as-string
          {:deps-total (count deps)}))
-  (println "Added deps-total.json"))
+  (println "deps-total.json: OK"))
 
 (defn- spit-deps-top [deps]
   (spit "deps-top.json"
@@ -144,21 +144,21 @@
               (sort-by #(count (:r %)))
               reverse
               (take 100))))
-  (println "Added deps-top.json"))
+  (println "deps-top.json: OK"))
 
 (defn -main []
   ;;
-  (println "Updating repos.json")
   (->> @repos/repos
        (sequence (repos/add-data))
        json/write-value-as-string
        (spit "repos.json"))
+  (println "repos.json: OK")
   ;;
-  (println "Updating orgas.json")
   (->> (orgas/init)
        (sequence (orgas/add-data))
        json/write-value-as-string
        (spit "orgas.json"))
+  (println "orgas.json: OK")
   ;;
   ;; Read reuses.json, update information and spit back
   (println "Updating reuses.json")
@@ -194,9 +194,7 @@
   (if (executable-exists? "vl2sg")
     (do (sh/sh "vl2svg" (utils/generate-licenses-chart) "top_licenses.svg")
         (shutdown-agents)
-        (println "Generated top_licenses.svg"))
+        (println "top_licenses.svg: OK"))
     (println "Can't find vl2svg, don't generate top_licenses.svg"))
   ;; Finish
-  (println "Done creating/updating all json/xml/svg files"))
-
-
+  (println "Done adding or updating all json/xml/svg files"))

@@ -129,6 +129,7 @@
           #(merge % (find-repo-deps %))
           (->> repos
                utils/json-parse-with-keywords
-               utils/limit-description))
+               (utils/limit-description :description)))
          ;; (take 100) ;; DEBUG
          atom)))
+
