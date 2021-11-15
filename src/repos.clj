@@ -9,16 +9,14 @@
             [utils :as utils]))
 
 (defonce urls
-  {:repos
-   "https://raw.githubusercontent.com/etalab/data-codes-sources-fr/master/data/repositories/json/all.json"
-   :emoji-json
-   "https://raw.githubusercontent.com/amio/emoji.json/master/emoji.json"
-   :orgas-esr
-   "https://raw.githubusercontent.com/DISIC/politique-de-contribution-open-source/master/comptes-organismes-publics-esr"})
+  {:repos        "repositories/json/all.json"
+   :repos-remote "https://code.gouv.fr/data/repos.json"
+   :emoji-json   "https://raw.githubusercontent.com/amio/emoji.json/master/emoji.json"
+   :orgas-esr    "https://git.sr.ht/~etalab/codegouvfr-sources/blob/master/comptes-organismes-publics-esr"})
 
 ;; Ignore these keywords
-;; :software_heritage_url :software_heritage_exists :derniere_modification
-;; :page_accueil :date_creation :plateforme
+;; :software_heritage_url :software_heritage_exists :last_update
+;; :homepage :date_creation :platform
 (def repos-mapping
   "Mapping from repositories keywords to local short versions."
   {
@@ -62,24 +60,27 @@
 (defn get-emojis
   "A map of emojis with {:char \"\" :name \"\"}."
   []
-  (->> (utils/json-parse-with-keywords
-        (utils/get-contents (:emoji-json urls)))
+  (->> (:emoji-json urls)
+       utils/get-contents
+       utils/json-parse-with-keywords
        (map #(select-keys % [:char :name]))
        (map #(update % :name
                      (fn [n] (str ":" (string/replace n " " "_") ":"))))))
+
+(defn get-esr-orgas []
+  (->>  (:orgas-esr urls)
+        utils/get-contents
+        string/split-lines
+        (map #(string/replace % #"^.+/([^/]+)$" "$1"))
+        (into #{})))
 
 (defn add-data
   "Relace keywords, add licenses and emojis."
   []
   (let [emojis    (get-emojis)
-        esr-orgas (into #{}
-                        (map #(string/replace % #"^.+/([^/]+)$" "$1"))
-                        (string/split-lines
-                         (utils/get-contents  (:orgas-esr urls))))
-        deps      (json/read-value
-                   (utils/get-contents "deps-repos.json"))
-        reuse     (json/read-value
-                   (utils/get-contents "reuse.json"))]
+        esr-orgas (get-esr-orgas)
+        deps      (-> "deps-repos.json" utils/get-contents json/read-value)
+        reuses    (-> "reuse.json" utils/get-contents json/read-value)]
     (comp
      ;; Remap keywords
      (map #(set/rename-keys
@@ -90,8 +91,8 @@
              %))
      ;; Add information from orgas-esr
      (map #(assoc % :e (contains? esr-orgas (:o %))))
-     ;; Add number of reuse
-     (map #(if-let [r (not-empty (get reuse (:r %)))]
+     ;; Add number of reuses
+     (map #(if-let [r (not-empty (get reuses (:r %)))]
              (assoc % :g (get r "r"))
              %))
      ;; Remap licenses
@@ -110,19 +111,20 @@
 
 ;; Initialize repos-deps
 (def repos-deps
-  (group-by (juxt :nom :organization_name)
+  (group-by (juxt :name :organization_name)
             (utils/json-parse-with-keywords
              (utils/get-contents "repos-deps.json"))))
 
-(defn find-repo-deps [{:keys [nom organization_name]}]
-  (-> (get repos-deps [nom organization_name])
+(defn find-repo-deps [{:keys [name organization_name]}]
+  (-> (get repos-deps [name organization_name])
       first
       (select-keys [:deps_updated :deps])))
 
 ;; Initialize repos atom by reusing :deps_updated and :deps from
 ;; repos-deps.json when available
 (def repos
-  (let [res (utils/get-contents (:repos urls))]
+  (let [res (or (utils/get-contents (:repos urls))
+                (utils/get-contents (:repos-remote urls)))]
     (->> (map #(merge % (find-repo-deps %))
               (utils/json-parse-with-keywords res))
          ;; (take 100) ;; DEBUG
