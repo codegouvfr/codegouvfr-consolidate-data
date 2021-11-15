@@ -34,9 +34,9 @@
     (map #(zipmap headers %) rows)))
 
 (defn maps-to-csv [ms]
-  (let [columns [:a :b]
+  (let [columns (keys (first ms))
         headers (map name columns)
-        ms      (map #(update-in % [:b] (fn [v] (string/join " " v))) ms)
+        ms      (map #(update-in % [:repositories] (fn [v] (string/join " " v))) ms)
         rows    (mapv #(mapv % columns) ms)]
     (cons headers rows)))
 

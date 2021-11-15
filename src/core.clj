@@ -102,17 +102,20 @@
     (spit "deps.json" (json/write-value-as-string (distinct deps-reps)))
     (println "deps.json: OK")))
 
+(defn spit-csv [f ms]
+  (with-open [writer (io/writer f)]
+    (csv/write-csv writer (utils/maps-to-csv ms))))
+
 (defn update-dependencies-all []
-  (let [deps (->> "deps.json" utils/get-contents json/read-value
+  (let [deps (->> "deps.json"
+                  utils/get-contents
+                  utils/json-parse-with-keywords
                   (map #(set/rename-keys
                          (select-keys % (keys deps-mapping)) deps-mapping)))]
     ;; Make sure the directories are existing
     (sh/sh "mkdir" "-p" "dependencies/json" "dependencies/csv")
     (spit "dependencies/json/all.json" (json/write-value-as-string deps))
-    (with-open [writer (io/writer "dependencies/csv/all.csv")]
-      (csv/write-csv
-       writer
-       (utils/maps-to-csv deps)))))
+    (spit-csv "dependencies/csv/all.csv" deps)))
 
 (defn- spit-deps-repos [repos]
   (let [reps0 (group-by (juxt :name :organization_name) repos)
