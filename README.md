@@ -7,6 +7,13 @@
 `json/svg/xml` files used by the [code.gouv.fr](https://git.sr.ht/~etalab/code.gouv.fr) web application.
 
 
+# Requisites
+
+`codegouvfr-consolidate-data` needs the `vl2svg` executable:
+
+    ~$ npm install -g vega-lite
+
+
 # Get the data
 
 The data are published under the [Open License 2.0](https://www.etalab.gouv.fr/licence-ouverte-open-licence):
