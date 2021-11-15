@@ -8,12 +8,10 @@
             [utils :as utils]))
 
 (defonce urls
-  {:orgas "organizations/json/all.json"
-   ;; Next url return a csv
-   :annuaire
-   "https://static.data.gouv.fr/resources/organisations-de-codegouvfr/20191011-110549/lannuaire.csv"
-   :orgas-floss-policy
-   "https://raw.githubusercontent.com/DISIC/politique-de-contribution-open-source/master/comptes-organismes-avec-politique-de-publication-floss.csv"})
+  {:orgas              "organizations/json/all.json"
+   :orgas-remote       "https://code.gouv.fr/data/organizations/json/all.json"
+   :annuaire           "https://static.data.gouv.fr/resources/organisations-de-codegouvfr/20191011-110549/lannuaire.csv"
+   :orgas-floss-policy "https://git.sr.ht/~etalab/codegouvfr-sources/blob/master/comptes-organismes-avec-politique-de-publication-floss.csv"})
 
 ;; Ignore these keywords
 ;; :private :default_branch :language :id :checked :owner :full_name
@@ -32,18 +30,25 @@
    :organization_url   :o
    :avatar_url         :au})
 
+(defn get-floss-policy []
+  (apply merge
+         ;; Betware "organisation" here is in French, as it is in the
+         ;; upstream source.
+         (map #(let [{:keys [organisation url-politique-floss]} %]
+                 {organisation url-politique-floss})
+              (utils/csv-url-to-map (:orgas-floss-policy urls)))))
+
+(defn get-annuaire []
+  (apply merge
+         (map #(let [{:keys [github lannuaire]} %]
+                 {(keyword github) lannuaire})
+              (utils/csv-url-to-map (:annuaire urls)))))
+
 ;; Core functions
 (defn add-data []
-  (let [floss-pol (apply merge
-                         (map #(let [{:keys [organization url-politique-floss]} %]
-                                 {organization url-politique-floss})
-                              (utils/csv-url-to-map (:orgas-floss-policy urls))))
-        annuaire  (apply merge
-                         (map #(let [{:keys [github lannuaire]} %]
-                                 {(keyword github) lannuaire})
-                              (utils/csv-url-to-map (:annuaire urls))))
-        deps      (json/read-value
-                   (utils/get-contents "deps-orgas.json"))]
+  (let [floss-pol (get-floss-policy)
+        annuaire  (get-annuaire)
+        deps      (-> "deps-orgas.json" utils/get-contents json/read-value)]
     (comp
      ;; Remap keywords
      (map #(set/rename-keys % orgas-mapping))
@@ -61,5 +66,6 @@
 (defn init
   "Generate orgas.json."
   []
-  (when-let [orgas (utils/get-contents (:orgas urls))]
+  (when-let [orgas (or (utils/get-contents (:orgas urls))
+                       (utils/get-contents (:orgas-remote urls)))]
     (utils/json-parse-with-keywords orgas)))
