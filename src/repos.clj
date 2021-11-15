@@ -80,7 +80,7 @@
   (let [emojis    (get-emojis)
         esr-orgas (get-esr-orgas)
         deps      (-> "deps-repos.json" utils/get-contents json/read-value)
-        reuses    (-> "reuse.json" utils/get-contents json/read-value)]
+        reuses    (-> "reuses.json" utils/get-contents json/read-value)]
     (comp
      ;; Remap keywords
      (map #(set/rename-keys

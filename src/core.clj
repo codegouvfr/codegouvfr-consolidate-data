@@ -9,7 +9,7 @@
             [utils :as utils]
             [repos :as repos]
             [orgas :as orgas]
-            [reuse :as reuse]
+            [reuses :as reuses]
             [rss :as rss]
             [deps :as deps]
             [java-time :as t])
@@ -131,9 +131,9 @@
        json/write-value-as-string
        (spit "orgas.json"))
   ;;
-  ;; Read reuse.json, update information and spit back
-  (println "Updating reuse.json")
-  (reuse/spit-info @repos/repos)
+  ;; Read reuses.json, update information and spit back
+  (println "Updating reuses.json")
+  (reuses/spit-info @repos/repos)
   ;;
   ;; Updating @repos/repos with all dependencies
   (reset! repos/repos (map deps/add-dependencies @repos/repos))

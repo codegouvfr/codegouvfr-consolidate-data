@@ -2,7 +2,7 @@
 ;; SPDX-License-Identifier: EPL-2.0
 ;; License-Filename: LICENSE
 
-(ns reuse
+(ns reuses
   (:require [jsonista.core :as json]
             [clojure.walk :as walk]
             [java-time :as t]
@@ -11,7 +11,7 @@
             [hickory.core :as h]
             [hickory.select :as hs]))
 
-(defn- get-reuse
+(defn- get-reuses
   "Return a hash-map with reuse information"
   [repository_url]
   (when-let [repo-github-html
@@ -32,7 +32,7 @@
         :r (+ (edn/read-string nb-reps)
               (edn/read-string nb-pkgs))}))))
 
-(defn- add-reuse
+(defn- add-reuses
   "Return a hash-map entry with the repo URL and the reuse information."
   [{:keys [repository_url]} reused]
   (if-let [{:keys [u] :as entry}
@@ -40,19 +40,19 @@
             (get reused repository_url))]
     (if (utils/less-than-x-days-ago 14 u)
       (hash-map repository_url entry)
-      (get-reuse repository_url))
-    (get-reuse repository_url)))
+      (get-reuses repository_url))
+    (get-reuses repository_url)))
 
 (defn spit-info
-  "Generate reuse.json with GitHub reused-by information."
+  "Generate reuses.json with GitHub reused-by information."
   [repos]
   (let [reused
-        (when-let [res (utils/get-contents "reuse.json")]
+        (when-let [res (utils/get-contents "reuses.json")]
           (json/read-value res))]
     (->> repos
          (filter #(= (:plateforme %) "GitHub"))
-         (map #(add-reuse % reused))
+         (map #(add-reuses % reused))
          (apply merge)
          json/write-value-as-string
-         (spit "reuse.json")))
-  (println "Added reuse information and stored it in reuse.json"))
+         (spit "reuses.json")))
+  (println "Added reuse information and stored it in reuses.json"))
