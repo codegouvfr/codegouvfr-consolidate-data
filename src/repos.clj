@@ -4,7 +4,7 @@
 
 (ns repos
   (:require [jsonista.core :as json]
-            [clojure.string :as s]
+            [clojure.string :as string]
             [clojure.set :as set]
             [utils :as utils]))
 
@@ -65,15 +65,16 @@
   (->> (utils/json-parse-with-keywords
         (utils/get-contents (:emoji-json urls)))
        (map #(select-keys % [:char :name]))
-       (map #(update % :name (fn [n] (str ":" (s/replace n " " "_") ":"))))))
+       (map #(update % :name
+                     (fn [n] (str ":" (string/replace n " " "_") ":"))))))
 
 (defn add-data
   "Relace keywords, add licenses and emojis."
   []
   (let [emojis    (get-emojis)
         esr-orgas (into #{}
-                        (map #(s/replace % #"^.+/([^/]+)$" "$1"))
-                        (s/split-lines
+                        (map #(string/replace % #"^.+/([^/]+)$" "$1"))
+                        (string/split-lines
                          (utils/get-contents  (:orgas-esr urls))))
         deps      (json/read-value
                    (utils/get-contents "deps-repos.json"))
@@ -104,7 +105,7 @@
                 (doseq [e emojis]
                   (swap! desc (fn [x]
                                 (when (string? x)
-                                  (s/replace x (:name e) (:char e))))))
+                                  (string/replace x (:name e) (:char e))))))
                 @desc)))))))
 
 ;; Initialize repos-deps
