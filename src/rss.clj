@@ -1,24 +1,29 @@
 (ns rss
   (:require [utils :as utils]
             [clojure.instant :as instant]
-            [clj-rss.core :as rss]))
+            [clj-rss.core :as rss]
+            [java-time :as t]))
 
-(defonce ^{:doc "The URL for the latest repositories."}
-  latest-repositories-url
-  "https://api-code.etalab.gouv.fr/api/stats/last_repositories")
+(defonce urls
+  {:repos        "repositories/json/all.json"
+   :repos-remote "https://code.gouv.fr/data/repositories/json/all.json"})
 
 (defn latest-repositories []
-  (utils/json-parse-with-keywords
-   (utils/get-contents latest-repositories-url)))
+  (->> (or (utils/get-contents (:repos urls))
+           (utils/get-contents (:repos-remote urls)))
+       utils/json-parse-with-keywords
+       (sort-by #(t/instant (:creation_date %)))
+       reverse
+       (take 1)))
 
 (defn make-feed
   "Generate a RSS feed from `lastest-repositories`."
   []
   (->>
    (rss/channel-xml
-    {:title       "code.gouv.fr - derniers dépôts"
+    {:title       "code.gouv.fr - Nouveaux dépôts - New repositories"
      :link        "https://code.etalab.gouv.fr/latest.xml"
-     :description "Derniers dépôts ajoutés"}
+     :description "code.gouv.fr - Nouveaux dépôts - New repositories"}
     (map (fn [item]
            {:title       (:name item)
             :link        (:repository_url item)
