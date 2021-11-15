@@ -32,7 +32,8 @@
        repository_url
        {:u updated
         :r (+ (edn/read-string nb-reps)
-              (edn/read-string nb-pkgs))}))))
+              (edn/read-string nb-pkgs))}))
+    (Thread/sleep 1200)))
 
 (defn- add-reuses
   "Return a hash-map entry with the repo URL and the reuse information."
