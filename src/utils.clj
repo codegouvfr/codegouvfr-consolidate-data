@@ -12,14 +12,16 @@
             [java-time :as t]
             [clojure.java.io :as io]))
 
-(defonce max-description-length 100)
+(defonce max-description-length 280)
 
-(defn limit-description [m]
+(defn limit-description [desc-k m]
   (map #(update-in
-         %[:d]
-         (fn [s] (if (< (count s) max-description-length)
-                   s
-                   (subs s 0 max-description-length))))))
+         %[desc-k]
+         (fn [s]
+           (if (and (string? s) (> (count s) max-description-length))
+             (subs s 0 max-description-length)
+             s)))
+       m))
 
 (defn json-parse-with-keywords [s]
   (-> s
