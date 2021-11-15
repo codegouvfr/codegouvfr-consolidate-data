@@ -1,6 +1,5 @@
 (ns rss
   (:require [utils :as utils]
-            [clojure.instant :as instant]
             [clj-rss.core :as rss]
             [java-time :as t]))
 
@@ -29,8 +28,7 @@
             :link        (:repository_url item)
             :description (:description item)
             :author      (:organization_name item)
-            :pubDate     (instant/read-instant-date
-                          (:last_update item))})
+            :pubDate     (t/instant (:last_update item))})
          (latest-repositories)))
    (spit "latest.xml"))
   (println "Updated latest.xml"))
