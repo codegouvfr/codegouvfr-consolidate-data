@@ -245,7 +245,9 @@
                        (get-projectclj-deps body)
                        "pom.xml"
                        (get-pomxml-deps body))]
-            (swap! new-deps #(merge-with into % reqs)))))
+            (swap! new-deps #(merge-with into % reqs)))
+          (Thread/sleep 1200)))
+
       (assoc repo
              :deps (utils/flatten-deps @new-deps)
              :deps_updated (str (t/instant))))))
