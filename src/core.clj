@@ -26,13 +26,6 @@
       first
       (dissoc :r :u :d :l)))
 
-(defn executable-exists? [s]
-  (if (re-matches
-       (re-pattern (str "^" s ": /.+$"))
-       (string/trim (:out (sh/sh "whereis" s))))
-    true
-    false))
-
 (def deps-mapping
   "Mapping from dependencies short keyword names to long names."
   {:n :name
@@ -194,10 +187,8 @@
   ;; Spit the latest.xml RSS feed
   (rss/make-feed)
   ;; Spit the top_licences.svg
-  (if (executable-exists? "vl2sg")
-    (do (sh/sh "vl2svg" (utils/generate-licenses-chart) "top_licenses.svg")
-        (shutdown-agents)
-        (println "top_licenses.svg: OK"))
-    (println "Can't find vl2svg, don't generate top_licenses.svg"))
+  (do (sh/sh "vl2svg" (utils/generate-licenses-chart) "top_licenses.svg")
+      (shutdown-agents)
+      (println "top_licenses.svg: OK"))
   ;; Finish
   (println "Done adding or updating all json/xml/svg files"))
