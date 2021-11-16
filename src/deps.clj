@@ -160,9 +160,12 @@
               (filter #(not (re-matches #"^#.+$" %))
                       (string/split body #"\n")))]
     (when-let [deps0 (last (re-find #"(?ms)install_requires=\[([^]]+)\]" body))]
-      (let [deps (filter not-empty (string/split deps0 #"\s"))
-            deps (map #(last (re-find #"'?([^=<>~\[\]]+).*'?" %)) deps)]
-        (when (seq deps)
+      (when-let [deps (filter #(not-empty %)
+                              (string/split
+                               (string/replace deps0 #"\s+[<=>~]+\s+" "==")
+                               #"\s"))]
+        (when-let [deps (map #(last (re-find #"'?([^=<>~\[\]]+).*'?" %))
+                             deps)]
           {:pypi (into [] (map string/trim deps))})))))
 
 (defn get-requirements-deps [body]
@@ -232,25 +235,25 @@
       (doseq [f dep-fnames]
         (when-let [body (utils/get-contents (format fmt-str organization_name name f))]
           (timbre/info "Fetching dependencies for" (format fmt-str organization_name name f))
-          (let [reqs (condp = f
-                       "package.json"
-                       (get-packagejson-deps body)
-                       "composer.json"
-                       (get-composerjson-deps body)
-                       "setup.py"
-                       (get-setuppy-deps body)
-                       "requirements.txt"
-                       (get-requirements-deps body)
-                       "Gemfile"
-                       (get-gemfile-deps body)
-                       "deps.edn"
-                       (get-depsedn-deps body)
-                       "project.clj"
-                       (get-projectclj-deps body)
-                       "pom.xml"
-                       (get-pomxml-deps body))]
-            (swap! new-deps #(merge-with into % reqs)))))
-
+          (try (let [reqs (condp = f
+                            "package.json"
+                            (get-packagejson-deps body)
+                            "composer.json"
+                            (get-composerjson-deps body)
+                            "setup.py"
+                            (get-setuppy-deps body)
+                            "requirements.txt"
+                            (get-requirements-deps body)
+                            "Gemfile"
+                            (get-gemfile-deps body)
+                            "deps.edn"
+                            (get-depsedn-deps body)
+                            "project.clj"
+                            (get-projectclj-deps body)
+                            "pom.xml"
+                            (get-pomxml-deps body))]
+                 (swap! new-deps #(merge-with into % reqs)))
+               (catch Exception _ nil))))
       (assoc repo
              :deps (utils/flatten-deps @new-deps)
              :deps_updated (str (t/instant))))))
