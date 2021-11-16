@@ -10,7 +10,8 @@
             [clojure.walk :as walk]
             [babashka.curl :as curl]
             [java-time :as t]
-            [clojure.java.io :as io]))
+            [clojure.java.io :as io]
+            [taoensso.timbre :as timbre]))
 
 (defonce max-description-length 280)
 
@@ -44,13 +45,13 @@
   (try
     (rows->maps (csv/read-csv (:body (curl/get url))))
     (catch Exception e
-      (println (.getMessage e)))))
+      (timbre/error (.getMessage e)))))
 
 (defn get-contents [s]
   (let [url? (re-find #"https://" s)
         res  (try (apply (if url? curl/get slurp) [s])
                   (catch Exception e
-                    (println
+                    (timbre/error
                      (str "Error while getting contents for " s ":")
                      (.getMessage e))))]
     (if (and url? (= (:status res) 200))
@@ -62,7 +63,7 @@
     (t/before? (t/minus (t/instant) (t/days days))
                (t/instant date-str))
     (catch Exception e
-      (println (.getMessage e)))))
+      (timbre/error (.getMessage e)))))
 
 (defn flatten-deps [m]
   (-> (fn [[k v]] (map #(assoc {} :t (name k) :n %) v))
@@ -104,7 +105,7 @@
                   (json-parse-with-keywords
                    (try (get-contents stats-url)
                         (catch Exception e
-                          (println
+                          (timbre/error
                            (str "Cannot get stats\n"
                                 (.getMessage e)))))))
         l1       (map #(zipmap [:License :Number] %)

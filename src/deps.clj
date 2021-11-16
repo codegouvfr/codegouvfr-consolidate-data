@@ -8,7 +8,8 @@
             [clojure.data.xml :as xml]
             [clojure.edn :as edn]
             [java-time :as t]
-            [clojure.string :as string]))
+            [clojure.string :as string]
+            [taoensso.timbre :as timbre]))
 
 (def dep-files
   {"PHP"        {:files ["composer.json"] :types ["composer"]}
@@ -46,7 +47,7 @@
   (or
    (check-module-of-type-is-known n "npm")
    (do
-     (println "Fetch info for npm module" n)
+     (timbre/info "Fetch info for npm module" n)
      (let [registry-url-fmt "https://registry.npmjs.org/-/v1/search?text=%s&size=1"]
        (when-let [res (utils/get-contents (format registry-url-fmt n))]
          (when (= (:status res) 200)
@@ -64,7 +65,7 @@
   (or
    (check-module-of-type-is-known n "pypi")
    (do
-     (println "Fetch info for pypi module" n)
+     (timbre/info "Fetch info for pypi module" n)
      (let [registry-url-fmt "https://pypi.org/pypi/%s/json"]
        (when-let [res (utils/get-contents (format registry-url-fmt n))]
          (when-let [{:keys [info]}
@@ -80,7 +81,7 @@
   (or
    (check-module-of-type-is-known n "maven")
    (do
-     (println "Fetch info for maven module" n)
+     (timbre/info "Fetch info for maven module" n)
      (let [[groupId artifactId] (drop 1 (re-find #"([^/]+)/([^/]+)" n))
            registry-url-fmt
            "https://search.maven.org/solrsearch/select?q=g:%%22%s%%22+AND+a:%%22%s%%22&core=gav&rows=1&wt=json"
@@ -104,7 +105,7 @@
   (or
    (check-module-of-type-is-known n "clojars")
    (do
-     (println "Fetch info for clojars module" n)
+     (timbre/info "Fetch info for clojars module" n)
      (let [registry-url-fmt "https://clojars.org/api/artifacts/%s"]
        (when-let [res (utils/get-contents (format registry-url-fmt n))]
          {:n n
@@ -117,7 +118,7 @@
   (or
    (check-module-of-type-is-known n "bundler")
    (do
-     (println "Fetch info for bundler module" n)
+     (timbre/info "Fetch info for bundler module" n)
      (let [registry-url-fmt "https://rubygems.org/api/v1/gems/%s.json"]
        (when-let [res (utils/get-contents (format registry-url-fmt n))]
          (let [{:keys [info project_uri]}
@@ -132,7 +133,7 @@
   (or
    (check-module-of-type-is-known n "composer")
    (do
-     (println "Fetch info for composer module" n)
+     (timbre/info "Fetch info for composer module" n)
      (let [registry-url-fmt "https://packagist.org/packages/%s"]
        (when-let [res (utils/get-contents
                        (str (format registry-url-fmt n) ".json"))]
@@ -230,7 +231,7 @@
           new-deps   (atom {})]
       (doseq [f dep-fnames]
         (when-let [body (utils/get-contents (format fmt-str organization_name name f))]
-          (println "Fetching dependencies for" (format fmt-str organization_name name f))
+          (timbre/info "Fetching dependencies for" (format fmt-str organization_name name f))
           (let [reqs (condp = f
                        "package.json"
                        (get-packagejson-deps body)
@@ -313,4 +314,4 @@
          (into {})
          json/write-value-as-string
          (spit "deps-repos-sim.json"))
-    (println "deps-repos-sim.json: OK")))
+    (timbre/info "deps-repos-sim.json: OK")))

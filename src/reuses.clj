@@ -9,7 +9,8 @@
             [clojure.edn :as edn]
             [utils :as utils]
             [hickory.core :as h]
-            [hickory.select :as hs]))
+            [hickory.select :as hs]
+            [taoensso.timbre :as timbre]))
 
 (defonce check-interval 30)
 
@@ -18,7 +19,7 @@
   [repository_url]
   (when-let [repo-github-html
              (utils/get-contents (str repository_url "/network/dependents"))]
-    (println "Getting dependents for" repository_url)
+    (timbre/info "Getting dependents for" repository_url)
     (let [updated   (str (t/instant))
           btn-links (-> repo-github-html
                         h/parse
@@ -58,4 +59,4 @@
          (apply merge)
          json/write-value-as-string
          (spit "reuses.json")))
-  (println "Added reuse information and stored it in reuses.json"))
+  (timbre/info "Added reuse information and stored it in reuses.json"))

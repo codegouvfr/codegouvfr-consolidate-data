@@ -15,9 +15,19 @@
             [rss :as rss]
             [deps :as deps]
             [java-time :as t]
-            [clojure.string :as string]
-            [clojure.java.io :as io])
+            [clojure.java.io :as io]
+            [taoensso.timbre :as timbre]
+            [taoensso.timbre.appenders.core :as appenders])
   (:gen-class))
+
+;; Set logging
+
+(timbre/set-config!
+ {:level     :debug
+  :output-fn (partial timbre/default-output-fn {:stacktrace-fonts {}})
+  :appenders
+  {:println (appenders/println-appender {:stream :auto})
+   :spit    (appenders/spit-appender {:fname "log.txt"})}})
 
 ;; Utility
 
@@ -47,7 +57,7 @@
                   #(map find-first-matching-module %)))
                @repos/repos))
   (spit "repos-deps.json" (json/write-value-as-string @repos/repos))
-  (println "repos-deps.json: OK"))
+  (timbre/info "repos-deps.json: OK"))
 
 (defn- validate-repos-deps
   "Update @deps/deps and @deps/grouped-deps with valid dependencies."
@@ -74,7 +84,7 @@
              (swap! res concat)))
       (reset! deps/deps (distinct @res))
       (reset! deps/grouped-deps (group-by (juxt :n :t) @deps/deps))
-      (println "Updated @deps with valid dependencies"))))
+      (timbre/info "Updated @deps with valid dependencies"))))
 
 (defn- spit-deps-with-repos []
   (let [reps
@@ -93,7 +103,7 @@
         ;; Limit dependency descriptions to 100 characters
         deps-reps (utils/limit-description :d deps-reps)]
     (spit "deps.json" (json/write-value-as-string (distinct deps-reps)))
-    (println "deps.json: OK")))
+    (timbre/info "deps.json: OK")))
 
 (defn spit-csv [f ms]
   (with-open [writer (io/writer f)]
@@ -117,7 +127,7 @@
                          reps0)]
     (spit "deps-repos.json"
           (json/write-value-as-string reps))
-    (println "deps-repos.json: OK")))
+    (timbre/info "deps-repos.json: OK")))
 
 (defn- spit-deps-orgas [repos]
   (let [orgs1 (group-by (juxt :organization_name :platform) repos)
@@ -125,13 +135,13 @@
                          {}
                          orgs1)]
     (spit "deps-orgas.json" (json/write-value-as-string orgs0))
-    (println "deps-orgas.json: OK")))
+    (timbre/info "deps-orgas.json: OK")))
 
 (defn- spit-deps-total [deps]
   (spit "deps-total.json"
         (json/write-value-as-string
          {:deps-total (count deps)}))
-  (println "deps-total.json: OK"))
+  (timbre/info "deps-total.json: OK"))
 
 (defn- spit-deps-top [deps]
   (spit "deps-top.json"
@@ -140,7 +150,7 @@
               (sort-by #(count (:r %)))
               reverse
               (take 100))))
-  (println "deps-top.json: OK"))
+  (timbre/info "deps-top.json: OK"))
 
 (defn -main []
   ;;
@@ -148,16 +158,16 @@
        (sequence (repos/add-data))
        json/write-value-as-string
        (spit "repos.json"))
-  (println "repos.json: OK")
+  (timbre/info "repos.json: OK")
   ;;
   (->> (orgas/init)
        (sequence (orgas/add-data))
        json/write-value-as-string
        (spit "orgas.json"))
-  (println "orgas.json: OK")
+  (timbre/info "orgas.json: OK")
   ;;
   ;; Read reuses.json, update information and spit back
-  (println "Updating reuses.json")
+  (timbre/info "Updating reuses.json")
   (reuses/spit-info @repos/repos)
   ;;
   ;; Updating @repos/repos with all dependencies
@@ -187,8 +197,8 @@
   ;; Spit the latest.xml RSS feed
   (rss/make-feed)
   ;; Spit the top_licences.svg
-  (do (sh/sh "vl2svg" (utils/generate-licenses-chart) "top_licenses.svg")
-      (shutdown-agents)
-      (println "top_licenses.svg: OK"))
+  (sh/sh "vl2svg" (utils/generate-licenses-chart) "top_licenses.svg")
+  (shutdown-agents)
+  (timbre/info "top_licenses.svg: OK")
   ;; Finish
-  (println "Done adding or updating all json/xml/svg files"))
+  (timbre/info "Done adding or updating all json/xml/svg files"))

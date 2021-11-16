@@ -1,7 +1,8 @@
 (ns rss
   (:require [utils :as utils]
             [clj-rss.core :as rss]
-            [java-time :as t]))
+            [java-time :as t]
+            [taoensso.timbre :as timbre]))
 
 (defonce urls
   {:repos        "repositories/json/all.json"
@@ -31,4 +32,4 @@
             :pubDate     (t/instant (:last_update item))})
          (latest-repositories)))
    (spit "latest.xml"))
-  (println "Updated latest.xml"))
+  (timbre/info "Updated latest.xml"))
