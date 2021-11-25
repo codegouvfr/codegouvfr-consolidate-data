@@ -22,7 +22,7 @@
   (->>
    (rss/channel-xml
     {:title       "code.gouv.fr - Nouveaux dépôts - New repositories"
-     :link        "https://code.etalab.gouv.fr/latest.xml"
+     :link        "https://code.etalab.gouv.fr/data/latest.xml"
      :description "code.gouv.fr - Nouveaux dépôts - New repositories"}
     (map (fn [item]
            {:title       (:name item)
