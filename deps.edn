@@ -18,7 +18,8 @@
         clj-rss/clj-rss                     {:mvn/version "0.3.0"}
         com.taoensso/timbre                 {:mvn/version "5.1.2"}}
 
- :aliases {:uberdeps
+ :aliases {:run {:main-opts ["-m" "core"]}
+           :uberdeps
            {:replace-deps  {uberdeps/uberdeps {:mvn/version "1.0.4"}}
             :replace-paths []
             :main-opts     ["-m" "uberdeps.uberjar"]}
