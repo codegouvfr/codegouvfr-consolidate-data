@@ -6,12 +6,31 @@
 `codegouvfr` stands for [code.gouv.fr](https://code.gouv.fr).  This repository helps creating
 `json/svg/xml` files used by the [code.gouv.fr](https://git.sr.ht/~etalab/code.gouv.fr) web application.
 
+# Installation and configuration
 
-# Requisites
+1. Install a Java runtime for Java version 8 or 11 if needed. You can check the existing version of your java runtime with `java -version`. [OpenJDK](https://openjdk.java.net/install/) 11 can be installed on Debian-compatible Linux systems with `apt install openjdk-11-jdk`.
+2. Install Node.js if needed.
+3. Install clojure: [follow installation instructions on clojure.org](https://clojure.org/guides/getting_started).
+4. Install rlwrap. For example on Debian-compatible Linux systems with `apt install rlwrap`.
+5. Install vl2svg with the following command `npm install -g vega-lite`.
+6. Clone this repository: `git clone https://git.sr.ht/~etalab/codegouvfr-consolidate-data ; cd codegouvfr-consolidate-data`
 
-`codegouvfr-consolidate-data` needs the `vl2svg` executable:
+# Generate consolidated files
 
-    ~$ npm install -g vega-lite
+1. You need input files. These input files are in the data folder of [codegouvfr-fetch-data](https://git.sr.ht/~etalab/codegouvfr-fetch-data). Copy then in the project directory. For example `cp -r ../codegouvfr-fetch-data/* .` If you skip this step, the input files will be fetched from [code.gouv.fr](https://code.gouv.fr)
+2. Launch the command `clj -M:run`, the following files will be made available in the project directory:
+
+- deps-orgas.json
+- deps-repos-sim.json
+- deps-repos.json
+- deps-top.json
+- deps-total.json
+- deps.json
+- orgas.json
+- repos-deps.json
+- repos.json
+- reuses.json
+- latest.xml
 
 
 # Get the data
