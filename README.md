@@ -15,7 +15,7 @@ application.
    installed on Debian-compatible Linux systems with `apt install
    openjdk-11-jdk`.
    
-2. Install Node.js if needed.
+2. Install `node.js` if needed.
 
 3. Install clojure: [follow installation instructions on
    clojure.org](https://clojure.org/guides/getting_started).
