@@ -16,3 +16,4 @@ target/
 organizations/
 repositories/
 dependencies/
+.dir-locals.el
