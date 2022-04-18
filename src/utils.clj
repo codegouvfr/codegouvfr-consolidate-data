@@ -8,9 +8,12 @@
             [clojure.data.json :as datajson]
             [clojure.string :as string]
             [clojure.walk :as walk]
+            [clojure.edn :as edn]
             [babashka.curl :as curl]
             [java-time :as t]
             [clojure.java.io :as io]
+            [hickory.core :as h]
+            [hickory.select :as hs]
             [taoensso.timbre :as timbre]))
 
 (defonce max-description-length 280)
@@ -146,3 +149,24 @@
 
 (defn generate-licenses-chart []
   (temp-json-file (licenses-vega-data)))
+
+(defn get-reuses
+  "Return a hash-map with reuse information"
+  [repository_url]
+  (when-let [repo-github-html
+             (get-contents (str repository_url "/network/dependents"))]
+    (timbre/info "Getting dependents for" repository_url)
+    (let [updated   (str (t/instant))
+          btn-links (-> repo-github-html
+                        h/parse
+                        h/as-hickory
+                        (as-> d (hs/select (hs/class "btn-link") d)))
+          nb-reps   (or (try (re-find #"\d+" (last (:content (nth btn-links 1))))
+                             (catch Exception _ "0")) "0")
+          nb-pkgs   (or (try (re-find #"\d+" (last (:content (nth btn-links 2))))
+                             (catch Exception _ "0")) "0")]
+      (hash-map
+       repository_url
+       {:u updated
+        :r (+ (edn/read-string nb-reps)
+              (edn/read-string nb-pkgs))}))))
