@@ -15,6 +15,9 @@
 
 (defonce max-description-length 280)
 
+(defn replace-vals [m v r]
+  (walk/postwalk #(if (= % v) r %) m))
+
 (defn limit-description [desc-k m]
   (map #(update-in
          %[desc-k]
