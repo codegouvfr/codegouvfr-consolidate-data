@@ -2,7 +2,7 @@
 ;; SPDX-License-Identifier: EPL-2.0
 ;; License-Filename: LICENSE
 
-{:version     "0.3.2"
+{:version     "0.4.0"
  :description "Consolidate data for https://code.gouv.fr"
  :url         "https://git.sr.ht/~etalab/codegouvfr-consolidate-data"
  :license     {:name "Eclipse Public License - v 2.0"
@@ -17,9 +17,10 @@
         net.mikera/core.matrix              {:mvn/version "0.62.0"}
         clj-rss/clj-rss                     {:mvn/version "0.3.0"}
         com.taoensso/timbre                 {:mvn/version "5.2.1"}
-        datalevin/datalevin                 {:mvn/version "0.6.6"}
+        datalevin/datalevin                 {:mvn/version "0.6.8"}
         com.cognitect/transit-clj           {:mvn/version "1.0.329"}
-        clj-commons/clj-yaml                {:mvn/version "0.7.108"}}
+        clj-commons/clj-yaml                {:mvn/version "0.7.108"}
+        toml/toml                           {:mvn/version "0.1.4"}}
 
  :aliases
  {:run      {:main-opts ["-m" "core"]
