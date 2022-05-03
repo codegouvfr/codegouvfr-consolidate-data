@@ -18,3 +18,4 @@ repositories/
 dependencies/
 .dir-locals.el
 .db/
+.envrc
