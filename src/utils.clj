@@ -1,145 +1,262 @@
-;; Copyright (c) 2020, 2021 DINUM, Bastien Guerry <bastien.guerry@data.gouv.fr>
+;; Copyright (c) 2020, 2022 DINUM, Bastien Guerry <bastien.guerry@data.gouv.fr>
 ;; SPDX-License-Identifier: EPL-2.0
 ;; License-Filename: LICENSE
 
 (ns utils
   (:require [jsonista.core :as json]
             [clojure.data.csv :as csv]
-            [clojure.data.json :as datajson]
             [clojure.string :as string]
             [clojure.walk :as walk]
+            [clojure.edn :as edn]
             [babashka.curl :as curl]
             [java-time :as t]
-            [clojure.java.io :as io]
+            [hickory.core :as h]
+            [hickory.select :as hs]
             [taoensso.timbre :as timbre]))
 
-(defonce max-description-length 280)
+(defonce max-description-length 200)
 
-(defn limit-description [desc-k m]
-  (map #(update-in
-         %[desc-k]
-         (fn [s]
-           (if (and (string? s) (> (count s) max-description-length))
-             (str (subs s 0 max-description-length) "…")
-             s)))
-       m))
+(defonce updating-after-days 30)
+
+(defonce gh
+  {:user  (System/getenv "CODEGOUVFR_GITHUB_USER")
+   :token (System/getenv "CODEGOUVFR_GITHUB_ACCESS_TOKEN")})
+
+(defonce urls
+  {:sill         "https://code.gouv.fr/data/sill3.json"
+   :libs         "https://code.gouv.fr/data/libraries/json/all.json"
+   :repos        "https://code.gouv.fr/data/repositories/json/all.json"
+   :orgas        "https://code.gouv.fr/data/organizations/json/all.json"
+   :stats        "https://code.gouv.fr/data/stats.json"
+   :annuaire     "https://static.data.gouv.fr/resources/organisations-de-codegouvfr/20191011-110549/lannuaire.csv"
+   :emoji-json   "https://raw.githubusercontent.com/amio/emoji.json/master/emoji.json"
+   :sources      "https://git.sr.ht/~etalab/codegouvfr-sources/blob/master/comptes-organismes-publics.yml"
+   :mesri-string "Ministère de l'enseignement supérieur, de la recherche et de l'innovation"
+   })
+
+(defonce mappings
+  {;; Mapping from libraries keywords to local short versions
+   :libs  {:description                        :d
+           :latest_stable_release_published_at :u
+           :repo_url                           :l
+           :name                               :n
+           :platform                           :t
+           :is_repo                            :r?
+           :license                            :l}
+   ;; Mapping from sill keywords to local short versions
+   :sill  {:sill_id                    :id
+           :name                       :n
+           :license                    :l
+           :function                   :f
+           :isFromFrenchPublicService  :fr
+           :referencedSinceTime        :u
+           :isPresentInSupportContract :s
+           :comptoirDuLibreSoftwareId  :cl}
+   ;; Mapping from repositories keywords to local short versions
+   :repos {:last_update       :u
+           :description       :d
+           :is_archived       :a?
+           :is_fork           :f?
+           :is_esr            :e?
+           :is_lib            :l?
+           :language          :l
+           :license           :li
+           :name              :n
+           :forks_count       :f
+           :open_issues_count :i
+           :stars_count       :s
+           :organization_name :o
+           :platform          :p
+           :repository_url    :r
+           :topics            :t}
+   ;; Mapping from libraries keywords to local short versions
+   :deps  {:type         :t
+           :name         :n
+           :description  :d
+           :repositories :r
+           :updated      :u
+           :repo_url     :ru
+           :link         :l}
+   ;; Mapping from groups/organizations keywords to local short versions
+   :orgas {:description        :d
+           :location           :a
+           :email              :e
+           :name               :n
+           :platform           :p
+           :website            :h
+           :is_verified        :v?
+           :ministry           :m
+           :annuaire           :an
+           :floss_policy       :f
+           :login              :l
+           :creation_date      :c
+           :repositories_count :r
+           :organization_url   :o
+           :avatar_url         :au}
+   :licenses
+   {"MIT License"                                                "MIT License (MIT)"
+    "GNU Affero General Public License v3.0"                     "GNU Affero General Public License v3.0 (AGPL-3.0)"
+    "GNU General Public License v3.0"                            "GNU General Public License v3.0 (GPL-3.0)"
+    "GNU Lesser General Public License v2.1"                     "GNU Lesser General Public License v2.1 (LGPL-2.1)"
+    "Apache License 2.0"                                         "Apache License 2.0 (Apache-2.0)"
+    "GNU General Public License v2.0"                            "GNU General Public License v2.0 (GPL-2.0)"
+    "GNU Lesser General Public License v3.0"                     "GNU Lesser General Public License v3.0 (LGPL-3.0)"
+    "Mozilla Public License 2.0"                                 "Mozilla Public License 2.0 (MPL-2.0)"
+    "Eclipse Public License 2.0"                                 "Eclipse Public License 2.0 (EPL-2.0)"
+    "Eclipse Public License 1.0"                                 "Eclipse Public License 1.0 (EPL-1.0)"
+    "BSD 3-Clause \"New\" or \"Revised\" License"                "BSD 3-Clause \"New\" or \"Revised\" License (BSD-3-Clause)"
+    "European Union Public License 1.2"                          "European Union Public License 1.2 (EUPL-1.2)"
+    "Creative Commons Attribution Share Alike 4.0 International" "Creative Commons Attribution Share Alike 4.0 International (CC-BY-SA-4.0)"
+    "BSD 2-Clause \"Simplified\" License"                        "BSD 2-Clause \"Simplified\" License (BSD-2-Clause)"
+    "The Unlicense"                                              "The Unlicense (Unlicense)"
+    "Do What The Fuck You Want To Public License"                "Do What The Fuck You Want To Public License (WTFPL)"
+    "Creative Commons Attribution 4.0 International"             "Creative Commons Attribution 4.0 International (CC-BY-4.0)"}
+   :licenses-spdx
+   {"Other"                                                      "Other"
+    "MIT License"                                                "MIT"
+    "GNU Affero General Public License v3.0"                     "AGPL-3.0"
+    "GNU General Public License v3.0"                            "GPL-3.0"
+    "GNU Lesser General Public License v2.1"                     "LGPL-2.1"
+    "Apache License 2.0"                                         "Apache-2.0"
+    "GNU General Public License v2.0"                            "GPL-2.0"
+    "GNU Lesser General Public License v3.0"                     "LGPL-3.0"
+    "Mozilla Public License 2.0"                                 "MPL-2.0"
+    "Eclipse Public License 2.0"                                 "EPL-2.0"
+    "Eclipse Public License 1.0"                                 "EPL-1.0"
+    "BSD 3-Clause \"New\" or \"Revised\" License"                "BSD-3-Clause"
+    "European Union Public License 1.2"                          "EUPL-1.2"
+    "Creative Commons Attribution Share Alike 4.0 International" "CC-BY-SA-4.0"
+    "BSD 2-Clause \"Simplified\" License"                        "BSD-2-Clause"
+    "The Unlicense"                                              "Unlicense"
+    "Do What The Fuck You Want To Public License"                "WTFPL"
+    "Creative Commons Attribution 4.0 International"             "CC-BY-4.0"}})
+
+(defn- mean
+  ;; FIXME: Get this from a standard library?
+  "Standard mean function."
+  [xs] (float (/ (reduce + xs) (count xs))))
+
+(defn median
+  ;; FIXME: Get this from a standard library?
+  "Standard mean function."
+  [xs]
+  (let [n   (count xs)
+        mid (/ n 2)]
+    (if (odd? n)
+      (nth (sort xs) mid)
+      (->> (sort xs)
+           (drop (dec mid))
+           (take 2)
+           (mean)))))
+
+(defn replace-vals [m v r]
+  (walk/postwalk #(if (= % v) r %) m))
+
+(def user-agent
+  {:raw-args ["--connect-timeout" "5"]
+   :headers  {"User-Agent" "https://code.gouv.fr bot (logiciels-libres@data.gouv.fr)"}})
+
+(def default-parameters user-agent)
+
+(def gh-parameters
+  (merge user-agent {:basic-auth [(:user gh) (:token gh)]}))
+
+(defn needs-updating? [date-str]
+  (if-not (string? date-str)
+    true
+    (t/before?
+     (t/minus (t/instant date-str) (t/days (rand-int updating-after-days)))
+     (t/minus (t/instant) (t/days updating-after-days)))))
+
+(defn get-contents [s]
+  (Thread/sleep 500)
+  (let [url?    (re-find #"https://" s)
+        gh-api? (and url? (re-find #"https://api.github.com" s))
+        res     (try (apply
+                      (cond
+                        gh-api? #(curl/get % gh-parameters)
+                        url?    #(curl/get % default-parameters)
+                        :else   slurp) [s])
+                     (catch Exception e
+                       (timbre/error
+                        (str "Error while getting contents for " s ":")
+                        (.getMessage e))))]
+    (if (and url? (= (:status res) 200))
+      (:body res)
+      res)))
+
+(defn- rows->maps [csv]
+  (let [headers (map keyword (first csv))
+        rows    (rest csv)]
+    (map #(zipmap headers %) rows)))
+
+(defn csv-url-to-map [url]
+  (try
+    (rows->maps (csv/read-csv (get-contents url)))
+    (catch Exception e
+      (timbre/error (.getMessage e)))))
 
 (defn json-parse-with-keywords [s]
   (-> s
       (json/read-value
        (json/object-mapper {:decode-key-fn keyword}))))
 
-(defn rows->maps [csv]
-  (let [headers (map keyword (first csv))
-        rows    (rest csv)]
-    (map #(zipmap headers %) rows)))
+(defn get-contents-json-to-kwds [s]
+  (json-parse-with-keywords (get-contents s)))
 
-(defn maps-to-csv [ms]
-  (let [columns (keys (first ms))
-        headers (map name columns)
-        ms      (map #(update-in % [:repositories] (fn [v] (string/join " " v))) ms)
-        rows    (mapv #(mapv % columns) ms)]
-    (cons headers rows)))
+(defonce emojis
+  (->> (:emoji-json urls)
+       get-contents
+       json-parse-with-keywords
+       (map #(select-keys % [:char :name]))
+       (map #(update % :name
+                     (fn [n] (str ":" (string/replace n " " "_") ":"))))))
 
-(defn csv-url-to-map [url]
-  (try
-    (rows->maps (csv/read-csv (:body (curl/get url))))
-    (catch Exception e
-      (timbre/error (.getMessage e)))))
+;;; Main functions to update repos
 
-(defn get-contents [s]
-  (let [url? (re-find #"https://" s)
-        res  (try (apply (if url? curl/get slurp) [s])
-                  (catch Exception e
-                    (timbre/error
-                     (str "Error while getting contents for " s ":")
-                     (.getMessage e))))]
-    (if (and url? (= (:status res) 200))
-      (:body res)
-      res)))
+(defn get-contributing
+  [{:keys [platform organization_name name repository_url default_branch contributing]}]
+  (timbre/info "Checking CONTRIBUTING.md for" repository_url)
+  (if-not (needs-updating? (:updated contributing))
+    contributing
+    (let  [baseurl     (re-find #"https?://[^/]+" repository_url)
+           fmt-str     (if (= platform "GitHub")
+                         "https://raw.githubusercontent.com/%s/%s/%s/%s"
+                         (str baseurl "/%s/%s/-/raw/%s/%s"))
+           contents    (get-contents (format fmt-str organization_name name
+                                             ;; FIXME: Remove when
+                                             ;; default_branch is set
+                                             ;; upstream:
+                                             (or default_branch "master")
+                                             "CONTRIBUTING.md"))
+           ;; FIXME: Hack to circumvent cases when GitLab returns the Sign in page:
+           contents-ok (and contents (not (re-matches #"<!DOCTYPE html>" contents)))]
+      {:is_contrib? (when contents-ok (seq contents))
+       :updated     (str (t/instant))})))
 
-(defn less-than-x-days-ago [^Integer days ^String date-str]
-  (try
-    (t/before? (t/minus (t/instant) (t/days days))
-               (t/instant date-str))
-    (catch Exception e
-      (timbre/error (.getMessage e)))))
+(defn get-reuses
+  "Return a hash-map with reuse information"
+  [{:keys [platform repository_url reuses]}]
+  (if-not (needs-updating? (:updated reuses))
+    reuses
+    (let [updated        (str (t/instant))
+          default_reuses {:number 0 :updated updated}]
+      (if-not (= platform "GitHub")
+        default_reuses
+        (do
+          (timbre/info "Getting dependents for" repository_url)
+          (if-let [repo-github-html
+                   (get-contents (str repository_url "/network/dependents"))]
+            (let [btn-links (-> repo-github-html
+                                h/parse
+                                h/as-hickory
+                                (as-> d (hs/select (hs/class "btn-link") d)))
+                  nb-reps   (or (try (re-find #"\d+" (last (:content (nth btn-links 1))))
+                                     (catch Exception _ "0")) "0")
+                  nb-pkgs   (or (try (re-find #"\d+" (last (:content (nth btn-links 2))))
+                                     (catch Exception _ "0")) "0")]
+              {:number  (+ (edn/read-string nb-reps)
+                           (edn/read-string nb-pkgs))
+               :updated updated})
+            default_reuses))))))
 
-(defn flatten-deps [m]
-  (-> (fn [[k v]] (map #(assoc {} :t (name k) :n %) v))
-      (map m)
-      flatten))
-
-(defn get-all-deps [m]
-  (->> m
-       (map :deps)
-       flatten
-       (map #(dissoc % :u :d :l))
-       distinct))
-
-;; (defonce stats-url "https://api-code.etalab.gouv.fr/api/stats/general")
-(defonce stats-url "stats.json")
-
-(defonce licenses-spdx
-  {"Other"                                                      "Other"
-   "MIT License"                                                "MIT"
-   "GNU Affero General Public License v3.0"                     "AGPL-3.0"
-   "GNU General Public License v3.0"                            "GPL-3.0"
-   "GNU Lesser General Public License v2.1"                     "LGPL-2.1"
-   "Apache License 2.0"                                         "Apache-2.0"
-   "GNU General Public License v2.0"                            "GPL-2.0"
-   "GNU Lesser General Public License v3.0"                     "LGPL-3.0"
-   "Mozilla Public License 2.0"                                 "MPL-2.0"
-   "Eclipse Public License 2.0"                                 "EPL-2.0"
-   "Eclipse Public License 1.0"                                 "EPL-1.0"
-   "BSD 3-Clause \"New\" or \"Revised\" License"                "BSD-3-Clause"
-   "European Union Public License 1.2"                          "EUPL-1.2"
-   "Creative Commons Attribution Share Alike 4.0 International" "CC-BY-SA-4.0"
-   "BSD 2-Clause \"Simplified\" License"                        "BSD-2-Clause"
-   "The Unlicense"                                              "Unlicense"
-   "Do What The Fuck You Want To Public License"                "WTFPL"
-   "Creative Commons Attribution 4.0 International"             "CC-BY-4.0"})
-
-(defn licenses-vega-data []
-  (let [l0       (:top_licenses
-                  (json-parse-with-keywords
-                   (try (get-contents stats-url)
-                        (catch Exception e
-                          (timbre/error
-                           (str "Cannot get stats\n"
-                                (.getMessage e)))))))
-        l1       (map #(zipmap [:License :Number] %)
-                      (walk/stringify-keys
-                       (dissoc l0 :Inconnue)))
-        licenses (map #(assoc % :License (get licenses-spdx (:License %))) l1)]
-    {:title    "Most used licenses"
-     :data     {:values licenses}
-     :encoding {:x     {:field "Number" :type "quantitative"
-                        :axis  {:title "Number of repoitories"}}
-                :y     {:field "License" :type "ordinal" :sort "-x"
-                        :axis  {:title         false
-                                :labelLimit    200
-                                :offset        10
-                                :maxExtent     100
-                                :labelFontSize 15
-                                :labelAlign    "right"}}
-                :color {:field  "License"
-                        :legend false
-                        :type   "nominal"
-                        :title  "Licenses"
-                        :scale  {:scheme "tableau20"}}}
-     :width    600
-     :height   600
-     :mark     {:type "bar" :tooltip {:content "data"}}}))
-
-(defn temp-json-file
-  "Convert `clj-vega-spec` to json and store it as tmp file."
-  [clj-vega-spec]
-  (let [tmp-file (java.io.File/createTempFile "vega." ".json")]
-    (.deleteOnExit tmp-file)
-    (with-open [file (io/writer tmp-file)]
-      (datajson/write clj-vega-spec file))
-    (.getAbsolutePath tmp-file)))
-
-(defn generate-licenses-chart []
-  (temp-json-file (licenses-vega-data)))

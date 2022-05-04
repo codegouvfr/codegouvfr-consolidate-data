@@ -1,42 +1,49 @@
-;; Copyright (c) 2020-2021 DINUM, Bastien Guerry <bastien.guerry@data.gouv.fr>
+;; Copyright (c) 2020-2022 DINUM, Bastien Guerry <bastien.guerry@data.gouv.fr>
 ;; SPDX-License-Identifier: EPL-2.0
 ;; License-Filename: LICENSE
 
-{:version     "0.3.2"
+{:version     "0.4.0"
  :description "Consolidate data for https://code.gouv.fr"
  :url         "https://git.sr.ht/~etalab/codegouvfr-consolidate-data"
  :license     {:name "Eclipse Public License - v 2.0"
                :url  "http://www.eclipse.org/legal/epl-v20.html"}
 
- :deps {org.clojure/clojure                 {:mvn/version "1.11.0-alpha2"}
+ :deps {org.clojure/clojure                 {:mvn/version "1.11.1"}
         borkdude/babashka                   {:mvn/version "0.2.6"}
-        metosin/jsonista                    {:mvn/version "0.3.4"}
-        org.clojure/data.csv                {:mvn/version "1.0.0"}
+        metosin/jsonista                    {:mvn/version "0.3.5"}
+        org.clojure/data.csv                {:mvn/version "1.0.1"}
         hickory/hickory                     {:mvn/version "0.7.1"}
         clojure.java-time/clojure.java-time {:mvn/version "0.3.3"}
         net.mikera/core.matrix              {:mvn/version "0.62.0"}
         clj-rss/clj-rss                     {:mvn/version "0.3.0"}
-        com.taoensso/timbre                 {:mvn/version "5.1.2"}}
+        com.taoensso/timbre                 {:mvn/version "5.2.1"}
+        datalevin/datalevin                 {:mvn/version "0.6.8"}
+        com.cognitect/transit-clj           {:mvn/version "1.0.329"}
+        clj-commons/clj-yaml                {:mvn/version "0.7.108"}
+        toml/toml                           {:mvn/version "0.1.4"}}
 
- :aliases {:run {:main-opts ["-m" "core"]}
-           :uberdeps
-           {:replace-deps  {uberdeps/uberdeps {:mvn/version "1.0.4"}}
-            :replace-paths []
-            :main-opts     ["-m" "uberdeps.uberjar"]}
-           :native-image
-           {:main-opts ["-m" "clj.native-image" "core"
-                        ;; "--verbose"
-                        "--no-fallback"
-                        "--report-unsupported-elements-at-runtime"
-                        "--initialize-at-build-time"
-                        ;; Allow https
-                        "-H:EnableURLProtocols=http,https"
-                        ;; "-H:+ReportExceptionStackTraces"
-                        ;; "-H:+TraceClassInitialization"
-                        ;; Optional native image name override
-                        "-H:Name=codegouvfr-data"]
-            :jvm-opts  ["-Dclojure.compiler.direct-linking=true"]
-            :extra-deps
-            {clj.native-image/clj.native-image
-             {:git/url "https://github.com/taylorwood/clj.native-image.git"
-              :sha     "4604ae76855e09cdabc0a2ecc5a7de2cc5b775d6"}}}}}
+ :aliases
+ {:run      {:main-opts ["-m" "core"]
+             :jvm-opts  ["--add-opens=java.base/java.nio=ALL-UNNAMED"
+                         "--add-opens=java.base/sun.nio.ch=ALL-UNNAMED"]}
+  :uberdeps {:replace-deps {uberdeps/uberdeps {:mvn/version "1.1.0"}}
+             :main-opts    ["-m" "uberdeps.uberjar"]}
+  :native-image
+  {:main-opts ["-m" "clj.native-image" "core"
+               ;; "--verbose"
+               "--no-fallback"
+               "--report-unsupported-elements-at-runtime"
+               "--initialize-at-build-time"
+               ;; Allow https
+               "-H:EnableURLProtocols=http,https"
+               ;; "-H:+ReportExceptionStackTraces"
+               ;; "-H:+TraceClassInitialization"
+               ;; Optional native image name override
+               "-H:Name=codegouvfr-consolidate-data"]
+   :jvm-opts  ["-Dclojure.compiler.direct-linking=true"
+               "--add-opens=java.base/java.nio=ALL-UNNAMED"
+               "--add-opens=java.base/sun.nio.ch=ALL-UNNAMED"]
+   :extra-deps
+   {clj.native-image/clj.native-image
+    {:git/url "https://github.com/taylorwood/clj.native-image.git"
+     :sha     "4604ae76855e09cdabc0a2ecc5a7de2cc5b775d6"}}}}}
