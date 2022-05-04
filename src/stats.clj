@@ -3,8 +3,7 @@
 ;; License-Filename: LICENSE
 
 (ns stats
-  (:require [clojure.set :as set]
-            [clojure.string :as string]
+  (:require [clojure.string :as string]
             [utils :as utils]
             [jsonista.core :as json]))
 

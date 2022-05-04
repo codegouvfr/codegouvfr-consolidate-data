@@ -308,6 +308,9 @@
      (map #(update % :referencedSinceTime (fn [t] (str (t/instant (java.util.Date. t))))))
      ;; Add comptoirDuLibreSoftware id
      (map #(assoc % :comptoirDuLibreSoftwareId (:id (:comptoirDuLibreSoftware %))))
+     ;; Add comptoirDuLibreSoftware providers
+     (map #(assoc % :comptoirDuLibreSoftwareProviders?
+                  (boolean (seq (:providers (:comptoirDuLibreSoftware %))))))
      ;; Remap keywords
      (map #(set/rename-keys (select-keys % (keys sill-mapping)) sill-mapping)))))
 

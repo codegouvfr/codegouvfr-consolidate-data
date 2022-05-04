@@ -42,14 +42,15 @@
            :is_repo                            :r?
            :license                            :l}
    ;; Mapping from sill keywords to local short versions
-   :sill  {:sill_id                    :id
-           :name                       :n
-           :license                    :l
-           :function                   :f
-           :isFromFrenchPublicService  :fr
-           :referencedSinceTime        :u
-           :isPresentInSupportContract :s
-           :comptoirDuLibreSoftwareId  :cl}
+   :sill  {:sill_id                           :id
+           :name                              :n
+           :license                           :l
+           :function                          :f
+           :isFromFrenchPublicService         :fr
+           :referencedSinceTime               :u
+           :isPresentInSupportContract        :s
+           :comptoirDuLibreSoftwareId         :cl
+           :comptoirDuLibreSoftwareProviders? :clp}
    ;; Mapping from repositories keywords to local short versions
    :repos {:last_update       :u
            :description       :d
