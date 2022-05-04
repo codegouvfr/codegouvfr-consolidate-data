@@ -38,20 +38,7 @@ application.
    ../codegouvfr-fetch-data/* .`  If you skip this step, the input
    files will be fetched from [code.gouv.fr](https://code.gouv.fr).
    
-2. Launch the command `clj -M:run`, the following files will be made
-   available in the project directory:
-
-- deps-orgas.json
-- deps-repos-sim.json
-- deps-repos.json
-- deps-top.json
-- deps-total.json
-- deps.json
-- orgas.json
-- repos-deps.json
-- repos.json
-- reuses.json
-- latest.xml
+2. Launch the command `clj -M:run`.
 
 # Get the data
 
