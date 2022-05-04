@@ -129,7 +129,8 @@
       seq nil? not))
 
 (defn- is-repo [repo_url]
-  (not (nil? (d/q `[:find ?e :where [?e :repository_url ~repo_url]] db))))
+  (-> (d/q `[:find ?e :where [?e :repository_url ~repo_url]] db)
+      seq nil? not))
 
 ;;; Consolidate data
 
@@ -167,7 +168,7 @@
                  "clojars"  (deps/get-valid-clojars library)
                  "composer" (deps/get-valid-composer library)
                  "pypi"     (deps/get-valid-pypi library)
-                 "crate"     (deps/get-valid-crate library)
+                 "crate"    (deps/get-valid-crate library)
                  nil)]
       (timbre/info (format "Updating dependency %s (%s)" library type))
       (let [dep_id        (keyword (str type "/" library))
@@ -182,23 +183,26 @@
           (catch Exception e (timbre/error (.getMessage e))))))))
 
 (defn- consolidate-repos []
-  (doseq [repo (get-repos)]
-    (let [repo_orga_name (:organization_name repo)
-          is_esr         (->> (d/q `[:find ?e :where [?e :login ~repo_orga_name]] db)
-                              ffirst
-                              (d/entity db)
-                              (#(= (:ministry %) (:mesri-string utils/urls))))
-          reuses         (utils/get-reuses repo)
-          contributing   (utils/get-contributing repo)
-          dependencies   (deps/get-dependencies repo)]
-      (try
-        (d/transact! conn [(assoc repo
-                                  :is_esr is_esr
-                                  :reuses reuses
-                                  :contributing contributing
-                                  :dependencies dependencies)])
-        (catch Exception e (timbre/error (.getMessage e))))
-      (consolidate-deps dependencies (:repository_url repo)))))
+  (let [mesri-string
+        "Ministère de l'enseignement supérieur, de la recherche et de l'innovation"]
+    (doseq [repo (get-repos)]
+      (let [repo_orga_name (:organization_name repo)
+            is_esr         (->> (d/q `[:find ?e :where [?e :login ~repo_orga_name]] db)
+                                (map first)
+                                (map #(d/entity db))
+                                (filter #(= (:ministry %) mesri-string))
+                                not-empty nil? not)
+            reuses         (utils/get-reuses repo)
+            contributing   (utils/get-contributing repo)
+            dependencies   (deps/get-dependencies repo)]
+        (try
+          (d/transact! conn [(assoc repo
+                                    :is_esr is_esr
+                                    :reuses reuses
+                                    :contributing contributing
+                                    :dependencies dependencies)])
+          (catch Exception e (timbre/error (.getMessage e))))
+        (consolidate-deps dependencies (:repository_url repo))))))
 
 ;; |           | GitHub                           | GitLab                |
 ;; |-----------+----------------------------------+-----------------------|
