@@ -131,7 +131,9 @@
 (defn- is-esr [repo_orga_name]
   (let [mesri-string
         "Ministère de l'enseignement supérieur, de la recherche et de l'innovation"]
-    (->> (d/q `[:find ?e :where [?e :login ~repo_orga_name]] db)
+    (->> (d/q `[:find ?e :where
+                [?e :organization_url _]
+                [?e :name ~repo_orga_name]] db)
          (map first)
          (map #(d/entity db %))
          (filter #(= (:ministry %) mesri-string))
