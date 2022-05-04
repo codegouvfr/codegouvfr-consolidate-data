@@ -51,20 +51,21 @@
            :isPresentInSupportContract :s
            :comptoirDuLibreSoftwareId  :cl}
    ;; Mapping from repositories keywords to local short versions
-   :repos {:last_update    :u
-           :description    :d
-           :is_archived    :a?
-           :is_fork        :f?
-           :is_esr         :e?
-           :is_lib         :l?
-           :language       :l
-           :license        :li
-           :name           :n
-           :forks_count    :f
-           :stars_count    :s
-           :platform       :p
-           :reuses         :re
-           :repository_url :r}
+   :repos {:last_update       :u
+           :description       :d
+           :is_archived       :a?
+           :is_fork           :f?
+           :is_esr            :e?
+           :is_lib            :l?
+           :language          :l
+           :license           :li
+           :name              :n
+           :forks_count       :f
+           :stars_count       :s
+           :platform          :p
+           :organization_name :o
+           :reuses            :re
+           :repository_url    :r}
    ;; Mapping from libraries keywords to local short versions
    :deps  {:type         :t
            :name         :n
