@@ -16,8 +16,8 @@
        reverse
        (take 10)
        (map #(select-keys % [:login :platform :repositories_count]))
-       (map #(set/rename-keys % {:login              :organization_name
-                                 :repositories_count :count}))))
+       (map (fn [{:keys [login platform repositories_count]}]
+              [(str login " (" platform ")") repositories_count]))))
 
 (defn- top-orgas-by-stars
   "Take the first 10 organizations with the highest stars count."
@@ -71,8 +71,8 @@
        flatten
        (group-by identity)
        (sort-by #(count (val %)))
+       (map (fn [[k v]] [k (count v)]))
        reverse
-       keys
        (take 10)))
 
 (defn- mean_repos_by_orga
