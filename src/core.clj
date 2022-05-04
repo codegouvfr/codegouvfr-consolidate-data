@@ -128,6 +128,15 @@
              [?e :repo_url ~repository_url]] db)
       seq nil? not))
 
+(defn- is-esr [repo_orga_name]
+  (let [mesri-string
+        "Ministère de l'enseignement supérieur, de la recherche et de l'innovation"]
+    (->> (d/q `[:find ?e :where [?e :login ~repo_orga_name]] db)
+         (map first)
+         (map #(d/entity db %))
+         (filter #(= (:ministry %) mesri-string))
+         not-empty nil? not)))
+
 (defn- is-repo [repo_url]
   (-> (d/q `[:find ?e :where [?e :repository_url ~repo_url]] db)
       seq nil? not))
@@ -183,26 +192,19 @@
           (catch Exception e (timbre/error (.getMessage e))))))))
 
 (defn- consolidate-repos []
-  (let [mesri-string
-        "Ministère de l'enseignement supérieur, de la recherche et de l'innovation"]
-    (doseq [repo (get-repos)]
-      (let [repo_orga_name (:organization_name repo)
-            is_esr         (->> (d/q `[:find ?e :where [?e :login ~repo_orga_name]] db)
-                                (map first)
-                                (map #(d/entity db))
-                                (filter #(= (:ministry %) mesri-string))
-                                not-empty nil? not)
-            reuses         (utils/get-reuses repo)
-            contributing   (utils/get-contributing repo)
-            dependencies   (deps/get-dependencies repo)]
-        (try
-          (d/transact! conn [(assoc repo
-                                    :is_esr is_esr
-                                    :reuses reuses
-                                    :contributing contributing
-                                    :dependencies dependencies)])
-          (catch Exception e (timbre/error (.getMessage e))))
-        (consolidate-deps dependencies (:repository_url repo))))))
+  (doseq [repo (get-repos)]
+    (let [is_esr       (is-esr (:organization_name repo))
+          reuses       (utils/get-reuses repo)
+          contributing (utils/get-contributing repo)
+          dependencies (deps/get-dependencies repo)]
+      (try
+        (d/transact! conn [(assoc repo
+                                  :is_esr is_esr
+                                  :reuses reuses
+                                  :contributing contributing
+                                  :dependencies dependencies)])
+        (catch Exception e (timbre/error (.getMessage e))))
+      (consolidate-deps dependencies (:repository_url repo)))))
 
 ;; |           | GitHub                           | GitLab                |
 ;; |-----------+----------------------------------+-----------------------|
