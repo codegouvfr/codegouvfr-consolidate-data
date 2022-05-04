@@ -194,12 +194,15 @@
 (defn- consolidate-repos []
   (doseq [repo (get-repos)]
     (let [is_esr       (is-esr (:organization_name repo))
+          ;; FIXME: Some values of :is_fork are "" upstream, fix them here
+          is_fork      (true? (:is_fork repo))
           reuses       (utils/get-reuses repo)
           contributing (utils/get-contributing repo)
           dependencies (deps/get-dependencies repo)]
       (try
         (d/transact! conn [(assoc repo
                                   :is_esr is_esr
+                                  :is_fork is_fork
                                   :reuses reuses
                                   :contributing contributing
                                   :dependencies dependencies)])
