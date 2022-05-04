@@ -123,9 +123,10 @@
     (d/pull db '[*] res)))
 
 (defn- is-lib [repository_url]
-  (not (nil? (d/q `[:find ?e :where
-                    [?e :lib_id _]
-                    [?e :repo_url ~repository_url]] db))))
+  (-> (d/q `[:find ?e :where
+             [?e :lib_id _]
+             [?e :repo_url ~repository_url]] db)
+      seq nil? not))
 
 (defn- is-repo [repo_url]
   (not (nil? (d/q `[:find ?e :where [?e :repository_url ~repo_url]] db))))
