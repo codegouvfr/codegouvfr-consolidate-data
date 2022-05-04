@@ -21,15 +21,18 @@
 
 (defn- top-orgas-by-stars
   "Take the first 10 organizations with the highest stars count."
-  [repos]
+  [repos orgas]
   (->> repos
        (group-by :organization_name)
        (map (fn [[k v]] {:orga  k
+                         :platform
+                         (:platform (first (filter #(= (:login %) k) orgas)))
                          :stars (reduce + (map :stars_count v))}))
        (sort-by :stars)
        reverse
        (take 10)
-       (map (fn [{:keys [orga stars]}] [orga stars]))))
+       (map (fn [{:keys [orga stars platform]}]
+              [(str orga " (" platform ")") stars]))))
 
 (defn- top-licenses
   "Return the 10 most used licenses in all repositories."
@@ -95,7 +98,7 @@
                :median_repos_cnt  (median_repos_by_orga orgas)
                :avg_repos_cnt     (mean_repos_by_orga orgas)
                :top_orgs_by_repos (top-orgas-by-repos orgas)
-               :top_orgs_by_stars (top-orgas-by-stars repos)
+               :top_orgs_by_stars (top-orgas-by-stars repos orgas)
                :top_licenses      (top-licenses repos)
                :top_languages     (top-languages repos)
                :top_topics        (top-topics repos)
