@@ -23,16 +23,14 @@
    :token (System/getenv "CODEGOUVFR_GITHUB_ACCESS_TOKEN")})
 
 (defonce urls
-  {:sill         "https://code.gouv.fr/data/sill3.json"
-   :libs         "https://code.gouv.fr/data/libraries/json/all.json"
-   :repos        "https://code.gouv.fr/data/repositories/json/all.json"
-   :orgas        "https://code.gouv.fr/data/organizations/json/all.json"
-   :stats        "https://code.gouv.fr/data/stats.json"
-   :annuaire     "https://static.data.gouv.fr/resources/organisations-de-codegouvfr/20191011-110549/lannuaire.csv"
-   :emoji-json   "https://raw.githubusercontent.com/amio/emoji.json/master/emoji.json"
-   :sources      "https://git.sr.ht/~etalab/codegouvfr-sources/blob/master/comptes-organismes-publics.yml"
-   :mesri-string "Ministère de l'enseignement supérieur, de la recherche et de l'innovation"
-   })
+  {:sill       "https://code.gouv.fr/data/sill3.json"
+   :libs       "https://code.gouv.fr/data/libraries/json/all.json"
+   :repos      "https://code.gouv.fr/data/repositories/json/all.json"
+   :orgas      "https://code.gouv.fr/data/organizations/json/all.json"
+   :stats      "https://code.gouv.fr/data/stats.json"
+   :annuaire   "https://static.data.gouv.fr/resources/organisations-de-codegouvfr/20191011-110549/lannuaire.csv"
+   :emoji-json "https://raw.githubusercontent.com/amio/emoji.json/master/emoji.json"
+   :sources    "https://git.sr.ht/~etalab/codegouvfr-sources/blob/master/comptes-organismes-publics.yml"})
 
 (defonce mappings
   {;; Mapping from libraries keywords to local short versions
