@@ -254,12 +254,12 @@
     (comp
      ;; Add is_lib if repo is also listed in libraries
      (map #(assoc % :is_lib (is-lib (:repository_url %))))
+     ;; Add the number of reuses
+     (map #(assoc % :reuses (:number (:reuses %))))
      ;; Rename keywords
      (map #(set/rename-keys (select-keys % (keys repo-mapping)) repo-mapping))
      ;; Add the number of dependencies
      (map #(assoc % :dp (count (:libraries (:dependencies %)))))
-     ;; Add the number of reuses
-     (map #(assoc % :g (:number (:reuses %))))
      ;; Remap licenses
      (map #(assoc % :li (get (:licenses utils/mappings) (:li %))))
      ;; Limit description
