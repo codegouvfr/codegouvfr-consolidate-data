@@ -81,8 +81,10 @@
 (defn- mean_repos_by_orga
   "Return the average number of repositories per organization."
   [orgas]
-  (float (/ (reduce + (map :repositories_count orgas))
-            (count orgas))))
+  (->> (/ (reduce + (map :repositories_count orgas))
+          (count orgas))
+       float
+       (format "%.2f")))
 
 (defn- median_repos_by_orga
   "Return the median number of repositories per organization."
