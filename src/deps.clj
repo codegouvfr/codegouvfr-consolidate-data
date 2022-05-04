@@ -1,4 +1,4 @@
-;; Copyright (c) 2020, 2021 DINUM, Bastien Guerry <bastien.guerry@data.gouv.fr>
+;; Copyright (c) 2020, 2022 DINUM, Bastien Guerry <bastien.guerry@data.gouv.fr>
 ;; SPDX-License-Identifier: EPL-2.0
 ;; License-Filename: LICENSE
 
@@ -9,6 +9,7 @@
             [clojure.edn :as edn]
             [java-time :as t]
             [clojure.string :as string]
+            [toml.core :as toml]
             [taoensso.timbre :as timbre]))
 
 (def dep-files
@@ -19,133 +20,121 @@
    "Python"     {:files ["setup.py" "requirements.txt"] :types ["pypi"]}
    "Ruby"       {:files ["Gemfile"] :types ["bundler"]}
    "Java"       {:files ["pom.xml"] :types ["maven"]}
-   "Clojure"    {:files ["pom.xml" "deps.edn" "project.clj"] :types ["maven" "clojars"]}})
+   "Clojure"    {:files ["pom.xml" "deps.edn" "project.clj"] :types ["maven" "clojars"]}
+   "Rust"       {:files ["Cargo.toml"] :types ["crate"]}})
 
-(def deps-init
-  (let [deps (utils/get-contents "deps.json")]
-    (->>  deps
-          utils/json-parse-with-keywords
-          (map #(dissoc % :r)))))
+;; FIXME: The server must download
+;; https://static.crates.io/db-dump.tar.gz regularily and the
+;; application should now the location of crates.csv.
+(def crates
+  (map #(select-keys % [:name :description :repository])
+       (utils/csv-url-to-map "crates.csv")))
 
-(def grouped-deps
-  (atom (group-by (juxt :n :t) deps-init)))
+(defn flatten-deps [m]
+  (-> (fn [[k v]] (map #(assoc {} :type (name k) :library %) v))
+      (map m)
+      flatten))
 
-(def deps (atom nil))
+;; Check whether libraries are known from various sources
 
-(defonce check-interval 30)
+(defn get-valid-npm [library]
+  (timbre/info "Fetching info for npm module" library)
+  (let [registry-url-fmt "https://registry.npmjs.org/-/v1/search?text=%s&size=1"]
+    (when-let [res (utils/get-contents (format registry-url-fmt library))]
+      (let [{:keys [description links]}
+            (-> (try (utils/json-parse-with-keywords res)
+                     (catch Exception _ nil))
+                :objects first :package)]
+        {:name        library
+         :type        "npm"
+         :description description
+         :repo_url    (:repository links)
+         :link        (:npm links)}))))
 
-;; Utility function
+(defn get-valid-crate [library]
+  (timbre/info "Fetching info for crate module" library)
+  (when-let [lib (first (seq (filter #(= (:name %) library) crates)))]
+    {:name        library
+     :type        "crate"
+     :description (:description lib)
+     :repo_url    (:repository lib)
+     :link        (str "https://crates.io/crates/" library)}))
 
-(defn- check-module-of-type-is-known [module type]
-  (when-let [res (-> (get @grouped-deps [module type])
-                     first not-empty)]
-    (when (utils/less-than-x-days-ago check-interval (:u res)) res)))
-
-;; Check against valid sources
-
-(defn get-valid-npm [{:keys [n]}]
-  (or
-   (check-module-of-type-is-known n "npm")
-   (do
-     (timbre/info "Fetch info for npm module" n)
-     (let [registry-url-fmt "https://registry.npmjs.org/-/v1/search?text=%s&size=1"]
-       (when-let [res (utils/get-contents (format registry-url-fmt n))]
-         (when (= (:status res) 200)
-           (let [{:keys [description links]}
-                 (-> (try (utils/json-parse-with-keywords res)
-                          (catch Exception _ nil))
-                     :objects first :package)]
-             {:n n
-              :t "npm"
-              :d description
-              :l (:npm links)}))))
-     (Thread/sleep 2000))))
-
-(defn get-valid-pypi [{:keys [n]}]
-  (or
-   (check-module-of-type-is-known n "pypi")
-   (do
-     (timbre/info "Fetch info for pypi module" n)
-     (let [registry-url-fmt "https://pypi.org/pypi/%s/json"]
-       (when-let [res (utils/get-contents (format registry-url-fmt n))]
-         (when-let [{:keys [info]}
-                    (try (utils/json-parse-with-keywords res)
-                         (catch Exception _ nil))]
-           {:n n
-            :t "pypi"
-            :d (:summary info)
-            :l (:package_url info)}))))))
+(defn get-valid-pypi [library]
+  (timbre/info "Fetching info for pypi module" library)
+  (let [registry-url-fmt "https://pypi.org/pypi/%s/json"]
+    (when-let [res (utils/get-contents (format registry-url-fmt library))]
+      (when-let [{:keys [info]}
+                 (try (utils/json-parse-with-keywords res)
+                      (catch Exception _ nil))]
+        {:name        library
+         :type        "pypi"
+         :repo_url    (:home_page info)
+         :description (:summary info)
+         :link        (:package_url info)}))))
 
 ;; FIXME: Where to get a proper maven artifact description?
-(defn get-valid-maven [{:keys [n]}]
-  (or
-   (check-module-of-type-is-known n "maven")
-   (do
-     (timbre/info "Fetch info for maven module" n)
-     (let [[groupId artifactId] (drop 1 (re-find #"([^/]+)/([^/]+)" n))
-           registry-url-fmt
-           "https://search.maven.org/solrsearch/select?q=g:%%22%s%%22+AND+a:%%22%s%%22&core=gav&rows=1&wt=json"
-           link-fmt
-           "https://search.maven.org/classic/#search|ga|1|g:%%22%s%%22%%20AND%%20a:%%22%s%%22"]
-       (when-let [res (utils/get-contents
-                       (format registry-url-fmt groupId artifactId))]
-         (when-let [tags (not-empty
-                          (-> (try (utils/json-parse-with-keywords res)
-                                   (catch Exception _ nil))
-                              :response
-                              :docs
-                              first
-                              :tags))]
-           {:n n
-            :t "maven"
-            :d (string/join ", " (take 6 tags))
-            :l (format link-fmt groupId artifactId)}))))))
+(defn get-valid-maven [library]
+  (timbre/info "Fetching info for maven module" library)
+  (let [[groupId artifactId] (drop 1 (re-find #"([^/]+)/([^/]+)" library))
+        registry-url-fmt
+        "https://search.maven.org/solrsearch/select?q=g:%%22%s%%22+AND+a:%%22%s%%22&core=gav&rows=1&wt=json"
+        link-fmt
+        "https://search.maven.org/classic/#search|ga|1|g:%%22%s%%22%%20AND%%20a:%%22%s%%22"]
+    (when-let [res (utils/get-contents
+                    (format registry-url-fmt groupId artifactId))]
+      (when-let [tags (not-empty
+                       (-> (try (utils/json-parse-with-keywords res)
+                                (catch Exception _ nil))
+                           :response
+                           :docs
+                           first
+                           :tags))]
+        {:name        library
+         :type        "maven"
+         :repo_url    "" ;; FIXME: Where to get this?
+         :description (string/join ", " (take 6 tags))
+         :link        (format link-fmt groupId artifactId)}))))
 
-(defn get-valid-clojars [{:keys [n]}]
-  (or
-   (check-module-of-type-is-known n "clojars")
-   (do
-     (timbre/info "Fetch info for clojars module" n)
-     (let [registry-url-fmt "https://clojars.org/api/artifacts/%s"]
-       (when-let [res (utils/get-contents (format registry-url-fmt n))]
-         {:n n
-          :t "clojars"
-          :d (:d (try (utils/json-parse-with-keywords res) ;; FIXME?
-                      (catch Exception _ nil)))
-          :l (str "https://clojars.org/" n)})))))
+(defn get-valid-clojars [library]
+  (timbre/info "Fetching info for clojars module" library)
+  (let [registry-url-fmt "https://clojars.org/api/artifacts/%s"]
+    (when-let [res (utils/get-contents (format registry-url-fmt library))]
+      (let [res (try (utils/json-parse-with-keywords res) ;; FIXME?
+                     (catch Exception _ nil))]
+        {:name        library
+         :type        "clojars"
+         :repo_url    (:homepage res)
+         :description (:description res)
+         :link        (str "https://clojars.org/" library)}))))
 
-(defn get-valid-bundler [{:keys [n]}]
-  (or
-   (check-module-of-type-is-known n "bundler")
-   (do
-     (timbre/info "Fetch info for bundler module" n)
-     (let [registry-url-fmt "https://rubygems.org/api/v1/gems/%s.json"]
-       (when-let [res (utils/get-contents (format registry-url-fmt n))]
-         (let [{:keys [info project_uri]}
-               (try (utils/json-parse-with-keywords res)
-                    (catch Exception _ nil))]
-           {:n n
-            :t "bundler"
-            :d info
-            :l project_uri}))))))
+(defn get-valid-bundler [library]
+  (timbre/info "Fetching info for bundler module" library)
+  (let [registry-url-fmt "https://rubygems.org/api/v1/gems/%s.json"]
+    (when-let [res (utils/get-contents (format registry-url-fmt library))]
+      (let [{:keys [info project_uri homepage_uri]}
+            (try (utils/json-parse-with-keywords res)
+                 (catch Exception _ nil))]
+        {:name        library
+         :type        "bundler"
+         :description info
+         :repo_url    homepage_uri
+         :link        project_uri}))))
 
-(defn get-valid-composer [{:keys [n]}]
-  (or
-   (check-module-of-type-is-known n "composer")
-   (do
-     (timbre/info "Fetch info for composer module" n)
-     (let [registry-url-fmt "https://packagist.org/packages/%s"]
-       (when-let [res (utils/get-contents
-                       (str (format registry-url-fmt n) ".json"))]
-         {:n n
-          :t "composer"
-          :d (-> (try (utils/json-parse-with-keywords res)
-                      (catch Exception _ nil))
-                 :package
-                 :description)
-          :l (format registry-url-fmt n)})))))
+(defn get-valid-composer [library]
+  (timbre/info "Fetching info for composer module" library)
+  (let [registry-url-fmt "https://packagist.org/packages/%s"]
+    (when-let [res (utils/get-contents
+                    (str (format registry-url-fmt library) ".json"))]
+      (let [res2 (try (utils/json-parse-with-keywords res)
+                      (catch Exception _ nil))]
+        {:name        library
+         :type        "composer"
+         :repo_url    (-> res2 :package :repository)
+         :description (-> res2 :package :description)
+         :link        (format registry-url-fmt library)}))))
 
-;; Get dependencies info
+;; Get dependencies information
 
 (defn get-packagejson-deps [body]
   (when-let [deps (get (json/read-value body) "dependencies")]
@@ -175,6 +164,10 @@
     (when-let [deps (->> (map #(last (re-find #"^([^=<>~\[\]]+).+$" %)) deps0)
                          (remove nil?))]
       {:pypi (into [] (map string/trim deps))})))
+
+(defn get-cargo-deps [body]
+  (when-let [deps (keys (get (toml/read body) "dependencies"))]
+    {:crate (into [] (map string/trim deps))}))
 
 (defn get-gemfile-deps [body]
   (when-let [deps (re-seq #"(?ms)^\s*gem '([^']+)'" body)]
@@ -214,107 +207,48 @@
       (when (seq deps)
         {:maven (into [] deps)}))))
 
-;; Core function
+;; Get dependencies for a repository
 
-(defn add-dependencies
-  "Take a repository map and return the map completed with dependencies."
+(defn get-dependencies
   [{:keys
     [repository_url organization_name is_archived
-     name platform language deps_updated] :as repo}]
+     name platform language default_branch dependencies]}]
   (if (or (= language "")
           (= is_archived true)
-          (when-let [d (not-empty deps_updated)]
-            (utils/less-than-x-days-ago check-interval d)))
-    repo
-    (let [baseurl    (re-find #"https?://[^/]+" repository_url)
-          fmt-str    (if (= platform "GitHub")
-                       "https://raw.githubusercontent.com/%s/%s/master/%s"
-                       (str baseurl "/%s/%s/-/raw/master/%s"))
-          dep-fnames (:files (get dep-files language))
-          new-deps   (atom {})]
+          (not (utils/needs-updating? (:updated dependencies))))
+    {:updated   (str (t/instant))
+     :libraries []}
+    (let [baseurl        (re-find #"https?://[^/]+" repository_url)
+          fmt-str        (if (= platform "GitHub")
+                           "https://raw.githubusercontent.com/%s/%s/%s/%s"
+                           (str baseurl "/%s/%s/-/raw/%s/%s"))
+          dep-fnames     (:files (get dep-files language))
+          default_branch (or default_branch "master")
+          new-deps       (atom {})]
       (doseq [f dep-fnames]
-        (when-let [body (utils/get-contents (format fmt-str organization_name name f))]
-          (timbre/info "Fetching dependencies for" (format fmt-str organization_name name f))
-          (try (let [reqs (condp = f
-                            "package.json"
-                            (get-packagejson-deps body)
-                            "composer.json"
-                            (get-composerjson-deps body)
-                            "setup.py"
-                            (get-setuppy-deps body)
-                            "requirements.txt"
-                            (get-requirements-deps body)
-                            "Gemfile"
-                            (get-gemfile-deps body)
-                            "deps.edn"
-                            (get-depsedn-deps body)
-                            "project.clj"
-                            (get-projectclj-deps body)
-                            "pom.xml"
-                            (get-pomxml-deps body))]
+        (when-let [body (utils/get-contents
+                         (format fmt-str organization_name name default_branch f))]
+          (timbre/info "Fetching dependencies for"
+                       (format fmt-str organization_name name default_branch f))
+          (try (let [reqs
+                     (condp = f
+                       "package.json"
+                       (get-packagejson-deps body)
+                       "composer.json"
+                       (get-composerjson-deps body)
+                       "setup.py"
+                       (get-setuppy-deps body)
+                       "requirements.txt"
+                       (get-requirements-deps body)
+                       "Gemfile"
+                       (get-gemfile-deps body)
+                       "deps.edn"
+                       (get-depsedn-deps body)
+                       "project.clj"
+                       (get-projectclj-deps body)
+                       "pom.xml"
+                       (get-pomxml-deps body))]
                  (swap! new-deps #(merge-with into % reqs)))
                (catch Exception _ nil))))
-      (assoc repo
-             :deps (utils/flatten-deps @new-deps)
-             :deps_updated (str (t/instant))))))
-
-;; Compute dep similarity
-
-(defn jaccard-coefficient [a b]
-  (/ (count (filter (into #{} b) a))
-     (* 1.0 (count b))))
-
-(defn jaccard-distance [a b]
-  (- 1 (jaccard-coefficient a b)))
-
-(defn get-jaccard-distance [m]
-  (map #(hash-map
-         (key %)
-         (->> m
-              (map (fn [[k v]]
-                     (hash-map
-                      k (jaccard-distance
-                         (val %) v))))
-              (apply merge)
-              (sort-by val)
-              reverse
-              ;; (filter (fn [[r v]] (< 0.1 v)))
-              (take 5)
-              keys))
-       m))
-
-(defn- compute-similarity [deps-all repos lang]
-  (let [deps0     (map #(select-keys % [:n :t]) deps-all)
-        dep-types (into #{} (:types (get dep-files lang)))
-        deps-lang (filter #(contains? dep-types (:t %)) deps0)]
-    (->> (map (fn [{:keys [repository_url deps]}]
-                (when (not-empty deps)
-                  (hash-map repository_url
-                            (->> (map #(if (contains? (into #{} deps) %)
-                                         (hash-map (:n %) 1)
-                                         (hash-map (:n %) 0))
-                                      deps-lang)
-                                 (apply merge)))))
-              repos)
-         (remove nil?)
-         (apply merge))))
-
-(defn spit-deps-repos-similarity [repos deps]
-  (let [repos-by-lang
-        (select-keys (group-by :language repos)
-                     ["Python" "Java" "Clojure" "Ruby" "PHP"
-                      "Javascript" "TypeScript" "Vue"])]
-    (->> repos-by-lang
-         (map (fn [[lang repos]]
-                (hash-map
-                 lang
-                 (get-jaccard-distance
-                  (compute-similarity deps repos lang)))))
-         (map vals)
-         flatten
-         (apply merge)
-         (filter #(not-empty (val %)))
-         (into {})
-         json/write-value-as-string
-         (spit "deps-repos-sim.json"))
-    (timbre/info "deps-repos-sim.json: OK")))
+      {:updated   (str (t/instant))
+       :libraries (or (flatten-deps @new-deps) [])})))
