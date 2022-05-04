@@ -72,6 +72,7 @@
            :description  :d
            :repositories :r
            :updated      :u
+           ;; FIXME: Unused yet?
            :repo_url     :ru
            :link         :l}
    ;; Mapping from groups/organizations keywords to local short versions

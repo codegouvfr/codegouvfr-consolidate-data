@@ -281,6 +281,9 @@
 (def prepare-deps
   (let [deps-mapping (:deps utils/mappings)]
     (comp
+     ;; Set type and name
+     (map #(let [id (:dep_id %)]
+             (assoc % :type (namespace id) :name (name id))))
      ;; Remove keywords
      (map #(set/rename-keys (select-keys % (keys deps-mapping)) deps-mapping)))))
 
