@@ -115,7 +115,7 @@
 (defn- get-deps [] (get-id :dep_id))
 (defn- get-orgas [] (get-id :organization_url))
 (defn- get-tags [] (get-id :tag_id))
-(defn- get-sill [] (get-id :sill_id))
+(defn- get-sill [] (filter #(not (seq (:dereferencing %))) (get-id :sill_id)))
 (defn- get-libs [] (get-id :lib_id))
 
 (defn- get-dep [dep_id]
@@ -304,7 +304,6 @@
 (def prepare-sill
   (let [sill-mapping (:sill utils/mappings)]
     (comp
-     (filter #(not (seq (:dereferencing %))))
      ;; Convert timestamps
      (map #(update % :referencedSinceTime (fn [t] (str (t/instant (java.util.Date. t))))))
      ;; Add comptoirDuLibreSoftware id
