@@ -50,7 +50,8 @@
            :referencedSinceTime               :u
            :isPresentInSupportContract        :s
            :comptoirDuLibreSoftwareId         :cl
-           :comptoirDuLibreSoftwareProviders? :clp}
+           :comptoirDuLibreSoftwareProviders? :clp
+           :wikidataDataLogoUrl               :i}
    ;; Mapping from repositories keywords to local short versions
    :repos {:last_update       :u
            :description       :d
