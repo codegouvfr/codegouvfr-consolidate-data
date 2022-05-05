@@ -304,6 +304,7 @@
 (def prepare-sill
   (let [sill-mapping (:sill utils/mappings)]
     (comp
+     (filter #(not (seq (:dereferencing %))))
      ;; Convert timestamps
      (map #(update % :referencedSinceTime (fn [t] (str (t/instant (java.util.Date. t))))))
      ;; Add comptoirDuLibreSoftware id
