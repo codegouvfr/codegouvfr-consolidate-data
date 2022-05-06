@@ -16,8 +16,7 @@
             [java-time :as t]
             [taoensso.timbre :as timbre]
             [taoensso.timbre.appenders.core :as appenders]
-            [datalevin.core :as d]
-            [clj-yaml.core :as yaml])
+            [datalevin.core :as d])
   (:gen-class))
 
 ;; Set logging
@@ -151,17 +150,15 @@
                         ;; Set empty dates to UNIX epoch
                         % :creation_date
                         (fn [c] (if (not-empty c) c "1970-01-01T00:00:00Z")))
-                      (get-orgas))
-        orgas-yaml
-        (yaml/parse-string (slurp (:sources utils/urls)) :keywords false)]
+                      (get-orgas))]
     (timbre/info "Consolidate organizations data")
     (doseq [o orgas]
       (let [orga-yaml    (first (filter #(string/includes?
                                           (:organization_url o) %)
-                                        (keys orgas-yaml)))
+                                        (keys utils/sources)))
             annuaire-url ((keyword (:login o)) annuaire)
-            o-y-ministry (last (get (get orgas-yaml orga-yaml) "service_of"))
-            o-y-floss    (last (get (get orgas-yaml orga-yaml) "floss_policy"))]
+            o-y-ministry (last (get (get utils/sources orga-yaml) "service_of"))
+            o-y-floss    (last (get (get utils/sources orga-yaml) "floss_policy"))]
         (try
           (d/transact! conn [(assoc o
                                     :annuaire (or annuaire-url "")

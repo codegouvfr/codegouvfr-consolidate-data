@@ -9,18 +9,28 @@
             [clojure.walk :as walk]
             [clojure.edn :as edn]
             [babashka.curl :as curl]
+            [clj-yaml.core :as yaml]
             [java-time :as t]
             [hickory.core :as h]
             [hickory.select :as hs]
             [taoensso.timbre :as timbre]))
 
+(defonce sources
+  (try
+    (-> (slurp "https://git.sr.ht/~etalab/codegouvfr-sources/blob/master/comptes-organismes-publics.yml")
+        (yaml/parse-string :keywords false))
+    (catch Exception e
+      (timbre/error
+       (str "Error while fetching the list of organizations")
+       (.getMessage e)))))
+
 (defonce max-description-length 200)
 
 (defonce updating-after-days 30)
 
-(defonce gh
-  {:user  (System/getenv "CODEGOUVFR_GITHUB_USER")
-   :token (System/getenv "CODEGOUVFR_GITHUB_ACCESS_TOKEN")})
+(defonce env-vars
+  {:gh-user  (System/getenv "CODEGOUVFR_GITHUB_USER")
+   :gh-token (System/getenv "CODEGOUVFR_GITHUB_ACCESS_TOKEN")})
 
 (defonce urls
   {:sill       "https://code.gouv.fr/data/sill3.json"
@@ -29,8 +39,7 @@
    :orgas      "https://code.gouv.fr/data/organizations/json/all.json"
    :stats      "https://code.gouv.fr/data/stats.json"
    :annuaire   "https://static.data.gouv.fr/resources/organisations-de-codegouvfr/20191011-110549/lannuaire.csv"
-   :emoji-json "https://raw.githubusercontent.com/amio/emoji.json/master/emoji.json"
-   :sources    "https://git.sr.ht/~etalab/codegouvfr-sources/blob/master/comptes-organismes-publics.yml"})
+   :emoji-json "https://raw.githubusercontent.com/amio/emoji.json/master/emoji.json"})
 
 (defonce mappings
   {;; Mapping from libraries keywords to local short versions
@@ -159,7 +168,7 @@
 (def default-parameters user-agent)
 
 (def gh-parameters
-  (merge user-agent {:basic-auth [(:user gh) (:token gh)]}))
+  (merge user-agent {:basic-auth [(:gh-user env-vars) (:gh-token env-vars)]}))
 
 (defn needs-updating? [date-str]
   (if-not (string? date-str)
