@@ -231,7 +231,7 @@
                                              "CONTRIBUTING.md"))
            ;; FIXME: Hack to circumvent cases when GitLab returns the Sign in page:
            contents-ok (and contents (not (re-matches #"<!DOCTYPE html>" contents)))]
-      {:is_contrib? (when contents-ok (seq contents))
+      {:is_contrib? (when contents-ok (boolean (seq contents)))
        :updated     (str (t/instant))})))
 
 (defn get-reuses
