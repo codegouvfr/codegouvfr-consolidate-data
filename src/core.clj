@@ -13,6 +13,7 @@
             [charts :as charts]
             [rss :as rss]
             [deps :as deps]
+            [hut :as hut]
             [java-time :as t]
             [taoensso.timbre :as timbre]
             [taoensso.timbre.appenders.core :as appenders]
@@ -66,8 +67,8 @@
         data (map #(utils/replace-vals % nil "") d1)]
     (doseq [d
             ;; Testing
-            ;; (take 20 (shuffle data))
-            data
+            (take 2 (shuffle data))
+            ;; data
             ]
       (try (d/transact! conn [d])
            (catch Exception e (timbre/error (.getMessage e)))))))
@@ -77,6 +78,13 @@
 
 (defn- update-orgas []
   (update-db (:orgas utils/urls)))
+
+;; FIXME: See src/hut.clj header: this should really be done upstream
+;; by https://git.sr.ht/~etalab/codegouvfr-fetch-data.
+(defn- update-hut  []
+  (doseq [d (hut/fetch)]
+    (try (d/transact! conn [d])
+         (catch Exception e (timbre/error (.getMessage e))))))
 
 (defn- update-sill []
   (let [sill (:catalog (utils/get-contents-json-to-kwds (:sill utils/urls)))
@@ -354,6 +362,8 @@
   ;; Initiatize data from upstream resources
   (update-repos)
   (update-orgas)
+  ;; Fetch SourceHut data (see sr/hut.clj)
+  (update-hut)
   (update-sill)
   (update-libs)
   ;; Consolidate data in the local db
