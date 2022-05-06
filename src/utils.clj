@@ -239,7 +239,7 @@
            fmt-str     (condp = platform
                          "GitHub"    "https://raw.githubusercontent.com/%s/%s/%s/%s"
                          "SourceHut" "https://git.sr.ht/~%s/%s/blob/%s/%s"
-                         "GitLab"    "/%s/%s/-/raw/%s/%s")
+                         "GitLab"    (str baseurl "/%s/%s/-/raw/%s/%s"))
            contents    (get-contents (format fmt-str organization_name name
                                              ;; FIXME: Remove when
                                              ;; default_branch is set
