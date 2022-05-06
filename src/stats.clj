@@ -57,7 +57,7 @@
        (take 10)
        (map (fn [{:keys [language repos_cnt]}] [language repos_cnt]))))
 
-(defn top-platforms
+(defn top-forges
   "Return the top 10 platforms with most repositories."
   [orgas]
   (->> orgas
@@ -108,5 +108,5 @@
                :top_licenses      (top-licenses repos)
                :top_languages     (top-languages repos)
                :top_topics        (top-topics repos)
-               :top_platforms     (top-platforms orgas)}]
+               :top_forges        (top-forges orgas)}]
     (spit "stats.json" (json/write-value-as-string stats))))
