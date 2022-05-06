@@ -108,5 +108,5 @@
                :top_licenses      (top-licenses repos)
                :top_languages     (top-languages repos)
                :top_topics        (top-topics repos)
-               :platforms         (top-platforms orgas)}]
+               :top_platforms     (top-platforms orgas)}]
     (spit "stats.json" (json/write-value-as-string stats))))
