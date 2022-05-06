@@ -72,7 +72,7 @@
         (doseq [r r-data]
           (let [r-d {:description              (:description r)
                      :open_issues_count        0
-                     :last_modification        (:updated r)
+                     :last_modification        ""
                      :forks_count              0
                      :stars_count              0
                      :software_heritage_url    ""
@@ -90,7 +90,7 @@
                      :creation_date            (:created r)
                      :topics                   ""
                      :language                 ""
-                     :last_update              ""
+                     :last_update              (:updated r)
                      :platform                 "SourceHut"}]
             (swap! repos-data conj r-d)))))
     (when-let [res (concat @orgas-data @repos-data)]
