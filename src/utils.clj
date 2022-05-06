@@ -162,7 +162,7 @@
   (walk/postwalk #(if (= % v) r %) m))
 
 (def user-agent
-  {:raw-args ["--connect-timeout" "5"]
+  {:raw-args ["--connect-timeout" "10"]
    :headers  {"User-Agent" "https://code.gouv.fr bot (logiciels-libres@data.gouv.fr)"}})
 
 (def default-parameters user-agent)
