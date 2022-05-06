@@ -65,7 +65,8 @@
        (group-by (fn [[o _]] (last (re-find #"^https://([^/]+)" o))))
        (map (fn [[k v]] [k (reduce + (map last v))]))
        (sort-by last)
-       reverse))
+       reverse
+       (take 10)))
 
 (defn- top-topics
   "Return the 10 most frequent topics in all repositories."
