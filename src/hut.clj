@@ -85,7 +85,8 @@
                                                     orga-name "/" (:name r))
                      :is_archived              false
                      :is_fork                  false
-                     :default_branch           (last (re-find #"^.+/([^/]+)$" (:name (:HEAD r))))
+                     :default_branch
+                     (last (re-find #"^.+/([^/]+)$" (:name (:HEAD r))))
                      :creation_date            (:created r)
                      :topics                   ""
                      :language                 ""
