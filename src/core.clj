@@ -70,8 +70,8 @@
         data (map #(utils/replace-vals % nil "") d1)]
     (doseq [d
             ;; Testing
-            (take 2 (shuffle data))
-            ;; data
+            ;; (take 2 (shuffle data))
+            data
             ]
       (try (d/transact! conn [d])
            (catch Exception e (timbre/error (.getMessage e)))))))
