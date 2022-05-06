@@ -57,11 +57,15 @@
        (take 10)
        (map (fn [{:keys [language repos_cnt]}] [language repos_cnt]))))
 
-(defn- platforms-cnt
-  "Return the number of GitHub/GitLab hosted repositories."
-  [repos]
-  {:GitHub (count (filter #(= (:platform %) "GitHub") repos))
-   :GitLab (count (filter #(= (:platform %) "GitLab") repos))})
+(defn top-platforms
+  "Return the top 10 platforms with most repositories."
+  [orgas]
+  (->> orgas
+       (map (juxt :organization_url :repositories_count))
+       (group-by (fn [[o _]] (last (re-find #"^https://([^/]+)" o))))
+       (map (fn [[k v]] [k (reduce + (map last v))]))
+       (sort-by last)
+       reverse))
 
 (defn- top-topics
   "Return the 10 most frequent topics in all repositories."
@@ -103,5 +107,5 @@
                :top_licenses      (top-licenses repos)
                :top_languages     (top-languages repos)
                :top_topics        (top-topics repos)
-               :platforms         (platforms-cnt repos)}]
+               :platforms         (top-platforms orgas)}]
     (spit "stats.json" (json/write-value-as-string stats))))
