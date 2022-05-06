@@ -43,65 +43,72 @@
 
 (defonce mappings
   {;; Mapping from libraries keywords to local short versions
-   :libs  {:description                        :d
-           :latest_stable_release_published_at :u
-           :repo_url                           :l
-           :name                               :n
-           :platform                           :t
-           :is_repo                            :r?
-           :license                            :l}
+   :libs     {:description                        :d
+              :latest_stable_release_published_at :u
+              :repo_url                           :l
+              :name                               :n
+              :platform                           :t
+              :is_repo                            :r?
+              :license                            :l}
    ;; Mapping from sill keywords to local short versions
-   :sill  {:sill_id                           :id
-           :name                              :n
-           :license                           :l
-           :function                          :f
-           :isFromFrenchPublicService         :fr
-           :referencedSinceTime               :u
-           :isPresentInSupportContract        :s
-           :comptoirDuLibreSoftwareId         :cl
-           :comptoirDuLibreSoftwareProviders? :clp
-           :wikidataDataLogoUrl               :i}
+   :sill     {:sill_id                           :id
+              :name                              :n
+              :license                           :l
+              :function                          :f
+              :isFromFrenchPublicService         :fr
+              :referencedSinceTime               :u
+              :isPresentInSupportContract        :s
+              :comptoirDuLibreSoftwareId         :cl
+              :comptoirDuLibreSoftwareProviders? :clp
+              :wikidataDataLogoUrl               :i}
+   ;; Mapping from papillon keywords to local short versions
+   :papillon {:agencyName   :a
+              :publicSector :p
+              :serviceName  :n
+              :description  :d
+              :serviceUrl   :l
+              :softwareId   :i}
    ;; Mapping from repositories keywords to local short versions
-   :repos {:last_update       :u
-           :description       :d
-           :is_archived       :a?
-           :is_fork           :f?
-           :is_esr            :e?
-           :is_lib            :l?
-           :language          :l
-           :license           :li
-           :name              :n
-           :forks_count       :f
-           :stars_count       :s
-           :platform          :p
-           :organization_name :o
-           :reuses            :re
-           :repository_url    :r}
+   :repos    {:last_update       :u
+              :description       :d
+              :is_archived       :a?
+              :is_fork           :f?
+              :is_esr            :e?
+              :is_lib            :l?
+              :language          :l
+              :license           :li
+              :name              :n
+              :forks_count       :f
+              :stars_count       :s
+              :platform          :p
+              :organization_name :o
+              :reuses            :re
+              :repository_url    :r}
    ;; Mapping from libraries keywords to local short versions
-   :deps  {:type         :t
-           :name         :n
-           :description  :d
-           :repositories :r
-           :updated      :u
-           ;; FIXME: Unused yet?
-           :repo_url     :ru
-           :link         :l}
+   :deps     {:type         :t
+              :name         :n
+              :description  :d
+              :repositories :r
+              :updated      :u
+              ;; FIXME: Unused yet?
+              :repo_url     :ru
+              :link         :l}
    ;; Mapping from groups/organizations keywords to local short versions
-   :orgas {:description        :d
-           :location           :a
-           :email              :e
-           :name               :n
-           :platform           :p
-           :website            :h
-           :is_verified        :v?
-           :ministry           :m
-           :annuaire           :an
-           :floss_policy       :f
-           :login              :l
-           :creation_date      :c
-           :repositories_count :r
-           :organization_url   :o
-           :avatar_url         :au}
+   :orgas    {:description        :d
+              :location           :a
+              :email              :e
+              :name               :n
+              :platform           :p
+              :website            :h
+              :is_verified        :v?
+              :ministry           :m
+              :annuaire           :an
+              :floss_policy       :f
+              :login              :l
+              :creation_date      :c
+              :repositories_count :r
+              :organization_url   :o
+              :avatar_url         :au}
    :licenses
    {"MIT License"                                                "MIT License (MIT)"
     "GNU Affero General Public License v3.0"                     "GNU Affero General Public License v3.0 (AGPL-3.0)"
@@ -229,9 +236,10 @@
   (if-not (needs-updating? (:updated contributing))
     contributing
     (let  [baseurl     (re-find #"https?://[^/]+" repository_url)
-           fmt-str     (if (= platform "GitHub")
-                         "https://raw.githubusercontent.com/%s/%s/%s/%s"
-                         (str baseurl "/%s/%s/-/raw/%s/%s"))
+           fmt-str     (condp = platform
+                         "GitHub"    "https://raw.githubusercontent.com/%s/%s/%s/%s"
+                         "SourceHut" "https://git.sr.ht/~%s/%s/blob/%s/%s"
+                         "GitLab"    "/%s/%s/-/raw/%s/%s")
            contents    (get-contents (format fmt-str organization_name name
                                              ;; FIXME: Remove when
                                              ;; default_branch is set
@@ -251,6 +259,7 @@
     (let [updated        (str (t/instant))
           default_reuses {:number 0 :updated updated}]
       (if-not (= platform "GitHub")
+        ;; Don't try to fetch reuses for GitLab and SourceHut
         default_reuses
         (do
           (timbre/info "Getting dependents for" repository_url)
@@ -268,4 +277,3 @@
                            (edn/read-string nb-pkgs))
                :updated updated})
             default_reuses))))))
-

@@ -47,6 +47,9 @@
    :sill_id
    {:db/valueType :db.type/long
     :db/unique    :db.unique/identity}
+   :papillon_id
+   {:db/valueType :db.type/long
+    :db/unique    :db.unique/identity}
    :dep_id
    {:db/valueType :db.type/keyword
     :db/unique    :db.unique/identity}
@@ -86,9 +89,15 @@
     (try (d/transact! conn [d])
          (catch Exception e (timbre/error (.getMessage e))))))
 
-(defn- update-sill []
-  (let [sill (:catalog (utils/get-contents-json-to-kwds (:sill utils/urls)))
-        sill (map #(set/rename-keys % {:id :sill_id}) sill)]
+(defn- update-sill-papillon []
+  (let [sill-papillon (utils/get-contents-json-to-kwds (:sill utils/urls))
+        sill          (map #(set/rename-keys % {:id :sill_id})
+                           (:catalog sill-papillon))
+        papillon      (map #(set/rename-keys % {:id :papillon_id})
+                           (:services sill-papillon))]
+    (doseq [p papillon]
+      (try (d/transact! conn [p])
+           (catch Exception e (timbre/error (.getMessage e)))))
     (doseq [s sill]
       (try (d/transact! conn [s])
            (catch Exception e (timbre/error (.getMessage e)))))))
@@ -123,6 +132,7 @@
 (defn- get-orgas [] (get-id :organization_url))
 (defn- get-tags [] (get-id :tag_id))
 (defn- get-sill [] (filter #(not (seq (:dereferencing %))) (get-id :sill_id)))
+(defn- get-papillon [] (get-id :papillon_id))
 (defn- get-libs [] (get-id :lib_id))
 
 (defn- get-dep [dep_id]
@@ -321,6 +331,10 @@
      ;; Remap keywords
      (map #(set/rename-keys (select-keys % (keys sill-mapping)) sill-mapping)))))
 
+(def prepare-papillon
+  (let [papillon-mapping (:papillon utils/mappings)]
+    (map #(set/rename-keys (select-keys % (keys papillon-mapping)) papillon-mapping))))
+
 (def prepare-libs
   (let [libs-mapping (:libs utils/mappings)]
     (comp
@@ -331,30 +345,17 @@
 
 ;;; Functions to generate the json files
 
-(defn- generate-repos-json [repos]
-  (spit "repos.json"
+(defn generate-json [{:keys [t d]}]
+  (spit (str t  ".json")
         (json/write-value-as-string
-         (sequence prepare-repos repos))))
-
-(defn- generate-orgas-json [orgas]
-  (spit "orgas.json"
-        (json/write-value-as-string
-         (sequence prepare-orgas orgas))))
-
-(defn- generate-deps-json [deps]
-  (spit "deps.json"
-        (json/write-value-as-string
-         (sequence prepare-deps deps))))
-
-(defn- generate-libs-json [libs]
-  (spit "libs.json"
-        (json/write-value-as-string
-         (sequence prepare-libs libs))))
-
-(defn- generate-sill-json [sill]
-  (spit "sill.json"
-        (json/write-value-as-string
-         (sequence prepare-sill sill))))
+         (sequence (condp = t
+                     "repos"    prepare-repos
+                     "orgas"    prepare-orgas
+                     "deps"     prepare-deps
+                     "libs"     prepare-libs
+                     "sill"     prepare-sill
+                     "papillon" prepare-papillon)
+                   d))))
 
 ;;; Main function
 
@@ -364,27 +365,30 @@
   (update-orgas)
   ;; Fetch SourceHut data (see sr/hut.clj)
   (update-hut)
-  (update-sill)
+  (update-sill-papillon)
   (update-libs)
   ;; Consolidate data in the local db
   (consolidate-repos)
   (consolidate-orgas)
   (consolidate-tags)
   ;; Prepare data output
-  (let [repos (get-repos)
-        orgas (get-orgas)
-        libs  (get-libs)
-        deps  (get-deps)
-        tags  (get-tags)
-        sill  (get-sill)]
+  (let [repos    (get-repos)
+        orgas    (get-orgas)
+        libs     (get-libs)
+        deps     (get-deps)
+        tags     (get-tags)
+        sill     (get-sill)
+        papillon (get-papillon)]
     ;; Generate json output
-    (generate-sill-json sill)
-    (generate-repos-json repos)
-    (generate-orgas-json orgas)
-    (generate-deps-json deps)
-    (generate-libs-json libs)
+    (doseq [[t d] [["repos" repos]
+                   ["orgas" orgas]
+                   ["libs" libs]
+                   ["deps" deps]
+                   ["sill" sill]
+                   ["papillon" papillon]]]
+      (generate-json {:t t :d d}))
     ;; Generate stats
-    (stats/generate-stats-json repos orgas libs deps sill)
+    (stats/generate-stats-json repos orgas libs deps sill papillon)
     ;; Generate RSS feeds
     (rss/latest-repositories repos)
     (rss/latest-organizations orgas)

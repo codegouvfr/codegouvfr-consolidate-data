@@ -94,12 +94,13 @@
   [orgas]
   (int (utils/median (map :repositories_count orgas))))
 
-(defn generate-stats-json [repos orgas libs deps sill]
+(defn generate-stats-json [repos orgas libs deps sill papillon]
   (let [stats {:repos_cnt         (count repos)
                :orgas_cnt         (count orgas)
                :libs_cnt          (count libs)
                :deps_cnt          (count deps)
                :sill_cnt          (count sill)
+               :papillon_cnt      (count papillon)
                :median_repos_cnt  (median_repos_by_orga orgas)
                :avg_repos_cnt     (mean_repos_by_orga orgas)
                :top_orgs_by_repos (top-orgas-by-repos orgas)
