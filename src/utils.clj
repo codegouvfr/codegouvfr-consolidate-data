@@ -186,7 +186,7 @@
      (t/minus (t/instant) (t/days updating-after-days)))))
 
 (defn get-contents [s]
-  (Thread/sleep 500)
+  (Thread/sleep 1000)
   (let [url?    (re-find #"https://" s)
         gh-api? (and url? (re-find #"https://api.github.com" s))
         res     (try (apply

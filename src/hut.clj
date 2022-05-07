@@ -20,6 +20,7 @@
           :headers conj {"content-type" "application/json"}))
 
 (defn- query-hut-api [subdomain q]
+  (Thread/sleep 1000)
   (let [res (try (curl/get (str "https://" subdomain ".sr.ht/query")
                            (hut-parameters q))
                  (catch Exception e
