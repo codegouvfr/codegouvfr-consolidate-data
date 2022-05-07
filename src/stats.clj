@@ -20,12 +20,15 @@
 
 (defn- top-orgas-by-stars
   "Take the first 10 organizations with the highest stars count."
-  [repos orgas]
+  [repos]
   (->> repos
        (group-by :organization_name)
        (map (fn [[k v]] {:orga  k
                          :platform
-                         (:platform (first (filter #(= (:login %) k) orgas)))
+                         (let [rurl (:repository_url (first v))]
+                           (cond (re-find #"https://github.com" rurl) "GitHub"
+                                 (re-find #"https://git.sr.ht" rurl)  "SourceHut"
+                                 :else                                "GitLab"))
                          :stars (reduce + (map :stars_count v))}))
        (sort-by :stars)
        reverse
@@ -57,12 +60,24 @@
        (take 10)
        (map (fn [{:keys [language repos_cnt]}] [language repos_cnt]))))
 
-(defn top-forges
+(defn- top-forges
   "Return the top 10 platforms with most repositories."
   [orgas]
   (->> orgas
        (map (juxt :organization_url :repositories_count))
        (group-by (fn [[o _]] (last (re-find #"^https://([^/]+)" o))))
+       (map (fn [[k v]] [k (reduce + (map last v))]))
+       (sort-by last)
+       reverse
+       (take 10)))
+
+(defn- top-ministries
+  "Return the top 10 ministries with most repositories."
+  [orgas]
+  (->> orgas
+       (filter #(not-empty (:ministry %)))
+       (map (juxt :ministry :repositories_count))
+       (group-by first)
        (map (fn [[k v]] [k (reduce + (map last v))]))
        (sort-by last)
        reverse
@@ -105,9 +120,10 @@
                :median_repos_cnt  (median_repos_by_orga orgas)
                :avg_repos_cnt     (mean_repos_by_orga orgas)
                :top_orgs_by_repos (top-orgas-by-repos orgas)
-               :top_orgs_by_stars (top-orgas-by-stars repos orgas)
+               :top_orgs_by_stars (top-orgas-by-stars repos)
                :top_licenses      (top-licenses repos)
                :top_languages     (top-languages repos)
                :top_topics        (top-topics repos)
-               :top_forges        (top-forges orgas)}]
+               :top_forges        (top-forges orgas)
+               :top_ministries    (top-ministries orgas)}]
     (spit "stats.json" (json/write-value-as-string stats))))
