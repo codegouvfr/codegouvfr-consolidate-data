@@ -237,7 +237,9 @@
 (defn- consolidate-tags []
   (doseq [{:keys [id name organization_name platform repository_url tags topics]
            :as   repo} (get-repos)]
-    (when  (and id (utils/needs-updating? (:updated tags)))
+    (when  (and ;; FIXME: We need to implement getting tags for SourceHut
+            (some #{"GitHub" "GitLab"} (list platform))
+            id (utils/needs-updating? (:updated tags)))
       (let  [gh-api-baseurl
              (format "https://api.github.com/repos/%s/%s" organization_name name)
              api-str (if (= platform "GitHub")
