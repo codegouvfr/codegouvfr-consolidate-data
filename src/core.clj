@@ -347,7 +347,7 @@
 
 ;;; Functions to generate the json files
 
-(defn generate-json [{:keys [t d]}]
+(defn- generate-json [{:keys [t d]}]
   (spit (str t  ".json")
         (json/write-value-as-string
          (sequence (condp = t
@@ -359,20 +359,26 @@
                      "papillon" prepare-papillon)
                    d))))
 
-;;; Main function
+;;; Main functions
 
-(defn -main []
+(defn- init-db []
   ;; Initiatize data from upstream resources
   (update-repos)
   (update-orgas)
   ;; Fetch SourceHut data (see sr/hut.clj)
   (update-hut)
   (update-sill-papillon)
-  (update-libs)
+  (update-libs))
+
+(defn- consolidate-data []
   ;; Consolidate data in the local db
   (consolidate-repos)
   (consolidate-orgas)
-  (consolidate-tags)
+  (consolidate-tags))
+
+(defn -main []
+  (init-db)
+  (consolidate-data)
   ;; Prepare data output
   (let [repos    (get-repos)
         orgas    (get-orgas)
