@@ -235,9 +235,10 @@
 ;; | Title     | commit=>commit>committer>message | commit>title          |
 ;; | Web URL   | commit=>html_url                 | commit>web_url        |
 (defn- consolidate-tags []
-  (doseq [{:keys [id name organization_name platform repository_url tags topics]
+  (doseq [{:keys [id name organization_name is_archived platform repository_url tags topics]
            :as   repo} (get-repos)]
     (when  (and ;; FIXME: We need to implement getting tags for SourceHut
+            (not is_archived)
             (some #{"GitHub" "GitLab"} (list platform))
             id (utils/needs-updating? (:updated tags)))
       (let  [gh-api-baseurl
