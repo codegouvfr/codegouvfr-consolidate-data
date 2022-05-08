@@ -4,18 +4,15 @@
 
 (ns charts
   (:require [utils :as utils]
-            [clojure.walk :as walk]
             [clojure.java.io :as io]
             [clojure.data.json :as datajson]))
 
 (defn licenses-vega-data
   "Produce vega data from license stats."
-  []
-  (let [l0       (:top_licenses (utils/get-contents-json-to-kwds
-                                 (:stats utils/urls)))
-        l1       (map #(zipmap [:License :Number] %)
-                      (walk/stringify-keys
-                       (dissoc l0 :Inconnue)))
+  [top-licenses]
+  (let [l0       (into {} (map (fn [[k v]] {k v}) top-licenses))
+        ;; FIXME: Need (dissoc l0 :Inconnue)?
+        l1       (map #(zipmap [:License :Number] %) l0)
         licenses (map #(assoc % :License
                               (get (:licenses-spdx utils/mappings)
                                    (:License %))) l1)]
@@ -48,5 +45,5 @@
       (datajson/write clj-vega-spec file))
     (.getAbsolutePath tmp-file)))
 
-(defn generate-licenses-chart []
-  (temp-json-file (licenses-vega-data)))
+(defn generate-licenses-chart [top-licenses]
+  (temp-json-file (licenses-vega-data top-licenses)))

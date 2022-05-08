@@ -406,7 +406,9 @@
     (rss/latest-dependencies deps)
     (rss/latest-libraries libs)
     (rss/latest-sill sill)
-    (rss/latest-tags tags))
-  ;; Spit the top_licences.svg
-  (sh/sh "vl2svg" (charts/generate-licenses-chart) "top_licenses.svg")
-  (shutdown-agents))
+    (rss/latest-tags tags)
+    ;; Spit the top_licences.svg
+    (sh/sh "vl2svg" (charts/generate-licenses-chart
+                     (stats/top-licenses repos))
+           "top_licenses.svg")
+    (shutdown-agents)))

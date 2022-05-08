@@ -36,7 +36,7 @@
        (map (fn [{:keys [orga stars platform]}]
               [(str orga " (" platform ")") stars]))))
 
-(defn- top-licenses
+(defn top-licenses
   "Return the 10 most used licenses in all repositories."
   [repos]
   (->> repos
