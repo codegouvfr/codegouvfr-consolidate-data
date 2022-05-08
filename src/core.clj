@@ -277,6 +277,8 @@
     (comp
      ;; Add is_lib if repo is also listed in libraries
      (map #(assoc % :is_lib (is-lib (:repository_url %))))
+     ;; Add contributing
+     (map #(assoc % :is_contrib (:is_contrib? (:contributing %))))
      ;; Add the number of reuses
      (map #(assoc % :reuses (:number (:reuses %))))
      ;; Rename keywords

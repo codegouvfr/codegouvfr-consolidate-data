@@ -75,7 +75,7 @@
               :is_fork           :f?
               :is_esr            :e?
               :is_lib            :l?
-              :contributing      :c?
+              :is_contrib        :c?
               :language          :l
               :license           :li
               :name              :n
