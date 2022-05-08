@@ -409,6 +409,4 @@
     (rss/latest-tags tags))
   ;; Spit the top_licences.svg
   (sh/sh "vl2svg" (charts/generate-licenses-chart) "top_licenses.svg")
-  (timbre/info "Generated top_licenses.svg")
-  (timbre/info "All data were produced!")
   (shutdown-agents))
