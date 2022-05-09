@@ -93,15 +93,12 @@
     (timbre/info "Updated latest-libraries.xml")))
 
 (defn latest-tags [tags]
-  (let [tags0
-        ;; Only take tags with a correct timestamp
-        (filter #(try (t/instant (:date %))
-                      (catch Exception e (timbre/error (.getMessage e))))
-                tags)
-        tags (->> tags0
+  (let [tags (->> tags
+                  ;; Only take tags with a correct timestamp
+                  (filter #(try (t/instant (:date %)) (catch Exception _ nil)))
                   (sort-by #(t/instant (:date %)))
                   reverse
-                  (take 20))]
+                  (take 50))]
     (->>
      (rss/channel-xml
       {:title       "code.gouv.fr - Nouveaux tags - New tags"
