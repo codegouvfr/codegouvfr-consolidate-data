@@ -93,7 +93,12 @@
     (timbre/info "Updated latest-libraries.xml")))
 
 (defn latest-tags [tags]
-  (let [tags (->> tags
+  (let [tags0
+        ;; Only take tags with a correct timestamp
+        (filter #(try (t/instant (:date %))
+                      (catch Exception e (timbre/error (.getMessage e))))
+                tags)
+        tags (->> tags0
                   (sort-by #(t/instant (:date %)))
                   reverse
                   (take 20))]
