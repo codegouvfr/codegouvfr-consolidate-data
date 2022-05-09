@@ -379,6 +379,15 @@
   (consolidate-orgas)
   (consolidate-tags))
 
+(defn- generate-charts [repos]
+  (try (sh/sh (str (System/getenv "NODEJS_BIN_HOME") "vl2svg")
+              (charts/generate-licenses-chart
+               (stats/top-licenses repos))
+              "top_licenses.svg")
+       (timbre/info "Successfully generated top_licenses.svg")
+       (catch Exception e (timbre/error (.getMessage e))))
+  (shutdown-agents))
+
 (defn -main []
   (init-db)
   (consolidate-data)
@@ -408,7 +417,4 @@
     (rss/latest-sill sill)
     (rss/latest-tags tags)
     ;; Spit the top_licences.svg
-    (sh/sh "vl2svg" (charts/generate-licenses-chart
-                     (stats/top-licenses repos))
-           "top_licenses.svg")
-    (shutdown-agents)))
+    (generate-charts repos)))
