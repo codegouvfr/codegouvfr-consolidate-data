@@ -246,29 +246,29 @@
              api-str (if (= platform "GitHub")
                        (str gh-api-baseurl "/tags")
                        (str (re-find #"https?://[^/]+" repository_url)
-                            (format "/api/v4/projects/%s/repository/tags" id)))]
-        (when-let [tags (utils/get-contents-json-to-kwds api-str)]
-          (timbre/info "Updating tags for" repository_url)
-          (doseq [t tags]
-            (if-not (= platform "GitHub")
-              (d/transact! conn [{:tag_id     (:id (:commit t))
+                            (format "/api/v4/projects/%s/repository/tags" id)))
+             tags    (utils/get-contents-json-to-kwds api-str)]
+        (timbre/info "Updating tags for" repository_url)
+        (doseq [t tags]
+          (if-not (= platform "GitHub")
+            (d/transact! conn [{:tag_id     (:id (:commit t))
+                                :repository repository_url
+                                :topics     (string/split topics #",")
+                                :name       (:name t)
+                                :committer  (:committer_name (:commit t))
+                                :date       (:committed_date (:commit t))
+                                :title      (:title (:commit t))
+                                :url        (:web_url (:commit t))}])
+            (let [commit (utils/get-contents-json-to-kwds (:url (:commit t)))]
+              (d/transact! conn [{:tag_id     (:sha (:commit t))
                                   :repository repository_url
                                   :topics     (string/split topics #",")
                                   :name       (:name t)
-                                  :committer  (:committer_name (:commit t))
-                                  :date       (:committed_date (:commit t))
-                                  :title      (:title (:commit t))
-                                  :url        (:web_url (:commit t))}])
-              (let [commit (utils/get-contents-json-to-kwds (:url (:commit t)))]
-                (d/transact! conn [{:tag_id     (:sha (:commit t))
-                                    :repository repository_url
-                                    :topics     (string/split topics #",")
-                                    :name       (:name t)
-                                    :committer  (:name (:committer (:commit commit)))
-                                    :date       (:date (:committer (:commit commit)))
-                                    :title      (:message (:commit commit))
-                                    :url        (:html_url commit)}]))))
-          (d/transact! conn [(assoc repo :tags {:updated (str (t/instant))})]))))))
+                                  :committer  (:name (:committer (:commit commit)))
+                                  :date       (:date (:committer (:commit commit)))
+                                  :title      (:message (:commit commit))
+                                  :url        (:html_url commit)}]))))
+        (d/transact! conn [(assoc repo :tags {:updated (str (t/instant))})])))))
 
 ;;; Prepare data for json generation
 
