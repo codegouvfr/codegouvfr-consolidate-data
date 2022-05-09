@@ -15,15 +15,6 @@
             [hickory.select :as hs]
             [taoensso.timbre :as timbre]))
 
-(defonce sources
-  (try
-    (-> (slurp "https://git.sr.ht/~etalab/codegouvfr-sources/blob/master/comptes-organismes-publics.yml")
-        (yaml/parse-string :keywords false))
-    (catch Exception e
-      (timbre/error
-       (str "Error while fetching the list of organizations")
-       (.getMessage e)))))
-
 (defonce max-description-length 200)
 
 (defonce updating-after-days 30)
@@ -33,13 +24,22 @@
    :gh-token (System/getenv "CODEGOUVFR_GITHUB_ACCESS_TOKEN")})
 
 (defonce urls
-  {:sill       "https://code.gouv.fr/data/sill3.json"
+  {:sources    "https://git.sr.ht/~etalab/codegouvfr-sources/blob/master/comptes-organismes-publics.yml"
+   :sill       "https://code.gouv.fr/data/sill-data.json"
    :libs       "https://code.gouv.fr/data/libraries/json/all.json"
    :repos      "https://code.gouv.fr/data/repositories/json/all.json"
    :orgas      "https://code.gouv.fr/data/organizations/json/all.json"
-   :stats      "https://code.gouv.fr/data/stats.json"
    :annuaire   "https://static.data.gouv.fr/resources/organisations-de-codegouvfr/20191011-110549/lannuaire.csv"
    :emoji-json "https://raw.githubusercontent.com/amio/emoji.json/master/emoji.json"})
+
+(defonce sources
+  (try
+    (-> (slurp (:sources urls))
+        (yaml/parse-string :keywords false))
+    (catch Exception e
+      (timbre/error
+       (str "Error while fetching the list of organizations")
+       (.getMessage e)))))
 
 (defonce mappings
   {;; Mapping from libraries keywords to local short versions
@@ -62,12 +62,13 @@
               :comptoirDuLibreSoftwareProviders? :clp
               :wikidataDataLogoUrl               :i}
    ;; Mapping from papillon keywords to local short versions
-   :papillon {:agencyName   :a
-              :publicSector :p
-              :serviceName  :n
-              :description  :d
-              :serviceUrl   :l
-              :softwareId   :i}
+   :papillon {:agencyName         :a
+              :publicSector       :p
+              :serviceName        :n
+              :description        :d
+              :serviceUrl         :l
+              :softwareSillId     :i
+              :softwareComptoirId :c}
    ;; Mapping from repositories keywords to local short versions
    :repos    {:last_update       :u
               :description       :d
