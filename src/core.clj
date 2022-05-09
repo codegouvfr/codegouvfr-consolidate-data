@@ -64,17 +64,15 @@
 ;;; Feed the database
 
 (defn- update-db [data-url]
-  (let [d0   (slurp data-url)
-        d1   (->> d0 json/read-value
-                  (map walk/keywordize-keys))
-        data (map #(utils/replace-vals % nil "") d1)]
-    (doseq [d
-            ;; Testing
-            ;; (take 2 (shuffle data))
-            data
-            ]
-      (try (d/transact! conn [d])
-           (catch Exception e (timbre/error (.getMessage e)))))))
+  (doseq [d (->> (slurp data-url)
+                 json/read-value
+                 (map walk/keywordize-keys)
+                 (map #(utils/replace-vals % nil ""))
+                 ;; Testing
+                 ;; (take 2 (shuffle data))
+                 )]
+    (try (d/transact! conn [d])
+         (catch Exception e (timbre/error (.getMessage e))))))
 
 (defn- update-repos []
   (update-db (:repos utils/urls)))
