@@ -383,8 +383,8 @@
                (stats/top-licenses repos))
               "top_licenses.svg")
        (timbre/info "Successfully generated top_licenses.svg")
-       (catch Exception e (timbre/error (.getMessage e))))
-  (shutdown-agents))
+       (shutdown-agents)
+       (catch Exception e (timbre/error (.getMessage e)))))
 
 (defn -main []
   (init-db)

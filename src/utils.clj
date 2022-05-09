@@ -68,7 +68,7 @@
               :description       :d
               :serviceUrl        :l
               :softwareSillId    :i
-              :ComptoirDuLibreId :c}
+              :comptoirDuLibreId :c}
    ;; Mapping from repositories keywords to local short versions
    :repos    {:last_update       :u
               :description       :d
