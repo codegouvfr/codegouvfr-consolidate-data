@@ -54,8 +54,8 @@
             o-data       (->> (utils/json-parse-with-keywords
                                (query-hut-api "meta" (hut-orga-query orga-name)))
                               :data :userByName)
-            orga-data    {:email              (:email o-data)
-                          :description        (:bio o-data)
+            orga-data    {:email              (or (:email o-data) "")
+                          :description        (or (:bio o-data) "")
                           :name               orga-name
                           :floss_policy       (or floss_policy "")
                           :ministry           (or service_of "")
@@ -63,7 +63,7 @@
                           :organization_url   orga-url
                           :login              orga-name
                           :creation_date      (:created o-data)
-                          :website            (:url o-data)
+                          :website            (or (:url o-data) "")
                           :location           (:location o-data)
                           :platform           "SourceHut"
                           :repositories_count (count r-data)
@@ -71,7 +71,7 @@
         (swap! orgas-data conj orga-data)
         ;; For each orga, get data for its repositories
         (doseq [r r-data]
-          (let [r-d {:description              (:description r)
+          (let [r-d {:description              (or (:description r) "")
                      :open_issues_count        0
                      :last_modification        ""
                      :forks_count              0
