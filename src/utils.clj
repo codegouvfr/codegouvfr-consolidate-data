@@ -62,13 +62,13 @@
               :comptoirDuLibreSoftwareProviders? :clp
               :wikidataDataLogoUrl               :i}
    ;; Mapping from papillon keywords to local short versions
-   :papillon {:agencyName         :a
-              :publicSector       :p
-              :serviceName        :n
-              :description        :d
-              :serviceUrl         :l
-              :softwareSillId     :i
-              :softwareComptoirId :c}
+   :papillon {:agencyName        :a
+              :publicSector      :p
+              :serviceName       :n
+              :description       :d
+              :serviceUrl        :l
+              :softwareSillId    :i
+              :ComptoirDuLibreId :c}
    ;; Mapping from repositories keywords to local short versions
    :repos    {:last_update       :u
               :description       :d
