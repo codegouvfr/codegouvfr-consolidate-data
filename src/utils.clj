@@ -60,7 +60,10 @@
               :isPresentInSupportContract        :s
               :comptoirDuLibreSoftwareId         :cl
               :comptoirDuLibreSoftwareProviders? :clp
-              :wikidataDataLogoUrl               :i}
+              :wikidataDataLogoUrl               :i
+              :useCaseUrls                       :c
+              :workShopUrls                      :w
+              :agentWorkstation                  :a}
    ;; Mapping from papillon keywords to local short versions
    :papillon {:agencyName        :a
               :publicSector      :p
