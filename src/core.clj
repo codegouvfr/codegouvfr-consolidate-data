@@ -169,12 +169,13 @@
                       (get-orgas))]
     (timbre/info "Consolidate organizations data")
     (doseq [o orgas]
-      (let [orga-yaml    (first (filter #(string/includes?
-                                          (:organization_url o) %)
-                                        (keys utils/sources)))
+      (let [orga-yaml    (some (into #{} (keys utils/sources))
+                               (list (string/replace (:organization_url o)
+                                                     "/groups/" "/")))
+            o-y-sources  (get utils/sources orga-yaml)
             annuaire-url ((keyword (:login o)) annuaire)
-            o-y-ministry (last (get (get utils/sources orga-yaml) "service_of"))
-            o-y-floss    (last (get (get utils/sources orga-yaml) "floss_policy"))]
+            o-y-ministry (last (get o-y-sources "service_of"))
+            o-y-floss    (last (get o-y-sources "floss_policy"))]
         (try
           (d/transact! conn [(assoc o
                                     :annuaire (or annuaire-url "")
