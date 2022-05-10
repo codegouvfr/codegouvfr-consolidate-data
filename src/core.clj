@@ -289,8 +289,7 @@
      ;; Remap licenses
      (map #(assoc % :li (get (:licenses utils/mappings) (:li %))))
      ;; Limit description
-     (map #(update
-            % :d (fn [d] (if d (subs d 0 (min (max 0 (dec (count d))) max-desc)) ""))))
+     (map #(update % :d (fn [d] (if d (subs d 0 (min (count d) max-desc)) ""))))
      ;; Replace emojis
      (map #(update
             %
