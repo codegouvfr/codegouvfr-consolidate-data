@@ -237,17 +237,13 @@
   (timbre/info "Checking CONTRIBUTING.md for" repository_url)
   (if-not (needs-updating? (:updated contributing))
     contributing
-    (let  [baseurl     (re-find #"https?://[^/]+" repository_url)
-           fmt-str     (condp = platform
-                         "GitHub"    "https://raw.githubusercontent.com/%s/%s/%s/%s"
-                         "SourceHut" "https://git.sr.ht/~%s/%s/blob/%s/%s"
-                         "GitLab"    (str baseurl "/%s/%s/-/raw/%s/%s"))
-           contents    (get-contents (format fmt-str organization_name name
-                                             ;; FIXME: Remove when
-                                             ;; default_branch is set
-                                             ;; upstream:
-                                             (or default_branch "master")
-                                             "CONTRIBUTING.md"))
+    (let  [path        (str (or default_branch "master") "/CONTRIBUTING.md")
+           url         (condp = platform
+                         "GitHub"    (format "https://raw.githubusercontent.com/%s/%s/%s"
+                                             organization_name name path)
+                         "SourceHut" (str repository_url "/blob/" path)
+                         "GitLab"    (str repository_url "/-/raw/" path))
+           contents    (get-contents url)
            ;; FIXME: Hack to circumvent cases when GitLab returns the Sign in page:
            contents-ok (and contents (not (re-matches #"<!DOCTYPE html>" contents)))]
       {:is_contrib? (when contents-ok (boolean (seq contents)))
