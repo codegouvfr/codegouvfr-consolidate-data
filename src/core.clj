@@ -250,6 +250,7 @@
         (doseq [t tags]
           (if-not (= platform "GitHub")
             (d/transact! conn [{:tag_id     (:id (:commit t))
+                                :repo_name  name
                                 :repository repository_url
                                 :topics     (string/split topics #",")
                                 :name       (:name t)
@@ -259,6 +260,7 @@
                                 :url        (:web_url (:commit t))}])
             (let [commit (utils/get-contents-json-to-kwds (:url (:commit t)))]
               (d/transact! conn [{:tag_id     (:sha (:commit t))
+                                  :repo_name  name
                                   :repository repository_url
                                   :topics     (string/split topics #",")
                                   :name       (:name t)

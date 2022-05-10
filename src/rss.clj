@@ -105,7 +105,7 @@
        :link        "https://code.etalab.gouv.fr/data/latest-tags.xml"
        :description "code.gouv.fr - Nouveaux tags - New tags"}
       (map (fn [item]
-             {:title       (:name item)
+             {:title       (str (:repo_name item) " - " (:name item))
               :link        (:url item)
               :description (:title item)
               :author      (:committer item)
