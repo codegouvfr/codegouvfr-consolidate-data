@@ -19,6 +19,8 @@
 
 (defonce updating-after-days 30)
 
+(defonce thread-interval (Integer. (System/getenv "CODEGOUVFR_GET_INTERVAL")))
+
 (defonce env-vars
   {:gh-user  (System/getenv "CODEGOUVFR_GITHUB_USER")
    :gh-token (System/getenv "CODEGOUVFR_GITHUB_ACCESS_TOKEN")})

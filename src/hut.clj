@@ -11,7 +11,7 @@
             [babashka.curl :as curl]
             [taoensso.timbre :as timbre]))
 
-(def hut-token (System/getenv "CODEGOUVFR_HUT_TOKEN"))
+(defonce hut-token (System/getenv "CODEGOUVFR_HUT_TOKEN"))
 
 (defn- hut-parameters [d]
   (update (update utils/user-agent :raw-args merge
@@ -20,7 +20,7 @@
           :headers conj {"content-type" "application/json"}))
 
 (defn- query-hut-api [subdomain q]
-  (Thread/sleep 1000)
+  (Thread/sleep utils/thread-interval)
   (let [res (try (curl/get (str "https://" subdomain ".sr.ht/query")
                            (hut-parameters q))
                  (catch Exception e
