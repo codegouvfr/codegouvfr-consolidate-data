@@ -64,7 +64,7 @@
               :comptoirDuLibreSoftwareProviders? :clp
               :wikidataDataLogoUrl               :i
               :useCaseUrls                       :c
-              :workShopUrls                      :w
+              :workshopUrls                      :w
               :agentWorkstation                  :a}
    ;; Mapping from papillon keywords to local short versions
    :papillon {:agencyName        :a
