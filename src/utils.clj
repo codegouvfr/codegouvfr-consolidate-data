@@ -15,15 +15,11 @@
             [hickory.select :as hs]
             [taoensso.timbre :as timbre]))
 
-(defonce max-description-length 200)
-
-(defonce updating-after-days 30)
-
-(defonce thread-interval (Integer. (System/getenv "CODEGOUVFR_GET_INTERVAL")))
-
 (defonce env-vars
-  {:gh-user  (System/getenv "CODEGOUVFR_GITHUB_USER")
-   :gh-token (System/getenv "CODEGOUVFR_GITHUB_ACCESS_TOKEN")})
+  {:gh-user             (System/getenv "CODEGOUVFR_GITHUB_USER")
+   :gh-token            (System/getenv "CODEGOUVFR_GITHUB_ACCESS_TOKEN")
+   :thread-interval     (Integer. (System/getenv "CODEGOUVFR_GET_INTERVAL"))
+   :updating-after-days (Integer. (System/getenv "CODEGOUVFR_DAYS_INTERVAL"))})
 
 (defonce urls
   {:sources    "https://git.sr.ht/~etalab/codegouvfr-sources/blob/master/comptes-organismes-publics.yml"
@@ -185,14 +181,15 @@
   (merge user-agent {:basic-auth [(:gh-user env-vars) (:gh-token env-vars)]}))
 
 (defn needs-updating? [date-str]
-  (if-not (string? date-str)
-    true
-    (t/before?
-     (t/minus (t/instant date-str) (t/days (rand-int updating-after-days)))
-     (t/minus (t/instant) (t/days updating-after-days)))))
+  (let [delay (:updating-after-days env-vars)]
+    (if-not (string? date-str)
+      true
+      (t/before?
+       (t/minus (t/instant date-str) (t/days (rand-int delay)))
+       (t/minus (t/instant) (t/days delay))))))
 
 (defn get-contents [s]
-  (Thread/sleep 1000)
+  (Thread/sleep (:thread-interval env-vars))
   (let [url?    (re-find #"https://" s)
         gh-api? (and url? (re-find #"https://api.github.com" s))
         res     (try (apply

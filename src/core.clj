@@ -274,8 +274,7 @@
 ;;; Prepare data for json generation
 
 (def prepare-repos
-  (let [repo-mapping (:repos utils/mappings)
-        max-desc     utils/max-description-length]
+  (let [repo-mapping (:repos utils/mappings)]
     (comp
      ;; Add is_lib if repo is also listed in libraries
      (map #(assoc % :is_lib (is-lib (:repository_url %))))
@@ -289,8 +288,8 @@
      (map #(assoc % :dp (count (:libraries (:dependencies %)))))
      ;; Remap licenses
      (map #(assoc % :li (get (:licenses utils/mappings) (:li %))))
-     ;; Limit description
-     (map #(update % :d (fn [d] (if d (subs d 0 (min (count d) max-desc)) ""))))
+     ;; Limit description - hardcode it to 200
+     (map #(update % :d (fn [d] (if d (subs d 0 (min (count d) 200)) ""))))
      ;; Replace emojis
      (map #(update
             %
