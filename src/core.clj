@@ -169,9 +169,10 @@
                       (get-orgas))]
     (timbre/info "Consolidate organizations data")
     (doseq [o orgas]
-      (let [orga-yaml    (some (into #{} (keys utils/sources))
-                               (list (string/replace (:organization_url o)
-                                                     "/groups/" "/")))
+      (let [orga-url     (string/replace (:organization_url o) "/groups/" "/")
+            orga-yaml    (->> (keys utils/sources)
+                              (drop-while #(not (string/includes? orga-url %)))
+                              first)
             o-y-sources  (get utils/sources orga-yaml)
             annuaire-url ((keyword (:login o)) annuaire)
             o-y-ministry (last (get o-y-sources "service_of"))
