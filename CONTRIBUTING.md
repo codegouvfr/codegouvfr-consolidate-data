@@ -1,16 +1,17 @@
-The development of this repository happens on [the SourceHut
-repository](https://git.sr.ht/~etalab/codegouvfr-consolidate-data).  
+# Contributing
 
-The code is also published on
-[GitHub](https://github.com/etalab/codegouvfr-data) to reach more
-developers, but please do not send pull requests there.
+The development of this repository happens on [the SourceHut repository](https://git.sr.ht/~etalab/codegouvfr-consolidate-data).
 
-You can send **patches** by email using
-[git-send-email.io](https://git-send-email.io/).  For your patches to
-be processed correctly, configure your local copy with this:
+The code is also published on [GitHub](https://github.com/etalab/codegouvfr-data) to reach more developers, but *we do not accept pull requests on GitHub*.
 
-    git config format.subjectPrefix 'PATCH codegouvfr-consolidate-data'
+For confidential feedback, use [logiciels-libres@data.gouv.fr](mailto:logiciels-libres@data.gouv.fr).
 
-You can also contribute with bug reports, feature requests or general
-questions by writing to
-[~etalab/codegouvfr-devel@lists.sr.ht](mailto:~etalab/codegouvfr-devel@lists.sr.ht).
+For bug reports, patches, feature requests and general questions, send an email to the public mailing list [~etalab/codegouvfr-devel@lists.sr.ht](mailto:~etalab/codegouvfr-devel@lists.sr.ht).
+
+To send a *patch* to the mailing list, please configure your local copy of the repository like this:
+
+`git config format.subjectPrefix 'PATCH codegouvfr-consolidate-data'`
+
+We only accept patches and commits that are signed off using the real name of the contributor.
+
+By signing off their contributions, contributors accept the [developer certificate of origin](https://developercertificate.org).
