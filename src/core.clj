@@ -145,7 +145,7 @@
 
 (defn- is-esr [repo_orga_name]
   (let [mesri-string
-        "Ministère de l'enseignement supérieur, de la recherche et de l'innovation"]
+        "Ministère de l'enseignement supérieur et de la recherche"]
     (->> (d/q `[:find ?e :where
                 [?e :organization_url _]
                 [?e :login ~repo_orga_name]] db)
