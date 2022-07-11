@@ -17,7 +17,7 @@
         net.mikera/core.matrix              {:mvn/version "0.62.0"}
         clj-rss/clj-rss                     {:mvn/version "0.4.0"}
         com.taoensso/timbre                 {:mvn/version "5.2.1"}
-        datalevin/datalevin                 {:mvn/version "0.6.13"}
+        datalevin/datalevin                 {:mvn/version "0.6.15"}
         com.cognitect/transit-clj           {:mvn/version "1.0.329"}
         clj-commons/clj-yaml                {:mvn/version "0.7.108"}
         toml/toml                           {:mvn/version "0.1.4"}}
