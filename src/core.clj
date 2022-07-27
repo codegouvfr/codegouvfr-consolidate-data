@@ -87,18 +87,16 @@
     (try (d/transact! conn [d])
          (catch Exception e (timbre/error (.getMessage e))))))
 
-(defn- update-sill-papillon []
-  (let [sill-papillon (utils/get-contents-json-to-kwds (:sill utils/urls))
-        sill          (map #(set/rename-keys % {:id :sill_id})
-                           (:catalog sill-papillon))
-        papillon      (map #(set/rename-keys % {:id :papillon_id})
-                           (:services sill-papillon))]
-    (doseq [p papillon]
-      (try (d/transact! conn [p])
-           (catch Exception e (timbre/error (.getMessage e)))))
-    (doseq [s sill]
-      (try (d/transact! conn [s])
-           (catch Exception e (timbre/error (.getMessage e)))))))
+(defn- get-sill []
+  (->> (utils/get-contents-json-to-kwds (:sill utils/urls))
+       :catalog
+       (map #(set/rename-keys % {:id :sill_id}))
+       (filter #(not (seq (:dereferencing %))))))
+
+(defn- get-papillon []
+  (->> (utils/get-contents-json-to-kwds (:sill utils/urls))
+       :services
+       (map #(set/rename-keys % {:id :papillon_id}))))
 
 (defn- update-libs []
   (let [libs (utils/get-contents-json-to-kwds (:libs utils/urls))
@@ -129,8 +127,6 @@
 (defn- get-deps [] (get-id :dep_id))
 (defn- get-orgas [] (get-id :organization_url))
 (defn- get-tags [] (get-id :tag_id))
-(defn- get-sill [] (filter #(not (seq (:dereferencing %))) (get-id :sill_id)))
-(defn- get-papillon [] (get-id :papillon_id))
 (defn- get-libs [] (get-id :lib_id))
 
 (defn- get-dep [dep_id]
@@ -375,7 +371,6 @@
   (update-orgas)
   ;; Fetch SourceHut data (see sr/hut.clj)
   (update-hut)
-  (update-sill-papillon)
   (update-libs))
 
 (defn- consolidate-data []
