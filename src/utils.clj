@@ -23,7 +23,7 @@
 
 (defonce urls
   {:sources    "https://git.sr.ht/~etalab/codegouvfr-sources/blob/master/comptes-organismes-publics.yml"
-   :sill       "https://code.gouv.fr/data/sill-data.json"
+   :sill       "https://sill.etalab.gouv.fr/api/sill.json"
    :libs       "https://code.gouv.fr/data/libraries/json/all.json"
    :repos      "https://code.gouv.fr/data/repositories/json/all.json"
    :orgas      "https://code.gouv.fr/data/organizations/json/all.json"
