@@ -395,20 +395,20 @@
         (str "#+title: Socle interministériel de logiciels libres\n"
              "#+author: Les référents SILL ministériels et Etalab/DINUM\n"
              "#+date: " (java.util.Date.) "\n\n"
-             "| Nom | Version | Licence | Fonction | Ajouté |\n"
-             "|-----|---------|---------|----------|--------|\n"))
-  (doseq [{:keys [name versionMin license function referencedSinceTime]}
+             "| Nom | Version | Licence | Ajouté |\n"
+             "|-----|---------|---------|--------|\n"))
+  (doseq [{:keys [name versionMin license referencedSinceTime]}
           (get-sill)]
     (spit
      "sill.org"
      (format
       "|%s|\n"
       (string/join " | " [name versionMin license
-                          (subs function 0 (min (count function) 60))
-                          (java.util.Date. referencedSinceTime)]))
+                          (.format (java.text.SimpleDateFormat. "dd/MM/yyyy")
+                                   (java.util.Date. referencedSinceTime))]))
      :append true))
   (try (sh/sh "pandoc" "sill.org" "-o" "sill.md")
-       (sh/sh "pandoc" "sill.org" "-o" "sill.pdf")
+       (sh/sh "pandoc" "sill.org" "-H" " sill-header.sty" "-o" "sill.pdf")
        (sh/sh "pandoc" "sill.org" "-o" "sill.org")
        (timbre/info "Successfully generated SILL files in .org, .md and .pdf")
        (catch Exception e (timbre/error (.getMessage e)))))
