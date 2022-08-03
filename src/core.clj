@@ -360,7 +360,8 @@
                      "deps"     prepare-deps
                      "libs"     prepare-libs
                      "sill"     prepare-sill
-                     "papillon" prepare-papillon)
+                     "papillon" prepare-papillon
+                     "tags"     (map  #(dissoc % :db/id)))
                    d))))
 
 ;;; Main functions
@@ -405,6 +406,7 @@
                    ["libs" libs]
                    ["deps" deps]
                    ["sill" sill]
+                   ["tags" tags]
                    ["papillon" papillon]]]
       (generate-json {:t t :d d}))
     ;; Generate stats
