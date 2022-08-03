@@ -18,3 +18,6 @@ dependencies/
 .dir-locals.el
 .db/
 .envrc
+*xml
+*pdf
+*md
