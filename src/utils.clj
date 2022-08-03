@@ -53,6 +53,7 @@
               :name                              :n
               :license                           :l
               :function                          :f
+              :versionMin                        :v
               :isFromFrenchPublicService         :fr
               :referencedSinceTime               :u
               :isPresentInSupportContract        :s
