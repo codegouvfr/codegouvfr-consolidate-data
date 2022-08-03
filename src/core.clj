@@ -390,6 +390,29 @@
        (shutdown-agents)
        (catch Exception e (timbre/error (.getMessage e)))))
 
+(defn- generate-sill-files []
+  (spit "sill.org"
+        (str "#+title: Socle interministériel de logiciels libres\n"
+             "#+author: Les référents SILL ministériels et Etalab/DINUM\n"
+             "#+date: " (java.util.Date.) "\n\n"
+             "| Nom | Version | Licence | Fonction | Ajouté |\n"
+             "|-----|---------|---------|----------|--------|\n"))
+  (doseq [{:keys [name versionMin license function referencedSinceTime]}
+          (get-sill)]
+    (spit
+     "sill.org"
+     (format
+      "|%s|\n"
+      (string/join " | " [name versionMin license
+                          (subs function 0 (min (count function) 60))
+                          (java.util.Date. referencedSinceTime)]))
+     :append true))
+  (try (sh/sh "pandoc" "sill.org" "-o" "sill.md")
+       (sh/sh "pandoc" "sill.org" "-o" "sill.pdf")
+       (sh/sh "pandoc" "sill.org" "-o" "sill.org")
+       (timbre/info "Successfully generated SILL files in .org, .md and .pdf")
+       (catch Exception e (timbre/error (.getMessage e)))))
+
 (defn -main []
   (init-db)
   (consolidate-data)
@@ -413,6 +436,8 @@
                    ["tags" tags]
                    ["papillon" papillon]]]
       (generate-json {:t t :d d}))
+    ;; Generate sill in .org .md and .pdf formats
+    (generate-sill-files)
     ;; Generate stats
     (stats/generate-stats-json repos orgas libs deps sill papillon)
     ;; Generate RSS feeds
@@ -424,3 +449,6 @@
     (rss/latest-tags tags)
     ;; Spit the top_licences.svg
     (generate-charts repos)))
+
+;; (-main)
+
