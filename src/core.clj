@@ -7,6 +7,7 @@
             [clojure.java.shell :as sh]
             [clojure.set :as set]
             [clojure.string :as string]
+            [clojure.instant :as instant]
             [jsonista.core :as json]
             [utils :as utils]
             [stats :as stats]
@@ -361,7 +362,7 @@
                      "libs"     prepare-libs
                      "sill"     prepare-sill
                      "papillon" prepare-papillon
-                     "tags"     (map  #(dissoc % :db/id)))
+                     "tags"     (map #(dissoc % :db/id)))
                    d))))
 
 ;;; Main functions
@@ -397,7 +398,10 @@
         orgas    (get-orgas)
         libs     (get-libs)
         deps     (get-deps)
-        tags     (get-tags)
+        tags     (->> (get-tags)
+                      (sort-by #(instant/read-instant-date (:date %)))
+                      reverse
+                      (take 100))
         sill     (get-sill)
         papillon (get-papillon)]
     ;; Generate json output
