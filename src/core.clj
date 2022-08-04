@@ -422,8 +422,8 @@
      "sill.org"
      (format
       "|%s|\n"
-      (string/join " | " [name referencedSinceTime versionMin
-                          (:reason dereferencing)
+      (string/join " | " [name (locale-date-from-time referencedSinceTime)
+                          versionMin (:reason dereferencing)
                           (locale-date-from-time (:time dereferencing))]))
      :append true))
   (try (sh/sh "pandoc" "sill.org" "-o" "sill.md")
