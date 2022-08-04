@@ -395,6 +395,16 @@
                (java.util.Date.))))
 
 (defn- generate-sill-files []
+  ;; Export as .tsv
+  (spit "sill.tsv" "Logiciel\tVersion\tLicence\tAjouté\n")
+  (doseq [{:keys [name versionMin license referencedSinceTime]}
+          (filter #(nil? (:dereferencing %)) (get-sill))]
+    (spit "sill.tsv"
+          (str (string/join "\t" [name versionMin license
+                                  (locale-date-from-time referencedSinceTime)])
+               "\n")
+          :append true))
+  ;; Export as .org
   (spit "sill.org"
         (str "#+title: Socle interministériel de logiciels libres\n"
              "#+author: Les référents SILL ministériels et DINUM/Etalab\n"
