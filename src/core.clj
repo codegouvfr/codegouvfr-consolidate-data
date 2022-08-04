@@ -427,10 +427,10 @@
                           (locale-date-from-time (:time dereferencing))]))
      :append true))
   (try (sh/sh "pandoc" "sill.org" "-o" "sill.md")
-       ;; See utils/ for remove-header-attr.lua and sill-header.sty.
-       (sh/sh "pandoc" "--lua-filter=remove-header-attr.lua"
-              "-H" "sill-header.sty" "sill.org" "-o" "sill.pdf")
-       (sh/sh "pandoc" "sill.org" "-o" "sill.org")
+       ;; See utils/ for sill-header.sty
+       (sh/sh "pandoc" "-H" "sill-header.sty" "sill.org" "-o" "sill.pdf")
+       ;; See utils/ for remove-header-attr.lua
+       (sh/sh "pandoc" "--lua-filter=remove-header-attr.lua" "sill.org" "-o" "sill.org")
        (timbre/info "Successfully generated SILL files in .org, .md and .pdf")
        (catch Exception e (timbre/error (.getMessage e)))))
 
