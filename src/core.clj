@@ -91,8 +91,7 @@
 (defn- get-sill []
   (->> (utils/get-contents-json-to-kwds (:sill utils/urls))
        :catalog
-       (map #(set/rename-keys % {:id :sill_id}))
-       (filter #(not (seq (:dereferencing %))))))
+       (map #(set/rename-keys % {:id :sill_id}))))
 
 (defn- get-papillon []
   (->> (utils/get-contents-json-to-kwds (:sill utils/urls))
@@ -390,22 +389,41 @@
        (shutdown-agents)
        (catch Exception e (timbre/error (.getMessage e)))))
 
+(defn- locale-date-from-time [& [time]]
+  (.format (java.text.SimpleDateFormat. "dd/MM/yyyy")
+           (if time (java.util.Date. time)
+               (java.util.Date.))))
+
 (defn- generate-sill-files []
   (spit "sill.org"
         (str "#+title: Socle interministériel de logiciels libres\n"
              "#+author: Les référents SILL ministériels et Etalab/DINUM\n"
-             "#+date: " (java.util.Date.) "\n\n"
+             "#+date: " (locale-date-from-time) "\n\n"
+             "* Logiciels libres recommandés\n\n"
              "| Nom | Version | Licence | Ajouté |\n"
              "|-----|---------|---------|--------|\n"))
   (doseq [{:keys [name versionMin license referencedSinceTime]}
-          (get-sill)]
+          (filter #(nil? (:dereferencing %)) (get-sill))]
     (spit
      "sill.org"
      (format
       "|%s|\n"
       (string/join " | " [name versionMin license
-                          (.format (java.text.SimpleDateFormat. "dd/MM/yyyy")
-                                   (java.util.Date. referencedSinceTime))]))
+                          (locale-date-from-time referencedSinceTime)]))
+     :append true))
+  (spit "sill.org"
+        (str "* Logiciels qui ne sont plus recommandés\n\n"
+             "| Nom | Dernière version | Raison | Retiré |\n"
+             "|-----|------------------|--------|--------|\n")
+        :append true)
+  (doseq [{:keys [name versionMin dereferencing]}
+          (filter :dereferencing (get-sill))]
+    (spit
+     "sill.org"
+     (format
+      "|%s|\n"
+      (string/join " | " [name versionMin (:reason dereferencing)
+                          (locale-date-from-time (:time dereferencing))]))
      :append true))
   (try (sh/sh "pandoc" "sill.org" "-o" "sill.md")
        (sh/sh "pandoc" "sill.org" "-H" " sill-header.sty" "-o" "sill.pdf")

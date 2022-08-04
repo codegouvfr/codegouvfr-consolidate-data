@@ -63,7 +63,8 @@
               :useCaseUrls                       :c
               :workshopUrls                      :w
               :agentWorkstation                  :a
-              :tags                              :t}
+              :tags                              :t
+              :dereferencing                     :d}
    ;; Mapping from papillon keywords to local short versions
    :papillon {:agencyName        :a
               :publicSector      :p
