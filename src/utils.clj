@@ -62,7 +62,8 @@
               :wikidataDataLogoUrl               :i
               :useCaseUrls                       :c
               :workshopUrls                      :w
-              :agentWorkstation                  :a}
+              :agentWorkstation                  :a
+              :tags                              :t}
    ;; Mapping from papillon keywords to local short versions
    :papillon {:agencyName        :a
               :publicSector      :p
