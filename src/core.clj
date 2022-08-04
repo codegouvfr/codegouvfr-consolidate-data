@@ -413,20 +413,21 @@
      :append true))
   (spit "sill.org"
         (str "* Logiciels qui ne sont plus recommandés\n\n"
-             "| Nom | Dernière version | Raison | Retiré |\n"
-             "|-----|------------------|--------|--------|\n")
+             "| Nom | Ajouté | Dernière version | Raison | Retiré |\n"
+             "|-----|--------|------------------|--------|--------|\n")
         :append true)
-  (doseq [{:keys [name versionMin dereferencing]}
+  (doseq [{:keys [name versionMin referencedSinceTime dereferencing]}
           (filter :dereferencing (get-sill))]
     (spit
      "sill.org"
      (format
       "|%s|\n"
-      (string/join " | " [name versionMin (:reason dereferencing)
+      (string/join " | " [name referencedSinceTime versionMin
+                          (:reason dereferencing)
                           (locale-date-from-time (:time dereferencing))]))
      :append true))
   (try (sh/sh "pandoc" "sill.org" "-o" "sill.md")
-       (sh/sh "pandoc" "sill.org" "-H" " sill-header.sty" "-o" "sill.pdf")
+       (sh/sh "pandoc" "sill.org" "-H" "sill-header.sty" "-o" "sill.pdf")
        (sh/sh "pandoc" "sill.org" "-o" "sill.org")
        (timbre/info "Successfully generated SILL files in .org, .md and .pdf")
        (catch Exception e (timbre/error (.getMessage e)))))
@@ -469,4 +470,3 @@
     (generate-charts repos)))
 
 ;; (-main)
-
