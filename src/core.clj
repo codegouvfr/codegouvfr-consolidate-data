@@ -397,7 +397,7 @@
 (defn- generate-sill-files []
   (spit "sill.org"
         (str "#+title: Socle interministériel de logiciels libres\n"
-             "#+author: Les référents SILL ministériels et Etalab/DINUM\n"
+             "#+author: Les référents SILL ministériels et DINUM/Etalab\n"
              "#+date: " (locale-date-from-time) "\n\n"
              "* Logiciels libres recommandés\n\n"
              "| Nom | Version | Licence | Ajouté |\n"
@@ -427,7 +427,9 @@
                           (locale-date-from-time (:time dereferencing))]))
      :append true))
   (try (sh/sh "pandoc" "sill.org" "-o" "sill.md")
-       (sh/sh "pandoc" "sill.org" "-H" "sill-header.sty" "-o" "sill.pdf")
+       ;; See utils/ for remove-header-attr.lua and sill-header.sty.
+       (sh/sh "pandoc" "--lua-filter=remove-header-attr.lua"
+              "-H" "sill-header.sty" "sill.org" "-o" "sill.pdf")
        (sh/sh "pandoc" "sill.org" "-o" "sill.org")
        (timbre/info "Successfully generated SILL files in .org, .md and .pdf")
        (catch Exception e (timbre/error (.getMessage e)))))
