@@ -331,9 +331,9 @@
      (map #(assoc % :comptoirDuLibreSoftwareId (:id (:comptoirDuLibreSoftware %))))
      ;; Add wikidataDataLogoUrl
      (map #(assoc % :wikidataDataLogoUrl (:logoUrl (:wikidataData %))))
-     ;; Add comptoirDuLibreSoftware providers
-     (map #(assoc % :comptoirDuLibreSoftwareProviders?
-                  (boolean (seq (:providers (:comptoirDuLibreSoftware %))))))
+     ;; Add comptoirDuLibreSoftwareProviders
+     (map #(assoc % :comptoirDuLibreSoftwareProviders
+                  (:providers (:comptoirDuLibreSoftware %))))
      ;; Remap keywords
      (map #(set/rename-keys (select-keys % (keys sill-mapping)) sill-mapping)))))
 

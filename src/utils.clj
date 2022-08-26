@@ -49,22 +49,22 @@
               :is_repo                            :r?
               :license                            :l}
    ;; Mapping from sill keywords to local short versions
-   :sill     {:sill_id                           :id
-              :name                              :n
-              :license                           :l
-              :function                          :f
-              :versionMin                        :v
-              :isFromFrenchPublicService         :fr
-              :referencedSinceTime               :u
-              :isPresentInSupportContract        :s
-              :comptoirDuLibreSoftwareId         :cl
-              :comptoirDuLibreSoftwareProviders? :clp
-              :wikidataDataLogoUrl               :i
-              :useCaseUrls                       :c
-              :workshopUrls                      :w
-              :agentWorkstation                  :a
-              :tags                              :t
-              :dereferencing                     :d}
+   :sill     {:sill_id                          :id
+              :name                             :n
+              :license                          :l
+              :function                         :f
+              :versionMin                       :v
+              :isFromFrenchPublicService        :fr
+              :referencedSinceTime              :u
+              :isPresentInSupportContract       :s
+              :comptoirDuLibreSoftwareId        :cl
+              :comptoirDuLibreSoftwareProviders :clp
+              :wikidataDataLogoUrl              :i
+              :useCaseUrls                      :c
+              :workshopUrls                     :w
+              :agentWorkstation                 :a
+              :tags                             :t
+              :dereferencing                    :d}
    ;; Mapping from papillon keywords to local short versions
    :papillon {:agencyName        :a
               :publicSector      :p
