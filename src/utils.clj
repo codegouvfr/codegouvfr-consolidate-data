@@ -254,7 +254,7 @@
            contents    (get-contents url)
            ;; FIXME: Hack to circumvent cases when GitLab returns the Sign in page:
            contents-ok (and contents (not (re-matches #"<!DOCTYPE html>" contents)))]
-      {:is_contrib? (when contents-ok (boolean (seq contents)))
+      {:is_contrib? (if contents-ok (boolean (seq contents)) false)
        :updated     (str (t/instant))})))
 
 (defn get-publiccode
@@ -271,7 +271,7 @@
            contents    (get-contents url)
            ;; FIXME: Hack to circumvent cases when GitLab returns the Sign in page:
            contents-ok (and contents (not (re-matches #"<!DOCTYPE html>" contents)))]
-      {:is_publiccode? (when contents-ok (boolean (seq contents)))
+      {:is_publiccode? (if contents-ok (boolean (seq contents)) false)
        :updated        (str (t/instant))})))
 
 (defn get-reuses
