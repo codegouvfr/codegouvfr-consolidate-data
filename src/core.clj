@@ -321,7 +321,8 @@
    (filter #(pos? (:r %)))))
 
 (def prepare-sill
-  (let [sill-mapping (:sill utils/mappings)]
+  (let [annuaire-cnll (utils/get-contents-json-to-kwds (:annuaire-cnll utils/urls))
+        sill-mapping  (:sill utils/mappings)]
     (comp
      ;; Convert tags
      (map #(update % :tags (fn [t] (string/join " " t))))
@@ -331,9 +332,16 @@
      (map #(assoc % :comptoirDuLibreSoftwareId (:id (:comptoirDuLibreSoftware %))))
      ;; Add wikidataDataLogoUrl
      (map #(assoc % :wikidataDataLogoUrl (:logoUrl (:wikidataData %))))
+     ;; Add annuaireCnllSoftwareProviders
+     (map #(assoc % :annuaireCnllSoftwareProviders
+                  (map (fn [e] (select-keys e [:nom :url]))
+                       (:prestataires
+                        (first (filter (fn [e] (= (:sill_id e) (:sill_id %)))
+                                       annuaire-cnll))))))
      ;; Add comptoirDuLibreSoftwareProviders
      (map #(assoc % :comptoirDuLibreSoftwareProviders
-                  (:providers (:comptoirDuLibreSoftware %))))
+                  (map (fn [e] (select-keys e [:name :external_resources]))
+                       (:providers (:comptoirDuLibreSoftware %)))))
      ;; Remap keywords
      (map #(set/rename-keys (select-keys % (keys sill-mapping)) sill-mapping)))))
 

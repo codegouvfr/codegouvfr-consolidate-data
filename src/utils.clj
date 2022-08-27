@@ -22,13 +22,14 @@
    :updating-after-days (Integer. (System/getenv "CODEGOUVFR_DAYS_INTERVAL"))})
 
 (defonce urls
-  {:sources    "https://git.sr.ht/~etalab/codegouvfr-sources/blob/master/comptes-organismes-publics.yml"
-   :sill       "https://sill.etalab.gouv.fr/api/sill.json"
-   :libs       "https://code.gouv.fr/data/libraries/json/all.json"
-   :repos      "https://code.gouv.fr/data/repositories/json/all.json"
-   :orgas      "https://code.gouv.fr/data/organizations/json/all.json"
-   :annuaire   "https://static.data.gouv.fr/resources/organisations-de-codegouvfr/20191011-110549/lannuaire.csv"
-   :emoji-json "https://raw.githubusercontent.com/amio/emoji.json/master/emoji.json"})
+  {:sources       "https://git.sr.ht/~etalab/codegouvfr-sources/blob/master/comptes-organismes-publics.yml"
+   :sill          "https://sill.etalab.gouv.fr/api/sill.json"
+   :libs          "https://code.gouv.fr/data/libraries/json/all.json"
+   :repos         "https://code.gouv.fr/data/repositories/json/all.json"
+   :orgas         "https://code.gouv.fr/data/organizations/json/all.json"
+   :annuaire-cnll "https://annuaire.cnll.fr/api/prestataires-sill.json"
+   :annuaire      "https://static.data.gouv.fr/resources/organisations-de-codegouvfr/20191011-110549/lannuaire.csv"
+   :emoji-json    "https://raw.githubusercontent.com/amio/emoji.json/master/emoji.json"})
 
 (defonce sources
   (try
@@ -59,6 +60,7 @@
               :isPresentInSupportContract       :s
               :comptoirDuLibreSoftwareId        :cl
               :comptoirDuLibreSoftwareProviders :clp
+              :annuaireCnllSoftwareProviders    :ac
               :wikidataDataLogoUrl              :i
               :useCaseUrls                      :c
               :workshopUrls                     :w
