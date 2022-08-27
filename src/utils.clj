@@ -83,6 +83,7 @@
               :is_esr            :e?
               :is_lib            :l?
               :is_contrib        :c?
+              :is_publiccode     :p?
               :language          :l
               :license           :li
               :name              :n
@@ -255,6 +256,23 @@
            contents-ok (and contents (not (re-matches #"<!DOCTYPE html>" contents)))]
       {:is_contrib? (when contents-ok (boolean (seq contents)))
        :updated     (str (t/instant))})))
+
+(defn get-publiccode
+  [{:keys [platform organization_name name repository_url default_branch publiccode]}]
+  (timbre/info "Checking publiccode.yml for" repository_url)
+  (if-not (needs-updating? (:updated publiccode))
+    publiccode
+    (let  [path        (str (or default_branch "master") "/publiccode.yml")
+           url         (condp = platform
+                         "GitHub"    (format "https://raw.githubusercontent.com/%s/%s/%s"
+                                             organization_name name path)
+                         "SourceHut" (str repository_url "/blob/" path)
+                         "GitLab"    (str repository_url "/-/raw/" path))
+           contents    (get-contents url)
+           ;; FIXME: Hack to circumvent cases when GitLab returns the Sign in page:
+           contents-ok (and contents (not (re-matches #"<!DOCTYPE html>" contents)))]
+      {:is_publiccode? (when contents-ok (boolean (seq contents)))
+       :updated        (str (t/instant))})))
 
 (defn get-reuses
   "Return a hash-map with reuse information"

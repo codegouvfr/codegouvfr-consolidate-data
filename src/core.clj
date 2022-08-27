@@ -211,12 +211,14 @@
           is_fork      (true? (:is_fork repo))
           reuses       (utils/get-reuses repo)
           contributing (utils/get-contributing repo)
+          publiccode   (utils/get-publiccode repo)
           dependencies (deps/get-dependencies repo)]
       (try
         (d/transact! conn [(assoc repo
                                   :is_esr is_esr
                                   :is_fork is_fork
                                   :reuses reuses
+                                  :publiccode publiccode
                                   :contributing contributing
                                   :dependencies dependencies)])
         (catch Exception e (timbre/error (.getMessage e))))
@@ -280,6 +282,8 @@
      (map #(assoc % :is_lib (is-lib (:repository_url %))))
      ;; Add contributing
      (map #(assoc % :is_contrib (:is_contrib? (:contributing %))))
+     ;; Add publiccode
+     (map #(assoc % :is_publiccode (:is_publiccode? (:publiccode %))))
      ;; Add the number of reuses
      (map #(assoc % :reuses (:number (:reuses %))))
      ;; Rename keywords
