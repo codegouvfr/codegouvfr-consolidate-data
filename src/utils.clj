@@ -242,7 +242,7 @@
 
 (defn get-contributing
   [{:keys [platform organization_name name repository_url default_branch contributing]}]
-  (timbre/info "Checking CONTRIBUTING.md for" repository_url)
+  (timbre/info "Check CONTRIBUTING.md for" repository_url)
   (if-not (needs-updating? (:updated contributing))
     contributing
     (let  [path        (str (or default_branch "master") "/CONTRIBUTING.md")
@@ -259,7 +259,7 @@
 
 (defn get-publiccode
   [{:keys [platform organization_name name repository_url default_branch publiccode]}]
-  (timbre/info "Checking publiccode.yml for" repository_url)
+  (timbre/info "Check publiccode.yml for" repository_url)
   (if-not (needs-updating? (:updated publiccode))
     publiccode
     (let  [path        (str (or default_branch "master") "/publiccode.yml")

@@ -192,7 +192,7 @@
                  "pypi"     (deps/get-valid-pypi library)
                  "crate"    (deps/get-valid-crate library)
                  nil)]
-      (timbre/info (format "Updating dependency %s (%s)" library type))
+      (timbre/info (format "Update dependency %s (%s)" library type))
       (let [dep_id        (keyword (str type "/" library))
             library-repos (:repositories (get-dep dep_id))]
         (try
@@ -235,10 +235,11 @@
 (defn- consolidate-tags []
   (doseq [{:keys [id name organization_name is_archived platform repository_url tags topics]
            :as   repo} (get-repos)]
-    (when  (and ;; FIXME: We need to implement getting tags for SourceHut
-            (not is_archived)
-            (some #{"GitHub" "GitLab"} (list platform))
-            id (utils/needs-updating? (:updated tags)))
+    (if-not (and ;; FIXME: We need to implement getting tags for SourceHut
+             (not is_archived)
+             (some #{"GitHub" "GitLab"} (list platform))
+             id (utils/needs-updating? (:updated tags)))
+      (timbre/info "Skip updating tags for" repository_url)
       (let  [gh-api-baseurl
              (format "https://api.github.com/repos/%s/%s" organization_name name)
              api-str (if (= platform "GitHub")
@@ -246,7 +247,7 @@
                        (str (re-find #"https?://[^/]+" repository_url)
                             (format "/api/v4/projects/%s/repository/tags" id)))
              tags    (utils/get-contents-json-to-kwds api-str)]
-        (timbre/info "Updating tags for" repository_url)
+        (timbre/info "Update tags for" repository_url)
         (try
           (doseq [t tags]
             (if-not (= platform "GitHub")

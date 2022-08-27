@@ -38,7 +38,7 @@
 ;; Check whether libraries are known from various sources
 
 (defn get-valid-npm [library]
-  (timbre/info "Fetching info for npm module" library)
+  (timbre/info "Fetch info for npm module" library)
   (let [registry-url-fmt "https://registry.npmjs.org/-/v1/search?text=%s&size=1"]
     (when-let [res (utils/get-contents (format registry-url-fmt library))]
       (let [{:keys [description links]}
@@ -52,7 +52,7 @@
          :link        (:npm links)}))))
 
 (defn get-valid-crate [library]
-  (timbre/info "Fetching info for crate module" library)
+  (timbre/info "Fetch info for crate module" library)
   (when-let [lib (first (seq (filter #(= (:name %) library) crates)))]
     {:name        library
      :type        "crate"
@@ -61,7 +61,7 @@
      :link        (str "https://crates.io/crates/" library)}))
 
 (defn get-valid-pypi [library]
-  (timbre/info "Fetching info for pypi module" library)
+  (timbre/info "Fetch info for pypi module" library)
   (let [registry-url-fmt "https://pypi.org/pypi/%s/json"]
     (when-let [res (utils/get-contents (format registry-url-fmt library))]
       (when-let [{:keys [info]}
@@ -75,7 +75,7 @@
 
 ;; FIXME: Where to get a proper maven artifact description?
 (defn get-valid-maven [library]
-  (timbre/info "Fetching info for maven module" library)
+  (timbre/info "Fetch info for maven module" library)
   (let [[groupId artifactId] (drop 1 (re-find #"([^/]+)/([^/]+)" library))
         registry-url-fmt
         "https://search.maven.org/solrsearch/select?q=g:%%22%s%%22+AND+a:%%22%s%%22&core=gav&rows=1&wt=json"
@@ -97,7 +97,7 @@
          :link        (format link-fmt groupId artifactId)}))))
 
 (defn get-valid-clojars [library]
-  (timbre/info "Fetching info for clojars module" library)
+  (timbre/info "Fetch info for clojars module" library)
   (let [registry-url-fmt "https://clojars.org/api/artifacts/%s"]
     (when-let [res (utils/get-contents (format registry-url-fmt library))]
       (let [res (try (utils/json-parse-with-keywords res) ;; FIXME?
@@ -109,7 +109,7 @@
          :link        (str "https://clojars.org/" library)}))))
 
 (defn get-valid-bundler [library]
-  (timbre/info "Fetching info for bundler module" library)
+  (timbre/info "Fetch info for bundler module" library)
   (let [registry-url-fmt "https://rubygems.org/api/v1/gems/%s.json"]
     (when-let [res (utils/get-contents (format registry-url-fmt library))]
       (let [{:keys [info project_uri homepage_uri]}
@@ -122,7 +122,7 @@
          :link        project_uri}))))
 
 (defn get-valid-composer [library]
-  (timbre/info "Fetching info for composer module" library)
+  (timbre/info "Fetch info for composer module" library)
   (let [registry-url-fmt "https://packagist.org/packages/%s"]
     (when-let [res (utils/get-contents
                     (str (format registry-url-fmt library) ".json"))]
@@ -228,7 +228,7 @@
       (doseq [f dep-fnames]
         (when-let [body (utils/get-contents
                          (format fmt-str organization_name name default_branch f))]
-          (timbre/info "Fetching dependencies for"
+          (timbre/info "Fetch dependencies for"
                        (format fmt-str organization_name name default_branch f))
           (try (let [reqs
                      (condp = f
