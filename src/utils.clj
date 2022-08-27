@@ -253,7 +253,7 @@
                          "GitLab"    (str repository_url "/-/raw/" path))
            contents    (get-contents url)
            ;; FIXME: Hack to circumvent cases when GitLab returns the Sign in page:
-           contents-ok (and contents (not (re-matches #"<!DOCTYPE html>" contents)))]
+           contents-ok (and contents (not (re-find #"^<!DOCTYPE html>" contents)))]
       {:is_contrib? (if contents-ok (boolean (seq contents)) false)
        :updated     (str (t/instant))})))
 
@@ -270,7 +270,7 @@
                          "GitLab"    (str repository_url "/-/raw/" path))
            contents    (get-contents url)
            ;; FIXME: Hack to circumvent cases when GitLab returns the Sign in page:
-           contents-ok (and contents (not (re-matches #"<!DOCTYPE html>" contents)))]
+           contents-ok (and contents (not (re-find #"^<!DOCTYPE html>" contents)))]
       {:is_publiccode? (if contents-ok (boolean (seq contents)) false)
        :updated        (str (t/instant))})))
 
