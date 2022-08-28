@@ -235,10 +235,11 @@
 (defn- consolidate-tags []
   (doseq [{:keys [id name organization_name is_archived platform repository_url tags topics]
            :as   repo} (get-repos)]
-    (if-not (and ;; FIXME: We need to implement getting tags for SourceHut
-             (not is_archived)
-             (some #{"GitHub" "GitLab"} (list platform))
-             id (utils/needs-updating? (:updated tags)))
+    (if-not (and id
+                 (not is_archived)
+                 ;; FIXME: TODO: implement getting tags for SourceHut
+                 (some #{"GitHub" "GitLab"} (list platform))
+                 (utils/needs-updating? (:updated tags)))
       (timbre/info "Skip updating tags for" repository_url)
       (let  [gh-api-baseurl
              (format "https://api.github.com/repos/%s/%s" organization_name name)

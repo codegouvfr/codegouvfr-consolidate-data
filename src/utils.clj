@@ -243,7 +243,8 @@
 (defn get-contributing
   [{:keys [platform organization_name name repository_url default_branch contributing]}]
   (timbre/info "Check CONTRIBUTING.md for" repository_url)
-  (if-not (needs-updating? (:updated contributing))
+  (if-not (or (:is_contrib? contributing)
+              (needs-updating? (:updated contributing)))
     contributing
     (let  [path        (str (or default_branch "master") "/CONTRIBUTING.md")
            url         (condp = platform
@@ -260,7 +261,8 @@
 (defn get-publiccode
   [{:keys [platform organization_name name repository_url default_branch publiccode]}]
   (timbre/info "Check publiccode.yml for" repository_url)
-  (if-not (needs-updating? (:updated publiccode))
+  (if-not (or (:is_publiccode? publiccode)
+              (needs-updating? (:updated publiccode)))
     publiccode
     (let  [path        (str (or default_branch "master") "/publiccode.yml")
            url         (condp = platform
@@ -277,7 +279,8 @@
 (defn get-reuses
   "Return a hash-map with reuse information"
   [{:keys [platform repository_url reuses]}]
-  (if-not (needs-updating? (:updated reuses))
+  (if-not (or (pos? (:number reuses))
+              (needs-updating? (:updated reuses)))
     reuses
     (let [updated        (str (t/instant))
           default_reuses {:number 0 :updated updated}]
