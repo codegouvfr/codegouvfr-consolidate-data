@@ -234,7 +234,9 @@
 ;; | Web URL   | commit=>html_url                 | commit>web_url        |
 (defn- consolidate-tags []
   (doseq [{:keys [id name organization_name is_archived platform repository_url tags topics]
-           :as   repo} (get-repos)]
+           :as   repo}
+          (filter #(or (:is_contrib? (:contributing %))
+                       (:is_publiccode? (:publiccode %))) (get-repos))]
     (if-not (and id
                  (not is_archived)
                  ;; FIXME: TODO: implement getting tags for SourceHut
