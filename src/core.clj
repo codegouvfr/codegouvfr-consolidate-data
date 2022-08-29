@@ -237,7 +237,8 @@
            :as   repo}
           (filter #(or (:is_contrib? (:contributing %))
                        (:is_publiccode? (:publiccode %))
-                       (is-lib %)) (get-repos))]
+                       (is-lib (:repository_url %)))
+                  (get-repos))]
     (if-not (and id
                  (not is_archived)
                  ;; FIXME: TODO: implement getting tags for SourceHut
