@@ -236,7 +236,8 @@
   (doseq [{:keys [id name organization_name is_archived platform repository_url tags topics]
            :as   repo}
           (filter #(or (:is_contrib? (:contributing %))
-                       (:is_publiccode? (:publiccode %))) (get-repos))]
+                       (:is_publiccode? (:publiccode %))
+                       (is-lib %)) (get-repos))]
     (if-not (and id
                  (not is_archived)
                  ;; FIXME: TODO: implement getting tags for SourceHut
