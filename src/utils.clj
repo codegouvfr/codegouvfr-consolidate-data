@@ -279,7 +279,7 @@
 (defn get-reuses
   "Return a hash-map with reuse information"
   [{:keys [platform repository_url reuses]}]
-  (if-not (or (pos? (:number reuses))
+  (if-not (or (when-let [r (:number reuses)] (pos? r))
               (needs-updating? (:updated reuses)))
     reuses
     (let [updated        (str (t/instant))
