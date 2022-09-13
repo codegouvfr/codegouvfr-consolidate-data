@@ -350,7 +350,7 @@
                                        annuaire-cnll))))))
      ;; Add comptoirDuLibreSoftwareProviders
      (map #(assoc % :comptoirDuLibreSoftwareProviders
-                  (map (fn [e] (select-keys e [:name :external_resources]))
+                  (map (fn [e] (select-keys e [:name :url]))
                        (:providers (:comptoirDuLibreSoftware %)))))
      ;; Remap keywords
      (map #(set/rename-keys (select-keys % (keys sill-mapping)) sill-mapping)))))
