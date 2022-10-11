@@ -295,11 +295,17 @@
                                 h/parse
                                 h/as-hickory
                                 (as-> d (hs/select (hs/class "btn-link") d)))
-                  nb-reps   (or (try (re-find #"\d+" (last (:content (nth btn-links 1))))
+                  nb-reps   (or (try (re-find #"\d+" (last (:content (nth btn-links 0))))
                                      (catch Exception _ "0")) "0")
-                  nb-pkgs   (or (try (re-find #"\d+" (last (:content (nth btn-links 2))))
-                                     (catch Exception _ "0")) "0")]
+                  ;; FIXME: Only take the number of repos?
+                  ;; nb-pkgs   (or (try (re-find #"\d+" (last (:content (nth btn-links 2))))
+                  ;;                    (catch Exception _ "0")) "0")
+                  ]
               {:number  (+ (edn/read-string nb-reps)
-                           (edn/read-string nb-pkgs))
+                           ;; (edn/read-string nb-pkgs)
+                           )
                :updated updated})
             default_reuses))))))
+
+(get-reuses {:platform       "GitHub"
+             :repository_url "https://github.com/InseeFrLab/keycloakify"})
