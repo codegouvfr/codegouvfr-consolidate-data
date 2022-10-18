@@ -126,7 +126,7 @@
        :description "code.gouv.fr - Nouveaux logiciels libres au SILL - New SILL entries"}
       (map (fn [item]
              {:title       (:name item)
-              :link        (str "https://sill.etalab.gouv.fr/fr/software?id=" (:id item))
+              :link        (str "https://sill.etalab.gouv.fr/software?name=" (:name item))
               :description (:function item)
               :pubDate     (t/instant (java.util.Date. (:referencedSinceTime item)))})
            sill))
