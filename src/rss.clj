@@ -19,7 +19,7 @@
        :link        "https://code.etalab.gouv.fr/data/latest.xml"
        :description "code.gouv.fr - Nouveaux dépôts - New repositories"}
       (map (fn [item]
-             {:title       (:name item)
+             {:title       (str "Nouveau dépôt :" (:name item))
               :link        (:repository_url item)
               :description (:description item)
               :author      (:organization_name item)
@@ -40,7 +40,7 @@
        :link        "https://code.etalab.gouv.fr/data/latest-organizations.xml"
        :description "code.gouv.fr - Nouvelles organisations - New Organizations"}
       (map (fn [item]
-             {:title       (:name item)
+             {:title       (str "Nouvelle organisation : " (:name item))
               :link        (:organization_url item)
               :description (:description item)
               :author      (:name item)
@@ -60,7 +60,7 @@
        :link        "https://code.etalab.gouv.fr/data/latest-dependencies.xml"
        :description "code.gouv.fr - Nouvelles dépendances - New dependencies"}
       (map (fn [item]
-             {:title       (name (:dep_id item))
+             {:title       (str "Nouvelle dépendance identifiée :" (name (:dep_id item)))
               :link        (:link item)
               :description (:description item)
               :author      (name (:dep_id item))
@@ -82,7 +82,7 @@
        :link        "https://code.etalab.gouv.fr/data/latest-libraries.xml"
        :description "code.gouv.fr - Dernières bibliothèques - Latest libraries"}
       (map (fn [item]
-             {:title       (name (:lib_id item))
+             {:title       (str "Nouvelle bibliothèque : " (name (:lib_id item)))
               :link        (:repo_url item)
               :description (:description item)
               :author      (name (:lib_id item))
@@ -105,7 +105,7 @@
        :link        "https://code.etalab.gouv.fr/data/latest-tags.xml"
        :description "code.gouv.fr - Nouveaux tags - New tags"}
       (map (fn [item]
-             {:title       (str (:repo_name item) " - " (:name item))
+             {:title       (str "Nouvelle version : " (:repo_name item) " - " (:name item))
               :link        (:url item)
               :description (:title item)
               :author      (:committer item)
@@ -125,7 +125,7 @@
        :link        "https://code.etalab.gouv.fr/data/latest-sill.xml"
        :description "code.gouv.fr - Nouveaux logiciels libres au SILL - New SILL entries"}
       (map (fn [item]
-             {:title       (:name item)
+             {:title       (str "Nouveau logiciel au SILL : " (:name item))
               :link        (str "https://sill.etalab.gouv.fr/software?name=" (:name item))
               :description (:function item)
               :pubDate     (t/instant (java.util.Date. (:referencedSinceTime item)))})
