@@ -19,11 +19,13 @@
        :link        "https://code.etalab.gouv.fr/data/latest.xml"
        :description "code.gouv.fr - Nouveaux dépôts - New repositories"}
       (map (fn [item]
-             {:title       (str "Nouveau dépôt :" (:name item))
-              :link        (:repository_url item)
-              :description (:description item)
-              :author      (:organization_name item)
-              :pubDate     (t/instant (:creation_date item))})
+             (let [link (:repository_url item)]
+               {:title       (str "Nouveau dépôt :" (:name item))
+                :link        link
+                :guid        link
+                :description (:description item)
+                :author      (:organization_name item)
+                :pubDate     (t/instant (:creation_date item))}))
            repos))
      (spit "latest.xml"))
     (timbre/info "Updated latest.xml")))
@@ -40,11 +42,13 @@
        :link        "https://code.etalab.gouv.fr/data/latest-organizations.xml"
        :description "code.gouv.fr - Nouvelles organisations - New Organizations"}
       (map (fn [item]
-             {:title       (str "Nouvelle organisation : " (:name item))
-              :link        (:organization_url item)
-              :description (:description item)
-              :author      (:name item)
-              :pubDate     (t/instant (:creation_date item))})
+             (let [link (:organization_url item)]
+               {:title       (str "Nouvelle organisation : " (:name item))
+                :link        link
+                :guid        link
+                :description (:description item)
+                :author      (:name item)
+                :pubDate     (t/instant (:creation_date item))}))
            orgas))
      (spit "latest-organizations.xml"))
     (timbre/info "Updated latest-organizations.xml")))
@@ -60,11 +64,13 @@
        :link        "https://code.etalab.gouv.fr/data/latest-dependencies.xml"
        :description "code.gouv.fr - Nouvelles dépendances - New dependencies"}
       (map (fn [item]
-             {:title       (str "Nouvelle dépendance identifiée :" (name (:dep_id item)))
-              :link        (:link item)
-              :description (:description item)
-              :author      (name (:dep_id item))
-              :pubDate     (t/instant (:updated item))})
+             (let [link (:link item)]
+               {:title       (str "Nouvelle dépendance identifiée :" (name (:dep_id item)))
+                :link        link
+                :guid        link
+                :description (:description item)
+                :author      (name (:dep_id item))
+                :pubDate     (t/instant (:updated item))}))
            dependencies))
      (spit "latest-dependencies.xml"))
     (timbre/info "Updated latest-dependencies.xml")))
@@ -82,12 +88,14 @@
        :link        "https://code.etalab.gouv.fr/data/latest-libraries.xml"
        :description "code.gouv.fr - Dernières bibliothèques - Latest libraries"}
       (map (fn [item]
-             {:title       (str "Nouvelle bibliothèque : " (name (:lib_id item)))
-              :link        (:repo_url item)
-              :description (:description item)
-              :author      (name (:lib_id item))
-              :pubDate     (t/instant ;; (:latest_stable_release_published_at item)
-                            )})
+             (let [link (:repo_url item)]
+               {:title       (str "Nouvelle bibliothèque : " (name (:lib_id item)))
+                :link        link
+                :guid        link
+                :description (:description item)
+                :author      (name (:lib_id item))
+                :pubDate     (t/instant ;; (:latest_stable_release_published_at item)
+                              )}))
            libraries))
      (spit "latest-libraries.xml"))
     (timbre/info "Updated latest-libraries.xml")))
@@ -105,11 +113,13 @@
        :link        "https://code.etalab.gouv.fr/data/latest-tags.xml"
        :description "code.gouv.fr - Nouveaux tags - New tags"}
       (map (fn [item]
-             {:title       (str "Nouvelle version : " (:repo_name item) " - " (:name item))
-              :link        (:url item)
-              :description (:title item)
-              :author      (:committer item)
-              :pubDate     (t/instant (:date item))})
+             (let [link (:url item)]
+               {:title       (str "Nouvelle version : " (:repo_name item) " - " (:name item))
+                :link        link
+                :guid        link
+                :description (:title item)
+                :author      (:committer item)
+                :pubDate     (t/instant (:date item))}))
            tags))
      (spit "latest-tags.xml"))
     (timbre/info "Updated latest-tags.xml")))
@@ -125,10 +135,12 @@
        :link        "https://code.etalab.gouv.fr/data/latest-sill.xml"
        :description "code.gouv.fr - Nouveaux logiciels libres au SILL - New SILL entries"}
       (map (fn [item]
-             {:title       (str "Nouveau logiciel au SILL : " (:name item))
-              :link        (str "https://sill.etalab.gouv.fr/software?name=" (:name item))
-              :description (:function item)
-              :pubDate     (t/instant (java.util.Date. (:referencedSinceTime item)))})
+             (let [link (str "https://sill.etalab.gouv.fr/software?name=" (:name item))]
+               {:title       (str "Nouveau logiciel au SILL : " (:name item))
+                :link        link
+                :guid        link
+                :description (:function item)
+                :pubDate     (t/instant (java.util.Date. (:referencedSinceTime item)))}))
            sill))
      (spit "latest-sill.xml"))
     (timbre/info "Updated latest-sill.xml")))
