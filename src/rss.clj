@@ -20,7 +20,7 @@
        :description "code.gouv.fr - Nouveaux dépôts - New repositories"}
       (map (fn [item]
              (let [link (:repository_url item)]
-               {:title       (str "Nouveau dépôt :" (:name item))
+               {:title       (str "Nouveau dépôt : " (:name item))
                 :link        link
                 :guid        link
                 :description (:description item)
