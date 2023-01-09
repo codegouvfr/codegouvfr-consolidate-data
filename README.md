@@ -39,7 +39,7 @@ Data for the [sill.etalab.gouv.fr](https://sill.etalab.gouv.fr), exposed on [thi
 
 # License
 
-2020-2022 DINUM, Bastien Guerry.
+2020-2023 DINUM, Bastien Guerry.
 
 This application is published under the [EPL 2.0
 license](https://git.sr.ht/~etalab/codegouvfr-consolidate-data/blob/master/LICENSE).
