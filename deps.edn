@@ -10,14 +10,14 @@
 
  :deps {org.clojure/clojure                 {:mvn/version "1.11.1"}
         borkdude/babashka                   {:mvn/version "0.2.6"}
-        metosin/jsonista                    {:mvn/version "0.3.6"}
+        metosin/jsonista                    {:mvn/version "0.3.7"}
         org.clojure/data.csv                {:mvn/version "1.0.1"}
         hickory/hickory                     {:mvn/version "0.7.1"}
-        clojure.java-time/clojure.java-time {:mvn/version "1.1.0"}
-        net.mikera/core.matrix              {:mvn/version "0.62.0"}
+        clojure.java-time/clojure.java-time {:mvn/version "1.2.0"}
+        net.mikera/core.matrix              {:mvn/version "0.63.0"}
         clj-rss/clj-rss                     {:mvn/version "0.4.0"}
-        com.taoensso/timbre                 {:mvn/version "5.2.1"}
-        datalevin/datalevin                 {:mvn/version "0.6.22"}
+        com.taoensso/timbre                 {:mvn/version "6.0.4"}
+        datalevin/datalevin                 {:mvn/version "0.8.4"}
         com.cognitect/transit-clj           {:mvn/version "1.0.329"}
         clj-commons/clj-yaml                {:mvn/version "1.0.26"}
         toml/toml                           {:mvn/version "0.1.4"}}
