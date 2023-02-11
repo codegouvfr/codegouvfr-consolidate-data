@@ -1,4 +1,4 @@
-;; Copyright (c) 2020, 2022 DINUM, Bastien Guerry <bastien.guerry@data.gouv.fr>
+;; Copyright (c) 2020-2023 DINUM, Bastien Guerry <bastien.guerry@code.gouv.fr>
 ;; SPDX-License-Identifier: EPL-2.0
 ;; License-Filename: LICENSE
 
@@ -179,7 +179,7 @@
 
 (def user-agent
   {:raw-args ["--connect-timeout" "10"]
-   :headers  {"User-Agent" "https://code.gouv.fr bot (logiciels-libres@data.gouv.fr)"}})
+   :headers  {"User-Agent" "https://code.gouv.fr bot (contact@code.gouv.fr)"}})
 
 (def default-parameters user-agent)
 
