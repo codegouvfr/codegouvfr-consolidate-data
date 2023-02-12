@@ -82,7 +82,7 @@
   (update-db (:orgas utils/urls)))
 
 ;; FIXME: See src/hut.clj header: this should really be done upstream
-;; by https://git.sr.ht/~etalab/codegouvfr-fetch-data.
+;; by https://git.sr.ht/~codegouvfr/codegouvfr-fetch-data.
 (defn- update-hut  []
   (doseq [d (hut/fetch)]
     (try (d/transact! conn [d])
