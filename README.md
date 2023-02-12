@@ -1,10 +1,10 @@
-[![img](https://img.shields.io/badge/Licence-EPL-orange.svg?style=flat-square)](https://git.sr.ht/~etalab/codegouvfr-consolidate-data/blob/master/LICENSE)
+[![img](https://img.shields.io/badge/Licence-EPL-orange.svg?style=flat-square)](https://git.sr.ht/~codegouvfr/codegouvfr-consolidate-data/blob/master/LICENSE)
 
 # Consolidate and generate codegouvfr data
 
 `codegouvfr` stands for [code.gouv.fr](https://code.gouv.fr).
 
-The code in this repository creates `json/svg/xml` files used by the [code.gouv.fr](https://git.sr.ht/~etalab/code.gouv.fr) web application.
+The code in this repository creates `json/svg/xml` files used by the [code.gouv.fr](https://git.sr.ht/~codegouvfr/code.gouv.fr) web application.
 
 # Installation and configuration
 
@@ -16,11 +16,11 @@ The code in this repository creates `json/svg/xml` files used by the [code.gouv.
    
 4. Install `rlwrap`. For example on Debian-compatible GNU/Linux systems with `apt install rlwrap`.
    
-5. Clone this repository and enter it: `git clone https://git.sr.ht/~etalab/codegouvfr-consolidate-data ; cd codegouvfr-consolidate-data`
+5. Clone this repository and enter it: `git clone https://git.sr.ht/~codegouvfr/codegouvfr-consolidate-data ; cd codegouvfr-consolidate-data`
 
 # Generate consolidated files
 
-1. You may use input files.  These files are in the data folder of [codegouvfr-fetch-data](https://git.sr.ht/~etalab/codegouvfr-fetch-data).  Copy them in the project directory.  For example `cp -r ../codegouvfr-fetch-data/* .`  If you skip this step, the input files will be fetched from [code.gouv.fr](https://code.gouv.fr).
+1. You may use input files.  These files are in the data folder of [codegouvfr-fetch-data](https://git.sr.ht/~codegouvfr/codegouvfr-fetch-data).  Copy them in the project directory.  For example `cp -r ../codegouvfr-fetch-data/* .`  If you skip this step, the input files will be fetched from [code.gouv.fr](https://code.gouv.fr).
    
 2. Launch the command `clj -M:run`.
 
@@ -42,4 +42,4 @@ Data for the [sill.etalab.gouv.fr](https://sill.etalab.gouv.fr), exposed on [thi
 2020-2023 DINUM, Bastien Guerry.
 
 This application is published under the [EPL 2.0
-license](https://git.sr.ht/~etalab/codegouvfr-consolidate-data/blob/master/LICENSE).
+license](https://git.sr.ht/~codegouvfr/codegouvfr-consolidate-data/blob/master/LICENSE).
