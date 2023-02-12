@@ -4,7 +4,7 @@
 
 {:version     "0.4.6"
  :description "Consolidate data for https://code.gouv.fr"
- :url         "https://git.sr.ht/~etalab/codegouvfr-consolidate-data"
+ :url         "https://git.sr.ht/~codegouvfr/codegouvfr-consolidate-data"
  :license     {:name "Eclipse Public License - v 2.0"
                :url  "http://www.eclipse.org/legal/epl-v20.html"}
 

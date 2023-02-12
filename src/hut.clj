@@ -2,7 +2,7 @@
 ;; SPDX-License-Identifier: EPL-2.0
 ;; License-Filename: LICENSE
 
-;; https://git.sr.ht/~etalab/codegouvfr-fetch-data should be the place
+;; https://git.sr.ht/~codegouvfr/codegouvfr-fetch-data should be the place
 ;; to fetch organizations and repositories from SourceHut. If you want
 ;; to contribute a patch against codegouvfr-fetch-data, please do!
 
