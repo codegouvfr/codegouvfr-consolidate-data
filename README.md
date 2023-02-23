@@ -33,7 +33,7 @@ These data are published under the [Open License 2.0](https://www.etalab.gouv.fr
 -   Dependencies: [json](https://code.gouv.fr/data/deps.json)
 -   SILL: [json](https://code.gouv.fr/data/sill.json)
 
-Data for the [sill.etalab.gouv.fr](https://sill.etalab.gouv.fr), exposed on [this page](https://code.gouv.fr/#/sill), come from Wikidata (CC0), Comptoir du libre ([CC0](https://gitlab.adullact.net/Comptoir/Comptoir-srv/-/issues/968)), https://annuaire.cnll.fr and contributors of the SILL ([Open License 2.0](https://www.etalab.gouv.fr/licence-ouverte-open-licence)).
+Data for the [sill.code.gouv.fr](https://sill.code.gouv.fr), exposed on [this page](https://code.gouv.fr/#/sill), come from Wikidata (CC0), Comptoir du libre ([CC0](https://gitlab.adullact.net/Comptoir/Comptoir-srv/-/issues/968)), https://annuaire.cnll.fr and contributors of the SILL ([Open License 2.0](https://www.etalab.gouv.fr/licence-ouverte-open-licence)).
 
 # [Contributing](CONTRIBUTING.md)
 
