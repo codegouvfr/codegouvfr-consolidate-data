@@ -2,8 +2,6 @@
 
 The development of this repository happens on [the SourceHut repository](https://git.sr.ht/~etalab/codegouvfr-consolidate-data).
 
-The code is also published on [GitHub](https://github.com/codegouvfr/codegouvfr-fetch-data) to reach more developers, but *we do not accept pull requests on GitHub*.
-
 For confidential feedback, use [logiciels-libres@data.gouv.fr](mailto:logiciels-libres@data.gouv.fr).
 
 For bug reports, patches, feature requests and general questions, send an email to the public mailing list [~etalab/codegouvfr-devel@lists.sr.ht](mailto:~etalab/codegouvfr-devel@lists.sr.ht).
