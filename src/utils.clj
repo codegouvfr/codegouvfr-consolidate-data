@@ -22,7 +22,7 @@
    :updating-after-days (Integer. (System/getenv "CODEGOUVFR_DAYS_INTERVAL"))})
 
 (defonce urls
-  {:sources       "https://git.sr.ht/~codegouvfr/codegouvfr-sources/blob/master/comptes-organismes-publics.yml"
+  {:sources       "https://git.sr.ht/~codegouvfr/codegouvfr-sources/blob/main/comptes-organismes-publics.yml"
    :sill          "https://sill.code.gouv.fr/api/sill.json"
    :libs          "https://code.gouv.fr/data/libraries/json/all.json"
    :repos         "https://code.gouv.fr/data/repositories/json/all.json"
