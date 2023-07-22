@@ -84,7 +84,8 @@
 ;; FIXME: See src/hut.clj header: this should really be done upstream
 ;; by https://git.sr.ht/~codegouvfr/codegouvfr-fetch-data.
 (defn- update-hut  []
-  (doseq [d (hut/fetch)]
+  (doseq [d (->> (hut/fetch)
+                 (map #(utils/replace-vals % nil "")))]
     (try (d/transact! conn [d])
          (catch Exception e (timbre/error (.getMessage e))))))
 
