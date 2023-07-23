@@ -123,7 +123,7 @@
 
 (defn- is-lib [repository_url]
   (-> (d/q `[:find ?e :where
-             [?e :lib_id _]
+             [?e :lib_id]
              [?e :repo_url ~repository_url]] db)
       seq nil? not))
 
@@ -131,7 +131,7 @@
   (let [mesri-string
         "Ministère de l'enseignement supérieur et de la recherche"]
     (->> (d/q `[:find ?e :where
-                [?e :organization_url _]
+                [?e :organization_url]
                 [?e :login ~repo_orga_name]] db)
          (map first)
          (map #(d/entity db %))
