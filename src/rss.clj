@@ -132,7 +132,7 @@
     (->>
      (rss/channel-xml
       {:title       "code.gouv.fr - Nouveaux logiciels libres au SILL - New SILL entries"
-       :link        "https://code.etalab.gouv.fr/data/latest-sill.xml"
+       :link        "https://code.gouv.fr/data/latest-sill.xml"
        :description "code.gouv.fr - Nouveaux logiciels libres au SILL - New SILL entries"}
       (map (fn [item]
              (let [link (str "https://sill.code.gouv.fr/software?name=" (:name item))]
