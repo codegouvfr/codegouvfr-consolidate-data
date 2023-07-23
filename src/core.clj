@@ -60,15 +60,11 @@
 (def db (d/db conn))
 
 ;;; Feed the database
-
 (defn- update-db [data-url]
   (doseq [d (->> (slurp data-url)
                  json/read-value
                  (map walk/keywordize-keys)
-                 (map #(utils/replace-vals % nil ""))
-                 ;; Testing
-                 ;; (take 2 (shuffle data))
-                 )]
+                 (map #(utils/replace-vals % nil "")))]
     (try (d/transact! conn [d])
          (catch Exception e (timbre/error (.getMessage e))))))
 
@@ -111,7 +107,7 @@
               (utils/csv-url-to-map (:annuaire utils/urls)))))
 
 (defn- get-id [kw]
-  (->> (d/q `[:find ?e :where [?e ~kw _]] db)
+  (->> (d/q `[:find ?e :where [?e ~kw]] db)
        (map first)
        (map #(d/pull db '[*] %))))
 
