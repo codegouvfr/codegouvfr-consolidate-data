@@ -2,7 +2,7 @@
 ;; SPDX-License-Identifier: EPL-2.0
 ;; License-Filename: LICENSE
 
-{:version     "0.4.6"
+{:version     "0.4.7"
  :description "Consolidate data for https://code.gouv.fr"
  :url         "https://git.sr.ht/~codegouvfr/codegouvfr-consolidate-data"
  :license     {:name "Eclipse Public License - v 2.0"
