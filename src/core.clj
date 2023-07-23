@@ -48,9 +48,6 @@
    :sill_id
    {:db/valueType :db.type/long
     :db/unique    :db.unique/identity}
-   :papillon_id
-   {:db/valueType :db.type/long
-    :db/unique    :db.unique/identity}
    :dep_id
    {:db/valueType :db.type/keyword
     :db/unique    :db.unique/identity}
@@ -91,13 +88,7 @@
 
 (defn- get-sill []
   (->> (utils/get-contents-json-to-kwds (:sill utils/urls))
-       :catalog
        (map #(set/rename-keys % {:id :sill_id}))))
-
-(defn- get-papillon []
-  (->> (utils/get-contents-json-to-kwds (:sill utils/urls))
-       :services
-       (map #(set/rename-keys % {:id :papillon_id}))))
 
 (defn- update-libs []
   (let [libs (utils/get-contents-json-to-kwds (:libs utils/urls))
@@ -356,10 +347,6 @@
      ;; Remap keywords
      (map #(set/rename-keys (select-keys % (keys sill-mapping)) sill-mapping)))))
 
-(def prepare-papillon
-  (let [papillon-mapping (:papillon utils/mappings)]
-    (map #(set/rename-keys (select-keys % (keys papillon-mapping)) papillon-mapping))))
-
 (def prepare-libs
   (let [libs-mapping (:libs utils/mappings)]
     (comp
@@ -374,13 +361,12 @@
   (spit (str t  ".json")
         (json/write-value-as-string
          (sequence (condp = t
-                     "repos"    prepare-repos
-                     "orgas"    prepare-orgas
-                     "deps"     prepare-deps
-                     "libs"     prepare-libs
-                     "sill"     prepare-sill
-                     "papillon" prepare-papillon
-                     "tags"     (map #(dissoc % :db/id)))
+                     "repos" prepare-repos
+                     "orgas" prepare-orgas
+                     "deps"  prepare-deps
+                     "libs"  prepare-libs
+                     "sill"  prepare-sill
+                     "tags"  (map #(dissoc % :db/id)))
                    d))))
 
 ;;; Main functions
@@ -467,29 +453,27 @@
   (init-db)
   (consolidate-data)
   ;; Prepare data output
-  (let [repos    (get-repos)
-        orgas    (get-orgas)
-        libs     (get-libs)
-        deps     (get-deps)
-        tags     (->> (get-tags)
-                      (sort-by #(instant/read-instant-date (:date %)))
-                      reverse
-                      (take 100))
-        sill     (get-sill)
-        papillon (get-papillon)]
+  (let [repos (get-repos)
+        orgas (get-orgas)
+        libs  (get-libs)
+        deps  (get-deps)
+        tags  (->> (get-tags)
+                   (sort-by #(instant/read-instant-date (:date %)))
+                   reverse
+                   (take 100))
+        sill  (get-sill)]
     ;; Generate json output
     (doseq [[t d] [["repos" repos]
                    ["orgas" orgas]
                    ["libs" libs]
                    ["deps" deps]
                    ["sill" sill]
-                   ["tags" tags]
-                   ["papillon" papillon]]]
+                   ["tags" tags]]]
       (generate-json {:t t :d d}))
     ;; Generate sill in .org .md and .pdf formats
     (generate-sill-files)
     ;; Generate stats
-    (stats/generate-stats-json repos orgas libs deps sill papillon)
+    (stats/generate-stats-json repos orgas libs deps sill)
     ;; Generate RSS feeds
     (rss/latest-repositories repos)
     (rss/latest-organizations orgas)
