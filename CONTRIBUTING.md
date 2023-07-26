@@ -1,10 +1,10 @@
 # Contributing
 
-The development of this repository happens on [the SourceHut repository](https://git.sr.ht/~etalab/codegouvfr-consolidate-data).
+The development of this repository happens on [the SourceHut repository](https://git.sr.ht/~codegouvfr/codegouvfr-consolidate-data).
 
-For confidential feedback, use [logiciels-libres@data.gouv.fr](mailto:logiciels-libres@data.gouv.fr).
+For confidential feedback, use [contact@code.gouv.fr](mailto:contact@code.gouv.fr).
 
-For bug reports, patches, feature requests and general questions, send an email to the public mailing list [~etalab/codegouvfr-devel@lists.sr.ht](mailto:~etalab/codegouvfr-devel@lists.sr.ht).
+For bug reports, patches, feature requests and general questions, send an email to the public mailing list [~codegouvfr/dev@lists.sr.ht](mailto:~codegouvfr/dev@lists.sr.ht).
 
 To send a *patch* to the mailing list, please configure your local copy of the repository like this:
 
