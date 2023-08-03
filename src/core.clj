@@ -408,7 +408,7 @@
   ;; Export as .org
   (spit "sill.org"
         (str "#+title: Socle interministériel de logiciels libres\n"
-             "#+author: Les référents SILL ministériels et DINUM/Etalab\n"
+             "#+author: Les référents SILL ministériels et DINUM\n"
              "#+date: " (locale-date-from-time) "\n\n"
              "* Logiciels libres recommandés\n\n"
              "| Nom | Version | Licence | Ajouté |\n"

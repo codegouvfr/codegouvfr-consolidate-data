@@ -16,7 +16,7 @@
     (->>
      (rss/channel-xml
       {:title       "code.gouv.fr - Nouveaux dépôts - New repositories"
-       :link        "https://code.etalab.gouv.fr/data/latest.xml"
+       :link        "https://code.gouv.fr/data/latest.xml"
        :description "code.gouv.fr - Nouveaux dépôts - New repositories"}
       (map (fn [item]
              (let [link (:repository_url item)]
@@ -39,7 +39,7 @@
     (->>
      (rss/channel-xml
       {:title       "code.gouv.fr - Nouvelles organisations - New Organizations"
-       :link        "https://code.etalab.gouv.fr/data/latest-organizations.xml"
+       :link        "https://code.gouv.fr/data/latest-organizations.xml"
        :description "code.gouv.fr - Nouvelles organisations - New Organizations"}
       (map (fn [item]
              (let [link (:organization_url item)]
@@ -61,7 +61,7 @@
     (->>
      (rss/channel-xml
       {:title       "code.gouv.fr - Nouvelles dépendances - New dependencies"
-       :link        "https://code.etalab.gouv.fr/data/latest-dependencies.xml"
+       :link        "https://code.gouv.fr/data/latest-dependencies.xml"
        :description "code.gouv.fr - Nouvelles dépendances - New dependencies"}
       (map (fn [item]
              (let [link (:link item)]
@@ -85,7 +85,7 @@
     (->>
      (rss/channel-xml
       {:title       "code.gouv.fr - Dernières bibliothèques - Latest libraries"
-       :link        "https://code.etalab.gouv.fr/data/latest-libraries.xml"
+       :link        "https://code.gouv.fr/data/latest-libraries.xml"
        :description "code.gouv.fr - Dernières bibliothèques - Latest libraries"}
       (map (fn [item]
              (let [link (:repo_url item)]
@@ -110,7 +110,7 @@
     (->>
      (rss/channel-xml
       {:title       "code.gouv.fr - Nouveaux tags - New tags"
-       :link        "https://code.etalab.gouv.fr/data/latest-tags.xml"
+       :link        "https://code.gouv.fr/data/latest-tags.xml"
        :description "code.gouv.fr - Nouveaux tags - New tags"}
       (map (fn [item]
              (let [link (:url item)]
