@@ -39,7 +39,7 @@ Data for the [sill.code.gouv.fr](https://sill.code.gouv.fr), exposed on [this pa
 
 # License
 
-2020-2023 DINUM, Bastien Guerry.
+2020-2024 DINUM, Bastien Guerry.
 
 This application is published under the [EPL 2.0
 license](https://git.sr.ht/~codegouvfr/codegouvfr-consolidate-data/blob/master/LICENSE).
