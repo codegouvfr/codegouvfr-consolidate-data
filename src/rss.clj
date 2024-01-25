@@ -135,7 +135,7 @@
        :link        "https://code.gouv.fr/data/latest-sill.xml"
        :description "code.gouv.fr - Nouveaux logiciels libres au SILL - New SILL entries"}
       (map (fn [item]
-             (let [link (str "https://sill.code.gouv.fr/software?name=" (:name item))]
+             (let [link (str "https://code.gouv.fr/sill/detail?name=" (:name item))]
                {:title       (str "Nouveau logiciel au SILL : " (:name item))
                 :link        link
                 :guid        link
