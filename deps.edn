@@ -8,18 +8,18 @@
  :license     {:name "Eclipse Public License - v 2.0"
                :url  "http://www.eclipse.org/legal/epl-v20.html"}
 
- :deps {org.clojure/clojure                 {:mvn/version "1.11.1"}
+ :deps {org.clojure/clojure                 {:mvn/version "1.11.2"}
         borkdude/babashka                   {:mvn/version "0.2.6"}
-        metosin/jsonista                    {:mvn/version "0.3.7"}
-        org.clojure/data.csv                {:mvn/version "1.0.1"}
+        metosin/jsonista                    {:mvn/version "0.3.8"}
+        org.clojure/data.csv                {:mvn/version "1.1.0"}
         hickory/hickory                     {:mvn/version "0.7.1"}
-        clojure.java-time/clojure.java-time {:mvn/version "1.2.0"}
+        clojure.java-time/clojure.java-time {:mvn/version "1.4.2"}
         net.mikera/core.matrix              {:mvn/version "0.63.0"}
         clj-rss/clj-rss                     {:mvn/version "0.4.0"}
-        com.taoensso/timbre                 {:mvn/version "6.2.2"}
-        datalevin/datalevin                 {:mvn/version "0.8.18"}
+        com.taoensso/timbre                 {:mvn/version "6.5.0"}
+        datalevin/datalevin                 {:mvn/version "0.9.3"}
         com.cognitect/transit-clj           {:mvn/version "1.0.333"}
-        clj-commons/clj-yaml                {:mvn/version "1.0.26"}
+        clj-commons/clj-yaml                {:mvn/version "1.0.27"}
         toml/toml                           {:mvn/version "0.1.4"}}
 
  :aliases
