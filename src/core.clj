@@ -107,9 +107,10 @@
               (utils/csv-url-to-map (:annuaire utils/urls)))))
 
 (defn- get-id [kw]
-  (->> (d/q `[:find ?e :where [?e ~kw]] db)
-       (map first)
-       (map #(d/pull db '[*] %))))
+  (try (->> (d/q `[:find ?e :where [?e ~kw]] db)
+            (map first)
+            (map #(d/pull db '[*] %)))
+       (catch Exception e (timbre/error (.getMessage e)))))
 
 (defn- get-repos [] (get-id :repository_url))
 (defn- get-deps [] (get-id :dep_id))
@@ -119,7 +120,8 @@
 
 (defn- get-dep [dep_id]
   (when-let [res (ffirst (d/q `[:find ?e :where [?e :dep_id ~dep_id]] db))]
-    (d/pull db '[*] res)))
+    (try (d/pull db '[*] res)
+         (catch Exception e (timbre/error (.getMessage e))))))
 
 (defn- is-lib [repository_url]
   (-> (d/q `[:find ?e :where
