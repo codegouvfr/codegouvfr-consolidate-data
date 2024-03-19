@@ -196,13 +196,21 @@
 
 (defn- consolidate-repos []
   (doseq [repo (get-repos)]
-    (let [is_esr       (is-esr (:organization_name repo))
+    (let [orga_name    (:organization_name repo)
+          is_esr       (is-esr orga_name)
           ;; FIXME: Some values of :is_fork are "" upstream, fix them here
           is_fork      (true? (:is_fork repo))
           reuses       (utils/get-reuses repo)
           contributing (utils/get-contributing repo)
           publiccode   (utils/get-publiccode repo)
-          dependencies (deps/get-dependencies repo)]
+          dependencies (deps/get-dependencies repo)
+          gh-api-baseurl
+          (format "https://api.github.com/repos/%s/%s" orga_name (:name repo))
+          api-str      (if (= (:platform repo) "GitHub")
+                         (str gh-api-baseurl "/stats/contributors")
+                         (str (re-find #"https?://[^/]+" (:repository_url repo))
+                              (format "/api/v4/projects/%s/repository/contributors" (:id repo))))
+          is_empty     (nil? (utils/get-contents api-str))]
       (try
         (d/transact! conn [(assoc repo
                                   :is_esr is_esr
