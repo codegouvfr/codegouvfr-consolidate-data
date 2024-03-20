@@ -215,6 +215,7 @@
         (d/transact! conn [(assoc repo
                                   :is_esr is_esr
                                   :is_fork is_fork
+                                  :is_empty is_empty
                                   :reuses reuses
                                   :publiccode publiccode
                                   :contributing contributing
