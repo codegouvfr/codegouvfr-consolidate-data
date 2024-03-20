@@ -283,6 +283,8 @@
 (def prepare-repos
   (let [repo-mapping (:repos utils/mappings)]
     (comp
+     ;; Remove empty repos
+     (remove #(:is_empty %))
      ;; Add is_lib if repo is also listed in libraries
      (map #(assoc % :is_lib (is-lib (:repository_url %))))
      ;; Add contributing
