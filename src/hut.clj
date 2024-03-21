@@ -87,7 +87,7 @@
                      :is_archived              false
                      :is_fork                  false
                      :default_branch
-                     (last (re-find #"^.+/([^/]+)$" (:name (:HEAD r))))
+                     (last (re-find #"^.+/([^/]+)$" (or (:name (:HEAD r)) "main")))
                      :creation_date            (:created r)
                      :topics                   ""
                      :language                 ""
