@@ -64,7 +64,7 @@
                           :login              orga-name
                           :creation_date      (:created o-data)
                           :website            (or (:url o-data) "")
-                          :location           (:location o-data)
+                          :location           (or (:location o-data) "")
                           :platform           "SourceHut"
                           :repositories_count (count r-data)
                           :avatar_url         ""}]
