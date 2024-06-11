@@ -68,23 +68,24 @@
            :tags                             :t
            :dereferencing                    :d}
    ;; Mapping from repositories keywords to local short versions
-   :repos {:last_update       :u
-           :description       :d
-           :is_archived       :a?
-           :is_fork           :f?
-           :is_esr            :e?
-           :is_lib            :l?
-           :is_contrib        :c?
-           :is_publiccode     :p?
-           :language          :l
-           :license           :li
-           :name              :n
-           :forks_count       :f
-           :stars_count       :s
-           :platform          :p
-           :organization_name :o
-           :reuses            :re
-           :repository_url    :r}
+   :repos {:last_update       :u    ;; GitLab/GitHub API
+           :description       :d    ;; GitLab/GitHub API
+           :is_archived       :a?   ;; GitLab/GitHub API
+           :is_fork           :f?   ;; GitHub API (No GitLab)
+           :is_esr            :e?   ;; Our heuristic
+           :is_lib            :l?   ;; Our heuristic
+           :is_contrib        :c?   ;; Is there a CONTRIBUTING.md file?
+           :is_publiccode     :p?   ;; Is there a publiccode.yml file?
+           :language          :l    ;; First token from GitLab/GitHub API
+           :license           :li   ;; GitLab/GitHub API
+           :name              :n    ;; GitLab/GitHub API
+           :forks_count       :f    ;; GitHub API
+           :stars_count       :s    ;; GitHub API
+           :platform          :p    ;; GitHub or GitLab
+           :organization_name :o    ;; GitLab/GitHub API
+           :reuses            :re   ;; Our heuristic, scrapping on github.com only
+           :repository_url    :r    ;; GitLab/GitHub API
+           }
    ;; Mapping from libraries keywords to local short versions
    :deps  {:type         :t
            :name         :n
