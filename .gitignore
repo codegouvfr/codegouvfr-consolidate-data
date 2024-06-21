@@ -20,5 +20,4 @@ dependencies/
 .envrc
 *xml
 *pdf
-*md
 *tsv
