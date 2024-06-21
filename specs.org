@@ -1,11 +1,8 @@
 * Contexte
 
-On va reconstruire https://code.gouv.fr/data/repos.json à partir des
-données de https://data.code.gouv.fr plutôt qu'à partir des scripts
-actuels (codegouvfr-fetch-data et codegouvfr-consolidate-data). 
+On va reconstruire https://code.gouv.fr/data/repos.json à partir des données de https://data.code.gouv.fr plutôt qu'à partir des scripts actuels (codegouvfr-fetch-data et codegouvfr-consolidate-data).
 
-Pour les champs actuels de repos.json, comment récupérer les données
-de l'API de data.code.gouv.fr ?
+Pour les champs actuels de repos.json, comment récupérer les données de l'API de data.code.gouv.fr ?
 
 Quels champs supprimer ?
 
