@@ -8,7 +8,7 @@ data/
 target/
 .clj-kondo/
 *txt
-*org
+todo.org
 *json
 *csv
 *svg
