@@ -1,4 +1,12 @@
 
+# Table of Contents
+
+1.  [Contexte](#orgbbd5d28)
+2.  [Tableau](#orgfea9e45)
+
+
+<a id="orgbbd5d28"></a>
+
 # Contexte
 
 On va reconstruire <https://code.gouv.fr/data/repos.json> à partir des
@@ -12,6 +20,8 @@ Quels champs supprimer ?
 
 Quels champs ajouter ?
 
+
+<a id="orgfea9e45"></a>
 
 # Tableau
 
@@ -54,7 +64,7 @@ Quels champs ajouter ?
 <tr>
 <td class="org-left">name</td>
 <td class="org-right">n</td>
-<td class="org-left">full_name</td>
+<td class="org-left">full<sub>name</sub></td>
 <td class="org-left"><a href="https://data.code.gouv.fr/api/v1/repositories/lookup?url=%3Crepo_url%3E&amp;purl=%3Cpackage_url%3E">https://data.code.gouv.fr/api/v1/repositories/lookup?url=%3Crepo_url%3E&amp;purl=%3Cpackage_url%3E</a></td>
 </tr>
 
@@ -66,9 +76,9 @@ Quels champs ajouter ?
 </tr>
 
 <tr>
-<td class="org-left">repository_url</td>
+<td class="org-left">repository<sub>url</sub></td>
 <td class="org-right">r</td>
-<td class="org-left">repository_url</td>
+<td class="org-left">repository<sub>url</sub></td>
 <td class="org-left"><a href="https://data.code.gouv.fr/api/v1/repositories/lookup?url=%3Crepo_url%3E&amp;purl=%3Cpackage_url%3E">https://data.code.gouv.fr/api/v1/repositories/lookup?url=%3Crepo_url%3E&amp;purl=%3Cpackage_url%3E</a></td>
 </tr>
 
@@ -80,44 +90,44 @@ Quels champs ajouter ?
 </tr>
 
 <tr>
-<td class="org-left">default_branch</td>
+<td class="org-left">default<sub>branch</sub></td>
 <td class="org-right">nan</td>
-<td class="org-left">default_branch</td>
+<td class="org-left">default<sub>branch</sub></td>
 <td class="org-left"><a href="https://data.code.gouv.fr/api/v1/repositories/lookup?url=%3Crepo_url%3E&amp;purl=%3Cpackage_url%3E">https://data.code.gouv.fr/api/v1/repositories/lookup?url=%3Crepo_url%3E&amp;purl=%3Cpackage_url%3E</a></td>
 </tr>
 
 <tr>
-<td class="org-left">is_fork</td>
+<td class="org-left">is<sub>fork</sub></td>
 <td class="org-right">f?</td>
 <td class="org-left">fork</td>
 <td class="org-left"><a href="https://data.code.gouv.fr/api/v1/repositories/lookup?url=%3Crepo_url%3E&amp;purl=%3Cpackage_url%3E">https://data.code.gouv.fr/api/v1/repositories/lookup?url=%3Crepo_url%3E&amp;purl=%3Cpackage_url%3E</a></td>
 </tr>
 
 <tr>
-<td class="org-left">is_archived</td>
+<td class="org-left">is<sub>archived</sub></td>
 <td class="org-right">a?</td>
 <td class="org-left">archived</td>
 <td class="org-left"><a href="https://data.code.gouv.fr/api/v1/repositories/lookup?url=%3Crepo_url%3E&amp;purl=%3Cpackage_url%3E">https://data.code.gouv.fr/api/v1/repositories/lookup?url=%3Crepo_url%3E&amp;purl=%3Cpackage_url%3E</a></td>
 </tr>
 
 <tr>
-<td class="org-left">creation_date</td>
+<td class="org-left">creation<sub>date</sub></td>
 <td class="org-right">nan</td>
-<td class="org-left">created_at</td>
+<td class="org-left">created<sub>at</sub></td>
 <td class="org-left"><a href="https://data.code.gouv.fr/api/v1/repositories/lookup?url=%3Crepo_url%3E&amp;purl=%3Cpackage_url%3E">https://data.code.gouv.fr/api/v1/repositories/lookup?url=%3Crepo_url%3E&amp;purl=%3Cpackage_url%3E</a></td>
 </tr>
 
 <tr>
-<td class="org-left">last_update</td>
+<td class="org-left">last<sub>update</sub></td>
 <td class="org-right">u</td>
-<td class="org-left">update_at ?</td>
+<td class="org-left">update<sub>at</sub> ?</td>
 <td class="org-left"><a href="https://data.code.gouv.fr/api/v1/repositories/lookup?url=%3Crepo_url%3E&amp;purl=%3Cpackage_url%3E">https://data.code.gouv.fr/api/v1/repositories/lookup?url=%3Crepo_url%3E&amp;purl=%3Cpackage_url%3E</a></td>
 </tr>
 
 <tr>
 <td class="org-left">last modification</td>
 <td class="org-right">nan</td>
-<td class="org-left">pushed_at ?</td>
+<td class="org-left">pushed<sub>at</sub> ?</td>
 <td class="org-left"><a href="https://data.code.gouv.fr/api/v1/repositories/lookup?url=%3Crepo_url%3E&amp;purl=%3Cpackage_url%3E">https://data.code.gouv.fr/api/v1/repositories/lookup?url=%3Crepo_url%3E&amp;purl=%3Cpackage_url%3E</a></td>
 </tr>
 
@@ -129,9 +139,9 @@ Quels champs ajouter ?
 </tr>
 
 <tr>
-<td class="org-left">stars_count</td>
+<td class="org-left">stars<sub>count</sub></td>
 <td class="org-right">s</td>
-<td class="org-left">subscribers_count ?</td>
+<td class="org-left">subscribers<sub>count</sub> ?</td>
 <td class="org-left"><a href="https://data.code.gouv.fr/api/v1/repositories/lookup?url=%3Crepo_url%3E&amp;purl=%3Cpackage_url%3E">https://data.code.gouv.fr/api/v1/repositories/lookup?url=%3Crepo_url%3E&amp;purl=%3Cpackage_url%3E</a></td>
 </tr>
 
@@ -143,9 +153,9 @@ Quels champs ajouter ?
 </tr>
 
 <tr>
-<td class="org-left">open_issues_count</td>
+<td class="org-left">open<sub>issues</sub><sub>count</sub></td>
 <td class="org-right">nan</td>
-<td class="org-left">open_issues_count</td>
+<td class="org-left">open<sub>issues</sub><sub>count</sub></td>
 <td class="org-left"><a href="https://data.code.gouv.fr/api/v1/repositories/lookup?url=%3Crepo_url%3E&amp;purl=%3Cpackage_url%3E">https://data.code.gouv.fr/api/v1/repositories/lookup?url=%3Crepo_url%3E&amp;purl=%3Cpackage_url%3E</a></td>
 </tr>
 
@@ -164,14 +174,14 @@ Quels champs ajouter ?
 </tr>
 
 <tr>
-<td class="org-left">software_heritage_exists</td>
+<td class="org-left">software<sub>heritage</sub><sub>exists</sub></td>
 <td class="org-right">nan</td>
 <td class="org-left">nan</td>
 <td class="org-left">nan</td>
 </tr>
 
 <tr>
-<td class="org-left">software_heritage_url</td>
+<td class="org-left">software<sub>heritage</sub><sub>url</sub></td>
 <td class="org-right">nan</td>
 <td class="org-left">nan</td>
 <td class="org-left">nan</td>
@@ -208,16 +218,16 @@ Quels champs ajouter ?
 </tr>
 
 <tr>
-<td class="org-left">organization_url</td>
+<td class="org-left">organization<sub>url</sub></td>
 <td class="org-right">&#xa0;</td>
-<td class="org-left">owner_url</td>
+<td class="org-left">owner<sub>url</sub></td>
 <td class="org-left"><a href="https://data.code.gouv.fr/api/v1/hosts/%3CHostName%3E/owners/lookup">https://data.code.gouv.fr/api/v1/hosts/%3CHostName%3E/owners/lookup</a></td>
 </tr>
 
 <tr>
-<td class="org-left">avatar_url</td>
+<td class="org-left">avatar<sub>url</sub></td>
 <td class="org-right">&#xa0;</td>
-<td class="org-left">icon_url</td>
+<td class="org-left">icon<sub>url</sub></td>
 <td class="org-left"><a href="https://data.code.gouv.fr/api/v1/hosts/%3CHostName%3E/owners/lookup">https://data.code.gouv.fr/api/v1/hosts/%3CHostName%3E/owners/lookup</a></td>
 </tr>
 
@@ -243,30 +253,30 @@ Quels champs ajouter ?
 </tr>
 
 <tr>
-<td class="org-left">is_verified</td>
+<td class="org-left">is<sub>verified</sub></td>
 <td class="org-right">&#xa0;</td>
 <td class="org-left">nan</td>
 <td class="org-left">nan</td>
 </tr>
 
 <tr>
-<td class="org-left">repositories_count</td>
+<td class="org-left">repositories<sub>count</sub></td>
 <td class="org-right">&#xa0;</td>
-<td class="org-left">repositories_count</td>
+<td class="org-left">repositories<sub>count</sub></td>
 <td class="org-left"><a href="https://data.code.gouv.fr/api/v1/hosts/%3CHostName%3E/owners/lookup">https://data.code.gouv.fr/api/v1/hosts/%3CHostName%3E/owners/lookup</a></td>
 </tr>
 
 <tr>
-<td class="org-left">creation_date</td>
+<td class="org-left">creation<sub>date</sub></td>
 <td class="org-right">&#xa0;</td>
-<td class="org-left">created_at</td>
+<td class="org-left">created<sub>at</sub></td>
 <td class="org-left"><a href="https://data.code.gouv.fr/api/v1/hosts/%3CHostName%3E/owners/lookup">https://data.code.gouv.fr/api/v1/hosts/%3CHostName%3E/owners/lookup</a></td>
 </tr>
 
 <tr>
 <td class="org-left">platform</td>
 <td class="org-right">&#xa0;</td>
-<td class="org-left">nan (but can be found in "html_url"</td>
+<td class="org-left">nan (but can be found in "html<sub>url</sub>"</td>
 <td class="org-left"><a href="https://data.code.gouv.fr/api/v1/hosts/%3CHostName%3E/owners/lookup">https://data.code.gouv.fr/api/v1/hosts/%3CHostName%3E/owners/lookup</a></td>
 </tr>
 </tbody>
@@ -280,7 +290,7 @@ Quels champs ajouter ?
 </tbody>
 <tbody>
 <tr>
-<td class="org-left">deprecation_reason</td>
+<td class="org-left">deprecation<sub>reason</sub></td>
 <td class="org-right">&#xa0;</td>
 <td class="org-left">nan</td>
 <td class="org-left">nan</td>
@@ -297,28 +307,28 @@ Quels champs ajouter ?
 <td class="org-left">name</td>
 <td class="org-right">&#xa0;</td>
 <td class="org-left">name</td>
-<td class="org-left"><a href="https://data.code.gouv.fr/api/v1/packages/lookup?repository_url=%3Crepo_url%3E&amp;purl=%3Cpackage_url%3E">https://data.code.gouv.fr/api/v1/packages/lookup?repository_url=%3Crepo_url%3E&amp;purl=%3Cpackage_url%3E</a></td>
+<td class="org-left">(from packages software) <a href="https://data.code.gouv.fr/api/v1/packages/lookup?repository_url=%3Crepo_url%3E&amp;purl=%3Cpackage_url%3E">https://data.code.gouv.fr/api/v1/packages/lookup?repository_url=%3Crepo_url%3E&amp;purl=%3Cpackage_url%3E</a></td>
 </tr>
 
 <tr>
 <td class="org-left">forks</td>
 <td class="org-right">&#xa0;</td>
 <td class="org-left">fork</td>
-<td class="org-left"><a href="https://data.code.gouv.fr/api/v1/repositories/lookup?repository_url=%3Crepo_url%3E&amp;purl=%3Cpackage_url%3E">https://data.code.gouv.fr/api/v1/repositories/lookup?repository_url=%3Crepo_url%3E&amp;purl=%3Cpackage_url%3E</a></td>
+<td class="org-left">(from packages software) <a href="https://data.code.gouv.fr/api/v1/repositories/lookup?repository_url=%3Crepo_url%3E&amp;purl=%3Cpackage_url%3E">https://data.code.gouv.fr/api/v1/repositories/lookup?repository_url=%3Crepo_url%3E&amp;purl=%3Cpackage_url%3E</a></td>
 </tr>
 
 <tr>
 <td class="org-left">homepage</td>
 <td class="org-right">&#xa0;</td>
 <td class="org-left">homepage</td>
-<td class="org-left"><a href="https://data.code.gouv.fr/api/v1/packages/lookup?repository_url=%3Crepo_url%3E&amp;purl=%3Cpackage_url%3E">https://data.code.gouv.fr/api/v1/packages/lookup?repository_url=%3Crepo_url%3E&amp;purl=%3Cpackage_url%3E</a></td>
+<td class="org-left">(from packages software) <a href="https://data.code.gouv.fr/api/v1/packages/lookup?repository_url=%3Crepo_url%3E&amp;purl=%3Cpackage_url%3E">https://data.code.gouv.fr/api/v1/packages/lookup?repository_url=%3Crepo_url%3E&amp;purl=%3Cpackage_url%3E</a></td>
 </tr>
 
 <tr>
 <td class="org-left">keywords</td>
 <td class="org-right">&#xa0;</td>
-<td class="org-left">keywords_array</td>
-<td class="org-left"><a href="https://data.code.gouv.fr/api/v1/packages/lookup?repository_url=%3Crepo_url%3E&amp;purl=%3Cpackage_url%3E">https://data.code.gouv.fr/api/v1/packages/lookup?repository_url=%3Crepo_url%3E&amp;purl=%3Cpackage_url%3E</a></td>
+<td class="org-left">keywords<sub>array</sub></td>
+<td class="org-left">(from packages software) <a href="https://data.code.gouv.fr/api/v1/packages/lookup?repository_url=%3Crepo_url%3E&amp;purl=%3Cpackage_url%3E">https://data.code.gouv.fr/api/v1/packages/lookup?repository_url=%3Crepo_url%3E&amp;purl=%3Cpackage_url%3E</a></td>
 </tr>
 
 <tr>
@@ -331,47 +341,47 @@ Quels champs ajouter ?
 <tr>
 <td class="org-left">stars</td>
 <td class="org-right">&#xa0;</td>
-<td class="org-left">stargazers_count</td>
+<td class="org-left">stargazers<sub>count</sub></td>
 <td class="org-left"><a href="https://data.code.gouv.fr/api/v1/repositories/lookup?repository_url=%3Crepo_url%3E&amp;purl=%3Cpackage_url%3E">https://data.code.gouv.fr/api/v1/repositories/lookup?repository_url=%3Crepo_url%3E&amp;purl=%3Cpackage_url%3E</a></td>
 </tr>
 
 <tr>
-<td class="org-left">latest_download_url</td>
+<td class="org-left">latest<sub>download</sub><sub>url</sub></td>
 <td class="org-right">&#xa0;</td>
-<td class="org-left">download_url</td>
+<td class="org-left">download<sub>url</sub></td>
 <td class="org-left"><a href="https://data.code.gouv.fr/api/v1/repositories/lookup?repository_url=%3Crepo_url%3E&amp;purl=%3Cpackage_url%3E">https://data.code.gouv.fr/api/v1/repositories/lookup?repository_url=%3Crepo_url%3E&amp;purl=%3Cpackage_url%3E</a></td>
 </tr>
 
 <tr>
-<td class="org-left">latest_stable_release_number</td>
+<td class="org-left">latest<sub>stable</sub><sub>release</sub><sub>number</sub></td>
 <td class="org-right">&#xa0;</td>
 <td class="org-left">name ? (Firt object)</td>
 <td class="org-left"><a href="https://data.code.gouv.fr/api/v1/hosts/%3ChostName%3E/repositories/%3CrepositoryName%3E/releases">https://data.code.gouv.fr/api/v1/hosts/%3ChostName%3E/repositories/%3CrepositoryName%3E/releases</a></td>
 </tr>
 
 <tr>
-<td class="org-left">latest_stable_release_published_at</td>
+<td class="org-left">latest<sub>stable</sub><sub>release</sub><sub>published</sub><sub>at</sub></td>
 <td class="org-right">&#xa0;</td>
-<td class="org-left">published_at (Firts object)</td>
+<td class="org-left">published<sub>at</sub> (Firts object)</td>
 <td class="org-left"><a href="https://data.code.gouv.fr/api/v1/hosts/%3ChostName%3E/repositories/%3CrepositoryName%3E/releases">https://data.code.gouv.fr/api/v1/hosts/%3ChostName%3E/repositories/%3CrepositoryName%3E/releases</a></td>
 </tr>
 
 <tr>
-<td class="org-left">license_normalized</td>
+<td class="org-left">license<sub>normalized</sub></td>
 <td class="org-right">&#xa0;</td>
 <td class="org-left">?</td>
 <td class="org-left">?</td>
 </tr>
 
 <tr>
-<td class="org-left">normalized_licenses</td>
+<td class="org-left">normalized<sub>licenses</sub></td>
 <td class="org-right">&#xa0;</td>
-<td class="org-left">normalized_licenses</td>
-<td class="org-left"><a href="https://data.code.gouv.fr/api/v1/packages/lookup?repository_url=%3Crepo_url%3E&amp;purl=%3Cpackage_url%3E">https://data.code.gouv.fr/api/v1/packages/lookup?repository_url=%3Crepo_url%3E&amp;purl=%3Cpackage_url%3E</a></td>
+<td class="org-left">normalized<sub>licenses</sub></td>
+<td class="org-left">(from packages software) <a href="https://data.code.gouv.fr/api/v1/packages/lookup?repository_url=%3Crepo_url%3E&amp;purl=%3Cpackage_url%3E">https://data.code.gouv.fr/api/v1/packages/lookup?repository_url=%3Crepo_url%3E&amp;purl=%3Cpackage_url%3E</a></td>
 </tr>
 
 <tr>
-<td class="org-left">library_manager_url</td>
+<td class="org-left">library<sub>manager</sub><sub>url</sub></td>
 <td class="org-right">&#xa0;</td>
 <td class="org-left">nan</td>
 <td class="org-left">nan</td>
@@ -388,7 +398,7 @@ Quels champs ajouter ?
 <td class="org-left">rank</td>
 <td class="org-right">&#xa0;</td>
 <td class="org-left">rankings ?</td>
-<td class="org-left"><a href="https://data.code.gouv.fr/api/v1/packages/lookup?repository_url=%3Crepo_url%3E&amp;purl=%3Cpackage_url%3E">https://data.code.gouv.fr/api/v1/packages/lookup?repository_url=%3Crepo_url%3E&amp;purl=%3Cpackage_url%3E</a></td>
+<td class="org-left">(from packages software) <a href="https://data.code.gouv.fr/api/v1/packages/lookup?repository_url=%3Crepo_url%3E&amp;purl=%3Cpackage_url%3E">https://data.code.gouv.fr/api/v1/packages/lookup?repository_url=%3Crepo_url%3E&amp;purl=%3Cpackage_url%3E</a></td>
 </tr>
 
 <tr>
