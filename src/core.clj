@@ -384,7 +384,7 @@
   ;; Initiatize data from upstream resources
   (update-repos)
   (update-orgas)
-  ;; Fetch SourceHut data (see sr/hut.clj)
+  ;; ;; Fetch SourceHut data (see sr/hut.clj)
   (update-hut)
   (update-libs))
 
@@ -491,6 +491,7 @@
     (rss/latest-sill sill)
     (rss/latest-tags tags)
     ;; Spit the top_licences.svg
-    (generate-charts repos)))
+    (generate-charts repos))
+  )
 
 ;; (-main)
