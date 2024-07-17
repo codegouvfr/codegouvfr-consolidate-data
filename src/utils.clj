@@ -299,6 +299,3 @@
                            )
                :updated updated})
             default_reuses))))))
-
-(get-reuses {:platform       "GitHub"
-             :repository_url "https://github.com/InseeFrLab/keycloakify"})
