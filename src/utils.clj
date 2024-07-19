@@ -37,8 +37,8 @@
         (yaml/parse-string :keywords false))
     (catch Exception e
       (timbre/error
-        (str "Error while fetching the list of organizations")
-        (.getMessage e)))))
+       (str "Error while fetching the list of organizations")
+       (.getMessage e)))))
 
 (defonce mappings
   {;; Mapping from libraries keywords to local short versions
@@ -198,8 +198,8 @@
                         :else   slurp) [s])
                      (catch Exception e
                        (timbre/error
-                         (str "Error while getting contents for " s ":")
-                         (.getMessage e))))]
+                        (str "Error while getting contents for " s ":")
+                        (.getMessage e))))]
     (if (and url? (= (:status res) 200))
       (:body res)
       res)))
