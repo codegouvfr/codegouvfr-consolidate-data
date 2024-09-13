@@ -1,5 +1,5 @@
 [![img](https://img.shields.io/badge/code.gouv.fr-contributif-blue.svg)](https://code.gouv.fr/documentation/#/publier)
-[![img](https://img.shields.io/badge/Licence-EPL-orange.svg?style=flat-square)](https://git.sr.ht/~codegouvfr/codegouvfr-consolidate-data/blob/master/LICENSE)
+[![img](https://img.shields.io/badge/Licence-EPL-orange.svg)](https://git.sr.ht/~codegouvfr/codegouvfr-consolidate-data/blob/master/LICENSE)
 
 # Consolidate and generate codegouvfr data
 
